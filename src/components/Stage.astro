@@ -1,0 +1,111 @@
+---
+/**
+ * A project's hero stage. This is the ONLY place a project's own colors may appear.
+ * Define them as --<slug>-* custom properties scoped to [data-project="<slug>"] inside
+ * the project's stage, never on site chrome. For now every stage is a neutral placeholder.
+ */
+interface Props {
+  slug: string;
+  title: string;
+  platform: 'desktop' | 'mobile';
+  size?: 'card' | 'hero';
+}
+const { slug, title, platform, size = 'card' } = Astro.props;
+---
+
+<div class:list={['stage', `stage--${platform}`, `stage--${size}`]} data-project={slug} aria-hidden="true">
+  {
+    platform === 'desktop' ? (
+      <div class="frame frame--desk">
+        <div class="frame-bar">
+          <i />
+          <i />
+          <i />
+        </div>
+        <div class="frame-body">
+          <span>{title}</span>
+          <small>Hero stage placeholder</small>
+        </div>
+      </div>
+    ) : (
+      <div class="frame frame--phone">
+        <div class="frame-body">
+          <span>{title}</span>
+          <small>Hero stage placeholder</small>
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .stage {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(16px, 3vw, 32px);
+    background:
+      radial-gradient(120% 90% at 85% 10%, var(--accent-tint) 0%, transparent 60%),
+      var(--surface);
+  }
+  .stage--desktop {
+    aspect-ratio: 16 / 8.2;
+  }
+  .stage--mobile {
+    aspect-ratio: 4 / 3.6;
+  }
+  .stage--hero {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+  }
+  .frame {
+    display: flex;
+    flex-direction: column;
+    background: var(--raise);
+    border: 1px dashed var(--line);
+    color: var(--muted);
+    overflow: hidden;
+  }
+  .frame--desk {
+    width: min(78%, 560px);
+    aspect-ratio: 16 / 10;
+    border-radius: 10px;
+  }
+  .frame--phone {
+    height: 86%;
+    aspect-ratio: 9 / 18.5;
+    border-radius: 22px;
+  }
+  .frame-bar {
+    display: flex;
+    gap: 5px;
+    padding: 8px 10px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .frame-bar i {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .frame-body {
+    flex: 1;
+    display: grid;
+    place-content: center;
+    gap: 4px;
+    padding: 12px;
+    text-align: center;
+  }
+  .frame-body span {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: clamp(13px, 1.6vw, 18px);
+  }
+  .frame-body small {
+    font-size: 12px;
+  }
+</style>

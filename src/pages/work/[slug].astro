@@ -1,0 +1,121 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Stage from '../../components/Stage.astro';
+import CaseStudyToc from '../../components/CaseStudyToc.astro';
+import { SECTIONS, STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
+
+export async function getStaticPaths() {
+  const work = await getCollection('work');
+  return work.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+const { entry } = Astro.props;
+const { title, tagline, platform, role, duration, tools, status, tags } = entry.data;
+const { Content } = await render(entry);
+// Until a case study is written, render the outline with placeholder copy.
+const hasBody = (entry.body ?? '').trim().length > 0;
+
+const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
+  'what-i-noticed': 'The observation that started this project: the one detail I saw that others walked past.',
+  problem: 'Who was stuck, where, and what it cost them, in one or two sentences.',
+  'how-i-ran-it': 'How I scoped and ran the project: the research, the constraints, the timeline and who I worked with.',
+  process: 'The path from research to design: what I tested, what I learned, and what changed because of it.',
+  decisions: 'The calls that shaped the product, with the options I rejected and why.',
+  build: 'How the design became working code, and what building it taught me about the design.',
+  outcome: 'What changed, measured where I could measure it, and honest about what did not.',
+  'still-open': 'What I would do next, and the questions this project left me with.',
+};
+---
+
+<BaseLayout title={title} description={tagline}>
+  <article class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] pt-[clamp(32px,6vw,64px)]" aria-labelledby="cs-title">
+    <header class="grid gap-3 pb-4">
+      <a href="/#work" class="justify-self-start inline-flex items-center gap-1 min-h-[44px] text-[15px] text-muted hover:text-ink no-underline">
+        <span aria-hidden="true">←</span> All work
+      </a>
+      <div class="grid gap-1.5 max-w-[60ch]">
+        <h1 id="cs-title" class="m-0 text-[clamp(34px,5vw,56px)] leading-[1.08] tracking-[-0.03em] font-semibold">{title}</h1>
+        <p class="m-0 text-[18px] leading-[1.6] text-muted">{tagline}</p>
+      </div>
+      <dl class="m-0 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-2 pt-2 border-t border-line text-[15px]">
+        <div><dt class="text-[13px] text-muted">Role</dt><dd class="m-0">{role}</dd></div>
+        <div><dt class="text-[13px] text-muted">Duration</dt><dd class="m-0">{duration}</dd></div>
+        <div><dt class="text-[13px] text-muted">Platform</dt><dd class="m-0">{PLATFORM_LABEL[platform]}</dd></div>
+        <div><dt class="text-[13px] text-muted">Status</dt><dd class="m-0">{STATUS_LABEL[status]}</dd></div>
+        <div class="col-span-2 md:col-span-4"><dt class="text-[13px] text-muted">Tools</dt><dd class="m-0">{tools.join(' · ')}</dd></div>
+      </dl>
+      <ul role="list" aria-label="Tags" class="m-0 p-0 list-none flex flex-wrap gap-1">
+        {tags.map((tag) => <li class="text-[13px] border border-line rounded-pill px-[11px] py-0.5 bg-raise">{tag}</li>)}
+      </ul>
+    </header>
+
+    <Stage slug={entry.id} title={title} platform={platform} size="hero" />
+
+    <div class="grid gap-4 pt-4 pb-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
+      <CaseStudyToc />
+      <div class="case-body grid gap-6 max-w-[68ch] min-w-0">
+        {
+          hasBody ? (
+            <Content />
+          ) : (
+            SECTIONS.map((s) => (
+              <section id={s.id} class="cs-section" aria-labelledby={`${s.id}-heading`}>
+                <h2 id={`${s.id}-heading`}>{s.title}</h2>
+                <p>
+                  <span class="placeholder-tag">Placeholder</span> {PLACEHOLDER[s.id]}
+                </p>
+              </section>
+            ))
+          )
+        }
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .case-body :global(.cs-section) {
+    display: grid;
+    gap: 12px;
+    scroll-margin-top: 88px;
+  }
+  @media (max-width: 63.99rem) {
+    /* Room for the sticky "On this page" bar. */
+    .case-body :global(.cs-section) {
+      scroll-margin-top: 72px;
+    }
+  }
+  .case-body :global(h2) {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 30px);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+  .case-body :global(p) {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .case-body :global(a) {
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .placeholder-tag {
+    display: inline-block;
+    margin-inline-end: 6px;
+    padding: 2px 8px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    vertical-align: 2px;
+  }
+</style>

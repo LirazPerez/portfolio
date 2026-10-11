@@ -1,0 +1,65 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Stage from './Stage.astro';
+import { STATUS_LABEL } from '../lib/case-study';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+const { entry } = Astro.props;
+const { title, tagline, platform, tags, role, duration, status } = entry.data;
+const titleId = `card-${entry.id}`;
+---
+
+<a
+  href={`/work/${entry.id}`}
+  aria-labelledby={titleId}
+  class:list={[
+    'card group grid overflow-hidden rounded-frame border border-line bg-surface text-inherit no-underline',
+    platform === 'desktop' && 'md:col-span-2',
+  ]}
+>
+  <Stage slug={entry.id} title={title} platform={platform} />
+  <div
+    class:list={[
+      'grid gap-x-4.5 gap-y-3 p-[clamp(18px,3vw,30px)] items-start',
+      platform === 'desktop' && 'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]',
+    ]}
+  >
+    <div class="grid gap-1.5 min-w-0">
+      <h3 id={titleId} class="m-0 text-[26px] font-semibold tracking-[-0.015em]">{title}</h3>
+      <p class="m-0 text-[16px] leading-relaxed text-muted">{tagline}</p>
+      <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
+        {tags.map((tag) => <li class="text-[13px] border border-line rounded-pill px-[11px] py-0.5 bg-raise">{tag}</li>)}
+      </ul>
+    </div>
+    <div class="grid gap-2 min-w-0">
+      <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-[14px]">
+        <dt class="text-muted">Role</dt><dd class="m-0">{role}</dd>
+        <dt class="text-muted">Duration</dt><dd class="m-0">{duration}</dd>
+        <dt class="text-muted">Status</dt><dd class="m-0">{STATUS_LABEL[status]}</dd>
+      </dl>
+      <span class="more inline-flex items-center gap-[6px] text-[15px] font-semibold text-accent-strong">
+        View case study <i class="not-italic" aria-hidden="true">→</i>
+      </span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .card {
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.35s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  .more i {
+    transition: transform 0.3s;
+  }
+  .card:hover .more i {
+    transform: translateX(4px);
+  }
+</style>

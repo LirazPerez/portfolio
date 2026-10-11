@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const sections = [
+  {
+    id: 'how-i-got-here',
+    title: 'How I got here',
+    body: 'Placeholder: the short version of nine years in operations, from commanding a war room to running international defense programs, and the moment I realized the work I loved most was designing how people see and act on information.',
+  },
+  {
+    id: 'what-operations-taught-me',
+    title: 'What operations taught me',
+    body: 'Placeholder: three habits I carried over, such as watching the system before changing it, designing for the worst hour instead of the average one, and keeping many people aligned around one clear picture.',
+  },
+  {
+    id: 'how-i-work-now',
+    title: 'How I work now',
+    body: 'Placeholder: how I take a product from research to working code, and where AI tools like Claude Code fit into that process.',
+  },
+];
+---
+
+<BaseLayout title="About" description="How Liraz Hazala Perez went from running complex operations to designing and building products.">
+  <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] pt-[clamp(40px,8vw,84px)] pb-8">
+    <header class="grid gap-2 max-w-[60ch] pb-6">
+      <h1 class="m-0 text-[clamp(34px,5vw,56px)] leading-[1.08] tracking-[-0.03em] font-semibold">About</h1>
+      <p class="m-0 text-[18px] leading-[1.6] text-muted">
+        I spent nine years making sure complex operations didn't fail. Now I design and build the products people use to run them.
+      </p>
+    </header>
+    <div class="grid gap-6 max-w-[68ch]">
+      {
+        sections.map((s) => (
+          <section class="grid gap-1.5" aria-labelledby={s.id}>
+            <h2 id={s.id} class="m-0 text-[clamp(22px,2.6vw,28px)] font-semibold tracking-[-0.015em]">
+              {s.title}
+            </h2>
+            <p class="m-0 text-[17px] leading-[1.7]">{s.body}</p>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

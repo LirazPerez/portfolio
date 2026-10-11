@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+import geistUrl from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import caveatUrl from '@fontsource/caveat/files/caveat-latin-600-normal.woff2?url';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Liraz Hazala Perez, product designer. Nine years running complex operations, now designing and building products.',
+} = Astro.props;
+const fullTitle = title === 'Home' ? 'Liraz Hazala Perez · Product Designer' : `${title} · Liraz Hazala Perez`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href={geistUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={caveatUrl} as="font" type="font/woff2" crossorigin />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <!-- Apply the saved theme before first paint: no flash. Must stay inline and first. -->
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        try {
+          var t = localStorage.getItem('lh-theme');
+          if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="flex flex-col pb-[calc(88px+env(safe-area-inset-bottom,0px))] md:pb-0">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

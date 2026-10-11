@@ -1,0 +1,177 @@
+# lirazhazala.com
+
+The personal portfolio of **Liraz Hazala Perez, product designer**. The site is itself proof of the work: it is designed and built by Liraz, so craft, accessibility and restraint in the code matter as much as the case studies.
+
+The approved visual direction is `reference/specimen.html`. When in doubt about a visual decision, open it in a browser and match it. (The portrait and CV originals in `reference/` are gitignored; the copies the site uses live in `src/assets/` and `public/cv/`.)
+
+`V00/` and `V01/` are archived material from earlier versions (several GB, nested git repos). They are gitignored and excluded from Vite, Tailwind and TypeScript. Never import from them.
+
+## Stack
+
+- **Astro 7** (static output), **TypeScript** (strict; pinned to TS 6 because `astro check` does not support TS 7 yet).
+- **Tailwind CSS v4** via `@tailwindcss/vite`. All config lives in CSS (`src/styles/global.css`), there is no `tailwind.config`.
+- **React** only for interactive islands (planned: the falling facts in the home hero). Everything else ships as zero-JS static HTML. Small progressive enhancements (theme toggle, signature stroke, TOC scroll-spy) are plain `<script>` tags inside `.astro` components.
+- **MDX** for case studies, through the `work` content collection.
+- Markdown runs through `unified()` from `@astrojs/markdown-remark`, because Astro 7's default processor skips rehype plugins and we need one (see Content).
+
+Commands: `npm run dev` (http://localhost:4321), `npm run build` (runs `astro check` first), `npm run preview`.
+
+## Design tokens
+
+Defined **once**, as CSS custom properties in `src/styles/global.css`, and mapped into Tailwind with `@theme inline`. **Never hardcode a color in a component.** Tailwind's default palette is wiped (`--color-*: initial`), so `bg-red-500` will not compile; use `bg-surface`, `text-muted`, `border-line`, and so on, or `var(--token)` in scoped CSS.
+
+Contrast ratios are WCAG 2.x, measured against `bg` of the same theme. AA needs 4.5 for body text, 3 for large text and UI.
+
+### Light
+
+| Token | Hex | vs bg | Use |
+|---|---|---|---|
+| `bg` | `#FCFBFD` | 1.00 | Page background |
+| `surface` | `#F5F3F8` | 1.07 | Cards, stages, hover fills |
+| `raise` | `#FFFFFF` | 1.03 | Chips and anything sitting on a surface |
+| `ink` | `#2A2631` | 14.34 | Body text, headings |
+| `muted` | `#625C6B` | 6.24 | Secondary text |
+| `line` | `#E6E3EB` | 1.23 | Hairline borders (decorative only) |
+| `accent` | `#89599E` | 5.11 | Accent text, focus ring, primary button fill |
+| `accent-strong` | `#6E4482` | 7.24 | Links, active nav text, hover of accent |
+| `accent-tint` | `#F1EAF5` | 1.14 | Active nav pill, hover fills |
+| `on-accent` | `#FFFFFF` | 1.03 | Text on `accent` fills |
+
+### Dark
+
+| Token | Hex | vs bg | Use |
+|---|---|---|---|
+| `bg` | `#131215` | 1.00 | Page background |
+| `surface` | `#1C1A20` | 1.08 | Cards, stages, hover fills |
+| `raise` | `#232028` | 1.16 | Chips and anything sitting on a surface |
+| `ink` | `#E2DFE7` | 14.17 | Body text, headings |
+| `muted` | `#A7A1B0` | 7.44 | Secondary text |
+| `line` | `#2C2931` | 1.31 | Hairline borders (decorative only) |
+| `accent` | `#C39BD3` | 7.95 | Accent text, focus ring, primary button fill |
+| `accent-strong` | `#D7B8E4` | 10.55 | Links, active nav text, hover of accent |
+| `accent-tint` | `#2E2436` | 1.26 | Active nav pill, hover fills |
+| `on-accent` | `#131215` | 1.00 | Text on `accent` fills |
+
+### Key pairings (other than vs bg)
+
+| Pair | Light | Dark |
+|---|---|---|
+| `ink` on `surface` | 13.42 | 13.09 |
+| `muted` on `surface` | 5.84 | 6.87 |
+| `muted` on `raise` | 6.44 | 6.39 |
+| `accent` on `surface` (lowest text pair) | 4.78 | 7.35 |
+| `accent-strong` on `accent-tint` (active nav item) | 6.34 | 8.35 |
+| `on-accent` on `accent` (primary button) | 5.27 | 7.95 |
+| `on-accent` on `accent-strong` (primary button hover) | 7.47 | 10.55 |
+
+`bg`, `surface`, `raise`, `line` and `accent-tint` are surfaces, not text colors. `line` (1.23 / 1.31) is decorative: never let it be the only boundary of a form control or anything a user must find to operate.
+
+Two supporting tokens follow the theme too: `--glass` (translucent capsule fill) and `--shadow` (the one soft shadow, Tailwind `shadow-soft`).
+
+### Shape, spacing, layout
+
+- **Radii:** `rounded-pill` 999px (pills, nav capsule, buttons), `rounded-card` 16px / `rounded-frame` 14px (cards, frames, stages), `rounded-control` 8px / `rounded-control-sm` 6px (small controls).
+- **Borders:** hairline 1px `line` instead of heavy shadows. The soft shadow is reserved for floating things (capsule, card hover, fact pills).
+- **Spacing:** 8px scale. Tailwind's `--spacing` is set to 8px, so `p-1` = 8px, `p-2` = 16px, `gap-3` = 24px, `p-0.5` = 4px (half step). Pixel-exact values from the specimen are fine as arbitrary values (`px-[18px]`).
+- **Width:** content max ~1120px, `max-w-content`. Side gutter `px-[clamp(16px,5vw,56px)]`.
+- **Breakpoints:** `md` = 760px (the nav docks to the bottom below it). `lg` = 1024px (the case-study TOC becomes a side column).
+
+## Typography: the one-font rule
+
+**Geist** (`@fontsource-variable/geist`, self-hosted, one variable file for all weights) is the only typeface on the site. No other fonts, no serif, no monospace (Tailwind's `font-mono` is removed and `code`/`pre` inherit Geist).
+
+**The single exception** is the signature wordmark in the nav, set in **Caveat 600** (`@fontsource/caveat`, Latin 600 only). It is a logo, not text. Caveat must never be used anywhere else. Both font files are preloaded in `BaseLayout.astro`.
+
+## Theme
+
+- Default follows the device (`prefers-color-scheme`). The nav toggle switches light/dark; the choice persists in `localStorage` under **`lh-theme`** (`"light"` or `"dark"`).
+- An inline script at the top of `<head>` applies the saved choice as `data-theme` on `<html>` before first paint (no flash). It also adds the `js` class, which reveals the toggle (without JS the toggle would do nothing, so it is hidden).
+- Dark tokens apply under `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) }` and under `:root[data-theme="dark"]`. Both set `color-scheme: dark`; light sets `color-scheme: light`. `<meta name="color-scheme" content="light dark">` covers the moment before CSS loads.
+- Prefer tokens over `dark:`. A `dark:` variant exists (matching both rules above) for the rare case a token is not enough, typically inside a project stage.
+
+## Navigation rules (`src/components/Nav.astro`)
+
+- **Signature wordmark**, far left, outside the capsule, is the home link. "Liraz" with "Perez" just below, offset right (`margin-left: .5em`), the whole mark rotated -4deg, joined by one pen stroke from the tail of the z into the top of the P. The stroke is an SVG path computed in the browser from the real glyph boxes once Caveat has loaded (same math as the specimen). Accessible name: **"Liraz Hazala Perez, home"**; the visible letters are `aria-hidden`. On hover it turns `accent-strong`.
+- **Capsule**, floating and centered: `--glass` background with backdrop blur, hairline border, soft shadow. Items in this order: **Work, About, CV, Contact**, a divider, then the theme toggle (moon in light mode, sun in dark mode, labelled "Switch to dark mode" / "Switch to light mode").
+- **Active pill**: `accent-tint`, rendered inside the current item. It has `view-transition-name: nav-pill`, so cross-document view transitions slide it to the new item with a spring (`cubic-bezier(.3,1.4,.5,1)`), with no JS. Work is active on `/` (`aria-current="page"`) and on `/work/*` (`aria-current="true"`); About on `/about`.
+- **CV** is the only item with an icon (download arrow). It opens `/cv/liraz-hazala-perez-cv.pdf`. Its accessible name is "CV, PDF download, X MB", where the size is read from the real file at build time (`src/lib/cv.ts`), so replacing the PDF updates the label.
+- **Contact** jumps to `#contact`, the footer on every page.
+- **Under 760px** the capsule docks to the bottom as a floating tab bar (`bottom: 12px + env(safe-area-inset-bottom)`), and `<body>` gets bottom padding so nothing hides behind it. The wordmark stays top-left (not sticky on mobile, so it never floats over text).
+- Every nav target is at least 44px tall.
+
+## Project colors stay in their stage
+
+Every project may have its own palette, but **only inside its hero stage** (`src/components/Stage.astro`, marked `data-project="<slug>"`). Define project colors as `--<slug>-*` custom properties scoped to that stage, with dark variants under the same theme selectors as the tokens. Site chrome (nav, cards, text, buttons, TOC) stays neutral and purple. Right now every stage is a neutral placeholder.
+
+## Accessibility rules
+
+Accessibility is a feature of this portfolio, not a checklist. Target **WCAG 2.2 AA**.
+
+- `lang="en"`, a "Skip to content" link (first focusable element), landmarks (`header`, `nav`, `main#main`, `footer`), **exactly one `h1` per page**, headings in order.
+- **Focus ring:** 2px `accent` outline, 3px offset, on every interactive element (global `:focus-visible` rule). Never remove it without a visible replacement.
+- **Touch targets** at least 44 x 44px.
+- **Reduced motion:** with `prefers-reduced-motion: reduce` nothing moves and the final state is shown. Global rule kills animations, transitions and view transitions. Write components so the **un-animated style is the final state**, and gate decorative motion behind `@media (prefers-reduced-motion: no-preference)`.
+- **Never color alone.** Current nav item = pill shape + color. Current TOC section = bar + weight + color. Statuses and placeholders = text. Body links are underlined (`.prose-link`).
+- Text contrast at least 4.5:1 in both themes (see tables). Re-measure if a token changes.
+- Decorative SVGs get `aria-hidden="true" focusable="false"`. Visually hidden text uses `.sr-only-text`.
+- Pages must work without JavaScript; scripts only enhance.
+- When moving focus programmatically (TOC jumps), give the target `tabindex="-1"`.
+
+## Content collection: `work`
+
+Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The filename is the slug and the URL (`/work/<slug>`). Every case study renders through one template, `src/pages/work/[slug].astro`.
+
+```ts
+{
+  title: string;
+  tagline: string;          // one sentence; card + case-study header
+  order: number;            // position on the home page, 1 first
+  platform: 'desktop' | 'mobile';  // desktop = large full-width card, mobile = phone card (two per row)
+  role: string;
+  duration: string;
+  tools: string[];
+  status: 'shipped' | 'prototype' | 'in-progress' | 'concept';
+  tags: string[];
+}
+```
+
+Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `recall` (3, mobile), `classpass` (4, mobile).
+
+**Case-study sections.** Every case study has these sections, in this order, with these ids (single source: `SECTIONS` in `src/lib/case-study.ts`):
+
+| id | `##` heading in MDX |
+|---|---|
+| `what-i-noticed` | What I noticed |
+| `problem` | Problem |
+| `how-i-ran-it` | How I ran it |
+| `process` | Process |
+| `decisions` | Decisions |
+| `build` | Build |
+| `outcome` | Outcome |
+| `still-open` | Still open |
+
+Write each section in MDX as a `## <heading>` exactly as above. A rehype plugin (`src/lib/rehype-case-study-sections.mjs`) wraps each `##` and its content in `<section id="<id>" aria-labelledby="<id>-heading">`, and **fails the build** if the headings are missing, renamed or out of order. Use `###` and below freely inside a section. While an MDX body is empty, the template renders the outline with clearly tagged placeholder copy.
+
+The TOC (`src/components/CaseStudyToc.astro`) is a sticky side column from 1024px and a collapsed "On this page" bar pinned to the top below that. Its links work without JS; a small script marks the current section (`aria-current="true"`) while scrolling.
+
+## Files at a glance
+
+```
+src/
+  styles/global.css          tokens, Tailwind mapping, base, focus, reduced motion, view transitions
+  layouts/BaseLayout.astro   <head>, no-flash theme script, skip link, nav, main, footer
+  components/
+    Nav.astro                signature wordmark + capsule
+    ThemeToggle.astro
+    Footer.astro             #contact
+    WorkCard.astro           home cards (desktop / mobile variants)
+    Stage.astro              project hero stage (the only place for project colors)
+    CaseStudyToc.astro
+  content.config.ts          `work` schema
+  content/work/*.mdx
+  lib/case-study.ts          SECTIONS, status and platform labels
+  lib/rehype-case-study-sections.mjs
+  lib/cv.ts                  CV path + size label
+  pages/  index, about, accessibility, 404, work/[slug]
+public/cv/liraz-hazala-perez-cv.pdf
+```

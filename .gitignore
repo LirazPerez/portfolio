@@ -1,0 +1,27 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# environment
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Archived material from earlier portfolio versions (several GB, nested git repos). Not part of this site.
+V00/
+V01/
+
+# Reference originals: the portrait and CV are copied into src/assets and public/cv.
+reference/*.jpg
+reference/*.pdf

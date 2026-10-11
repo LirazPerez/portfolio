@@ -1,0 +1,26 @@
+---
+import { CV_HREF, CV_SIZE_LABEL } from '../lib/cv';
+const year = new Date().getFullYear();
+---
+
+<footer id="contact" tabindex="-1" class="border-t border-line mt-8" aria-labelledby="contact-h">
+  <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] py-6 grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-end">
+    <div class="grid gap-1.5">
+      <h2 id="contact-h" class="text-[22px] font-semibold tracking-[-0.012em] m-0">Contact</h2>
+      <p class="m-0 text-muted text-[16px] leading-relaxed max-w-[52ch]">
+        Placeholder: email and LinkedIn go here, with one line on the kind of roles and problems I want to hear about.
+      </p>
+    </div>
+    <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-x-3 gap-y-1 text-[15px] md:justify-end">
+      <li>
+        <a class="prose-link inline-flex items-center min-h-[44px]" href={CV_HREF}>
+          CV<span class="sr-only-text">, PDF download, {CV_SIZE_LABEL}</span>
+        </a>
+      </li>
+      <li><a class="prose-link inline-flex items-center min-h-[44px]" href="/accessibility">Accessibility</a></li>
+    </ul>
+  </div>
+  <p class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] pb-4 m-0 text-[13px] text-muted">
+    © {year} Liraz Hazala Perez. Designed and built by me.
+  </p>
+</footer>

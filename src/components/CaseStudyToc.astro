@@ -1,0 +1,212 @@
+---
+import { SECTIONS } from '../lib/case-study';
+// Two renderings of one list: a sticky side column from 1024px up, a collapsed bar below.
+// Only one is displayed at a time, so only one is in the accessibility tree.
+// Without JS both still work as plain jump links; JS adds the current-section marker.
+---
+
+<nav class="toc-side" aria-label="On this page">
+  <p class="toc-title">On this page</p>
+  <ol role="list">
+    {
+      SECTIONS.map((s) => (
+        <li>
+          <a href={`#${s.id}`} data-toc-link={s.id}>
+            {s.title}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<details class="toc-bar" data-toc-bar>
+  <summary>
+    <span class="toc-bar-label">On this page<span class="sr-only-text">:</span></span>
+    <span class="toc-bar-current" data-toc-current>{SECTIONS[0].title}</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"></path></svg>
+  </summary>
+  <nav aria-label="On this page">
+    <ol role="list">
+      {
+        SECTIONS.map((s) => (
+          <li>
+            <a href={`#${s.id}`} data-toc-link={s.id}>
+              {s.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+</details>
+
+<script>
+  import { SECTIONS } from '../lib/case-study';
+
+  const sections = SECTIONS.map((s) => document.getElementById(s.id)).filter((el): el is HTMLElement => !!el);
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+  const bar = document.querySelector<HTMLDetailsElement>('[data-toc-bar]');
+  const currentLabel = document.querySelector('[data-toc-current]');
+  let currentId = '';
+
+  function mark() {
+    // The current section is the last one whose top has passed 30% of the viewport.
+    const line = window.innerHeight * 0.3;
+    let id = sections[0]?.id ?? '';
+    for (const s of sections) if (s.getBoundingClientRect().top <= line) id = s.id;
+    // Short final sections can never reach the line; at the bottom of the page, the last one is current.
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (atBottom && sections.length) id = sections[sections.length - 1].id;
+    if (id === currentId) return;
+    currentId = id;
+    for (const a of links) {
+      if (a.dataset.tocLink === id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    }
+    const title = SECTIONS.find((s) => s.id === id)?.title;
+    if (currentLabel && title) currentLabel.textContent = title;
+  }
+
+  let queued = false;
+  const onScroll = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      mark();
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  mark();
+
+  // Jumping from the mobile bar closes it and moves focus to the section, so keyboard and
+  // screen-reader users land where sighted users do.
+  for (const a of links) {
+    a.addEventListener('click', () => {
+      if (bar) bar.open = false;
+      const target = document.getElementById(a.dataset.tocLink ?? '');
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    });
+  }
+</script>
+
+<style>
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 2px;
+  }
+  a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px 0 16px;
+    border-radius: var(--radius-control);
+    color: var(--muted);
+    font-size: 15px;
+    text-decoration: none;
+    transition: color 0.2s, background 0.2s;
+  }
+  a:hover {
+    color: var(--ink);
+    background: var(--surface);
+  }
+  /* Current section: color, weight AND a bar, so it never relies on color alone. */
+  a[aria-current] {
+    color: var(--accent-strong);
+    font-weight: 600;
+  }
+  a[aria-current]::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* ---------- Desktop: sticky side column ---------- */
+  .toc-side {
+    display: none;
+  }
+  .toc-title {
+    margin: 0 0 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  @media (min-width: 64rem) {
+    .toc-side {
+      display: block;
+      position: sticky;
+      top: 96px;
+      align-self: start; /* a stretched grid item has no room to stick */
+    }
+    .toc-bar {
+      display: none;
+    }
+  }
+
+  /* ---------- Mobile and tablet: a collapsed bar pinned to the top ---------- */
+  .toc-bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin-inline: calc(-1 * clamp(16px, 5vw, 56px));
+    background: var(--glass);
+    -webkit-backdrop-filter: saturate(160%) blur(16px);
+    backdrop-filter: saturate(160%) blur(16px);
+    border-block: 1px solid var(--line);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 0 clamp(16px, 5vw, 56px);
+    cursor: pointer;
+    list-style: none;
+    font-size: 15px;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .toc-bar-label {
+    color: var(--muted);
+  }
+  .toc-bar-current {
+    font-weight: 600;
+    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  summary svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    transition: transform 0.25s;
+  }
+  .toc-bar[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .toc-bar nav {
+    padding: 0 clamp(8px, 5vw, 48px) 12px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+</style>

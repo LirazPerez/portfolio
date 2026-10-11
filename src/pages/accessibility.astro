@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Accessibility" description="How lirazhazala.com is built to be usable by everyone, and how to report a barrier.">
+  <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] pt-[clamp(40px,8vw,84px)] pb-8">
+    <header class="grid gap-2 max-w-[60ch] pb-6">
+      <h1 class="m-0 text-[clamp(34px,5vw,56px)] leading-[1.08] tracking-[-0.03em] font-semibold">Accessibility</h1>
+      <p class="m-0 text-[18px] leading-[1.6] text-muted">
+        Accessibility on this site is part of the design, not a checklist at the end. This page says what I aimed for, how I built it, and how to tell me when I missed.
+      </p>
+    </header>
+
+    <div class="statement grid gap-6 max-w-[68ch]">
+      <section aria-labelledby="target">
+        <h2 id="target">The target</h2>
+        <p>This site aims to meet the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA.</p>
+      </section>
+
+      <section aria-labelledby="built-in">
+        <h2 id="built-in">What is built in</h2>
+        <ul>
+          <li>A "Skip to content" link, clear page landmarks, and one main heading per page.</li>
+          <li>A visible focus ring on every link and button, so you always know where you are when using a keyboard.</li>
+          <li>Touch targets of at least 44 by 44 pixels.</li>
+          <li>Text colors that meet or exceed a 4.5 to 1 contrast ratio in both light and dark themes.</li>
+          <li>Light and dark themes that follow your device setting, with a switch in the navigation that remembers your choice.</li>
+          <li>When your device asks for reduced motion, nothing on the site moves. You see the final state straight away.</li>
+          <li>Color never carries meaning on its own. The current page, the current section and every status also use shape, weight or text.</li>
+          <li>Pages work without JavaScript. Scripts only add enhancements.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="known">
+        <h2 id="known">Known gaps</h2>
+        <p>
+          <span class="placeholder-tag">Placeholder</span> This section will list anything I know is not yet fully accessible, with a plan to fix it, once the case studies and their media are in place.
+        </p>
+      </section>
+
+      <section aria-labelledby="report">
+        <h2 id="report">Tell me about a barrier</h2>
+        <p>
+          If something on this site gets in your way, I want to know. Reach me through the <a class="prose-link" href="#contact">contact details below</a>, say which page and what happened, and I will reply and fix it.
+        </p>
+      </section>
+
+      <p class="text-[14px] text-muted">Last reviewed: October 2026.</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .statement section {
+    display: grid;
+    gap: 10px;
+  }
+  .statement h2 {
+    margin: 0;
+    font-size: clamp(22px, 2.6vw, 28px);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .statement p,
+  .statement ul {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.7;
+  }
+  .statement ul {
+    padding-inline-start: 1.25em;
+    display: grid;
+    gap: 6px;
+  }
+  .statement li::marker {
+    color: var(--accent);
+  }
+  .placeholder-tag {
+    display: inline-block;
+    margin-inline-end: 6px;
+    padding: 2px 8px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    vertical-align: 2px;
+  }
+</style>
