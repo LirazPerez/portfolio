@@ -1,0 +1,165 @@
+---
+/**
+ * An app screenshot in the floating frame treatment, for case studies.
+ *
+ * - Found by name in src/assets/work/<project>/ (see src/lib/work-media.ts). If the file
+ *   is not there yet, a visibly tagged placeholder is drawn so the page still reads.
+ * - Never wider than the text column plus a little breathing room, and never taller
+ *   than 70% of the viewport (the frame's width is derived from the image's own aspect
+ *   ratio so the image is never stretched or letterboxed).
+ * - One optional numbered pin. It is decoration for sighted readers (aria-hidden); the
+ *   decision text beside it carries the meaning. Place it with pinX / pinY (percent from
+ *   the image's top-left) on empty space or on an element's edge, never on text.
+ *   Without coordinates it sits on the frame's top-right corner, which cannot cover text.
+ * - Real alt text is required: say what the screen shows and what to notice.
+ *
+ * Stills are lazy-loaded. (The hero recording's poster is the stage's job, not this one.)
+ */
+import { Image } from 'astro:assets';
+import { workScreen } from '../lib/work-media';
+
+interface Props {
+  project: string;
+  name: string;
+  alt: string;
+  pin?: number;
+  pinX?: number;
+  pinY?: number;
+}
+const { project, name, alt, pin, pinX, pinY } = Astro.props;
+
+const image = workScreen(project, name);
+const ratio = image ? image.width / image.height : 16 / 10;
+const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
+---
+
+<figure class="screen" style={`--ar:${ratio.toFixed(4)}`}>
+  <div class="frame">
+    <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="body">
+      {
+        image ? (
+          <Image src={image} alt={alt} widths={[720, 1080, 1440]} sizes="(min-width: 1024px) 760px, 100vw" loading="lazy" decoding="async" class="shot" />
+        ) : (
+          <div class="missing" role="img" aria-label={`Screenshot to add. ${alt}`}>
+            <span class="tag">Placeholder</span>
+            <span>Screenshot to add</span>
+            <small>src/assets/work/{project}/{name}.webp</small>
+          </div>
+        )
+      }
+      {
+        pin !== undefined && (
+          <span
+            class:list={['pin', !placed && 'pin--corner']}
+            style={placed ? `left:${pinX}%;top:${pinY}%` : undefined}
+            aria-hidden="true"
+          >
+            {pin}
+          </span>
+        )
+      }
+    </div>
+  </div>
+</figure>
+
+<style>
+  .screen {
+    margin: 0;
+    /* A little breathing room beyond the text column on wide screens, never more. */
+    width: 100%;
+  }
+  @media (min-width: 47.5rem) {
+    .screen {
+      width: calc(100% + 48px);
+      margin-inline: -24px;
+    }
+  }
+
+  .frame {
+    --max-h: min(70svh, 620px);
+    position: relative;
+    /* Width follows the image's aspect ratio so its height never exceeds --max-h. */
+    width: min(100%, calc(var(--ar) * var(--max-h)));
+    margin-inline: auto;
+    background: var(--raise);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+  .bar {
+    display: flex;
+    gap: 5px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 10px 10px 0 0;
+  }
+  .bar i {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .body {
+    position: relative;
+    line-height: 0;
+  }
+  .body :global(.shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0 0 9px 9px;
+  }
+
+  .missing {
+    aspect-ratio: 16 / 10;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 6px;
+    padding: 16px;
+    line-height: 1.4;
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+    border-radius: 0 0 9px 9px;
+    background: var(--surface);
+  }
+  .missing small {
+    font-size: 12px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  /* Same annotation pin as the home cards: the site accent with its on-accent number. */
+  .pin {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 0 0 3px var(--raise);
+  }
+  .pin--corner {
+    left: auto;
+    top: 0;
+    right: 0;
+    margin: -10px -10px 0 0;
+  }
+</style>

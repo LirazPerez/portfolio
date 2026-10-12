@@ -1,0 +1,26 @@
+---
+/** Two screens side by side from 760px up, stacked below. Put two <Screen /> inside. */
+---
+
+<div class="pair"><slot /></div>
+
+<style>
+  .pair {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+  }
+  @media (min-width: 47.5rem) {
+    .pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      width: calc(100% + 48px);
+      margin-inline: -24px;
+    }
+    /* Inside a pair each screen fills its cell; the pair itself carries the bleed. */
+    .pair :global(.screen) {
+      width: 100%;
+      margin-inline: 0;
+    }
+  }
+</style>

@@ -3,18 +3,25 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Stage from '../../components/Stage.astro';
 import CaseStudyToc from '../../components/CaseStudyToc.astro';
+import Screen from '../../components/Screen.astro';
+import ScreenPair from '../../components/ScreenPair.astro';
+import ExternalLink from '../../components/ExternalLink.astro';
 import { SECTIONS, STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
 
 export async function getStaticPaths() {
-  const work = await getCollection('work');
-  return work.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+  return work.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: work[i + 1] ?? null },
+  }));
 }
 
 interface Props {
   entry: CollectionEntry<'work'>;
+  next: CollectionEntry<'work'> | null;
 }
-const { entry } = Astro.props;
-const { title, tagline, platform, role, duration, tools, status, tags } = entry.data;
+const { entry, next } = Astro.props;
+const { title, tagline, platform, role, duration, tools, status, statusLabel, tags, origin, stageAlt } = entry.data;
 const { Content } = await render(entry);
 // Until a case study is written, render the outline with placeholder copy.
 const hasBody = (entry.body ?? '').trim().length > 0;
@@ -45,22 +52,23 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
         <div><dt class="text-[13px] text-muted">Role</dt><dd class="m-0">{role}</dd></div>
         <div><dt class="text-[13px] text-muted">Duration</dt><dd class="m-0">{duration}</dd></div>
         <div><dt class="text-[13px] text-muted">Platform</dt><dd class="m-0">{PLATFORM_LABEL[platform]}</dd></div>
-        <div><dt class="text-[13px] text-muted">Status</dt><dd class="m-0">{STATUS_LABEL[status]}</dd></div>
+        <div><dt class="text-[13px] text-muted">Status</dt><dd class="m-0">{statusLabel ?? STATUS_LABEL[status]}</dd></div>
         <div class="col-span-2 md:col-span-4"><dt class="text-[13px] text-muted">Tools</dt><dd class="m-0">{tools.join(' · ')}</dd></div>
       </dl>
+      {origin && <p class="origin m-0 max-w-[68ch] text-[15px] leading-[1.6] text-muted">{origin}</p>}
       <ul role="list" aria-label="Tags" class="m-0 p-0 list-none flex flex-wrap gap-1">
         {tags.map((tag) => <li class="text-[13px] border border-line rounded-pill px-[11px] py-0.5 bg-raise">{tag}</li>)}
       </ul>
     </header>
 
-    <Stage slug={entry.id} title={title} platform={platform} size="hero" alt={entry.data.stageAlt} />
+    <Stage slug={entry.id} title={title} platform={platform} size="hero" alt={stageAlt} />
 
     <div class="grid gap-4 pt-4 pb-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
       <CaseStudyToc />
       <div class="case-body grid gap-6 max-w-[68ch] min-w-0">
         {
           hasBody ? (
-            <Content />
+            <Content components={{ Screen, ScreenPair, ExternalLink }} />
           ) : (
             SECTIONS.map((s) => (
               <section id={s.id} class="cs-section" aria-labelledby={`${s.id}-heading`}>
@@ -74,6 +82,24 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
         }
       </div>
     </div>
+
+    {
+      next && (
+        <nav class="next border-t border-line pt-4 pb-8" aria-label="Next project">
+          <a
+            class="next-link group grid gap-1 p-[clamp(16px,3vw,24px)] rounded-frame border border-line bg-surface no-underline text-inherit"
+            href={`/work/${next.id}`}
+          >
+            <span class="text-[13px] font-semibold tracking-[0.06em] uppercase text-accent-strong">Next project</span>
+            <span class="text-[26px] font-semibold tracking-[-0.015em]">{next.data.title}</span>
+            <span class="text-[16px] leading-relaxed text-muted max-w-[60ch]">{next.data.tagline}</span>
+            <span class="more inline-flex items-center gap-[6px] pt-1 text-[15px] font-semibold text-accent-strong">
+              View {next.data.title} <i class="not-italic" aria-hidden="true">→</i>
+            </span>
+          </a>
+        </nav>
+      )
+    }
   </article>
 </BaseLayout>
 
@@ -96,16 +122,49 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
     letter-spacing: -0.015em;
     font-weight: 600;
   }
-  .case-body :global(p) {
+  .case-body :global(h3) {
+    margin: 12px 0 0;
+    font-size: 20px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  .case-body :global(p),
+  .case-body :global(li) {
     margin: 0;
     font-size: 17px;
     line-height: 1.7;
     color: var(--ink);
   }
+  .case-body :global(ul),
+  .case-body :global(ol) {
+    margin: 0;
+    padding-inline-start: 1.25em;
+    display: grid;
+    gap: 10px;
+  }
+  .case-body :global(ul) {
+    list-style: disc;
+  }
+  .case-body :global(ol) {
+    list-style: decimal;
+  }
+  .case-body :global(li::marker) {
+    color: var(--muted);
+  }
+  .case-body :global(strong) {
+    font-weight: 600;
+  }
   .case-body :global(a) {
     color: var(--accent-strong);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  /* External link component is a pill button: no underline, ink text. */
+  .case-body :global(a.ext) {
+    color: var(--ink);
+    text-decoration: none;
+    justify-self: start;
   }
   .placeholder-tag {
     display: inline-block;
@@ -117,5 +176,21 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
     font-weight: 600;
     color: var(--muted);
     vertical-align: 2px;
+  }
+
+  .next-link {
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.35s;
+  }
+  .next-link:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  .more i {
+    transition: transform 0.3s;
+  }
+  .next-link:hover .more i {
+    transform: translateX(4px);
   }
 </style>

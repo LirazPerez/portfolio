@@ -3,11 +3,113 @@ title: AeroPulse
 tagline: "One equipment picture that a logistics team across dozens of sites and two countries is willing to act on."
 order: 1
 platform: desktop
-role: Product designer
-duration: "TBD"
+role: "Product design, research and build (solo)"
+duration: "1 month"
 tools: [Base44, Claude, Notion]
-status: concept
-tags: [Research, Desktop SaaS]
+status: shipped
+statusLabel: "Built and in daily use"
+tags: [Systems thinking, Desktop SaaS, Built from a real system]
+origin: "Based on a real system I designed and built for a company's logistics operation, which is still in daily use. That work is confidential, so I rebuilt it from scratch around a drone operation. Every name, number and screen here is my own."
 noticed: "Nobody was short on equipment. They were short on proof."
 annotation: "Availability across every project is checked before a request becomes a purchase."
 ---
+
+## What I noticed
+
+Nobody was short on equipment. They were short on proof.
+
+Answering "is this a problem right now?" took three phone calls, because cables, batteries and shipments lived in separate spreadsheets that never agreed. So people did the safe thing: they approved the request and bought again. The duplicate purchase was never the real problem. It was what happens when nobody trusts the number.
+
+## Problem
+
+Most logistics tools treat equipment tracking as a counting problem. I treated it as a trust problem: the question is not how much there is, it is who will act on that number without checking it first.
+
+- Dozens of active field sites across the US, coordinated with a supply-chain team in Israel.
+- Two very different core users: a Logistics Manager who owns the whole picture, and an LDO embedded in one field team who needs to know a request is moving without chasing it.
+- Every competitor I reviewed (Dronedesk, Airdata UAV, EZOfficeInventory) solves counting. None carries trust across a project boundary and an international border at the same time.
+
+## How I ran it
+
+- **I built the real system with the people who run it, not just for them.** The company's US logistics manager was my stakeholder and the system's owner. I designed the flows with him against how the operation really ran, and he runs it today.
+- **I designed for everyone who touches equipment, not just the people who order it.** Each field team has one LDO who logs requests and counts. The warehouse team, the supply-chain team in Israel, regional managers, team leads, the head of operations and the VP all work from the same screens.
+- **I started from the operation, not the screens.** The first artifact was a map of the real flow: field request, availability check, purchase or transfer, shipment, receipt.
+- **I scoped to the three decisions that carry the thesis** and deliberately deferred anything that did not depend on them, including role-based navigation.
+
+## Process
+
+- Research: competitive and heuristic review, two personas, asset identification standards, a findings log.
+- Information architecture: navigation model, screen inventory, key flows.
+- Build in Base44, iterating on the request-to-fulfillment flow more than any other.
+- **What didn't work: syncing demand to reality automatically.** I first had the numbers in a draft request flow straight into the live project inventory. They kept drifting apart, because what a team asks for is not what ends up on site.
+- Draft: what I did instead.
+
+## Decisions
+
+### 1. Check availability before a request becomes a purchase
+
+<Screen
+  project="aeropulse"
+  name="decision-1-draft-projects"
+  pin={1}
+  alt="The Draft Projects table in AeroPulse. A colored Central WH Avail column shows whether the central warehouse can cover each requested line, and a Transfer From dropdown in the same row offers another active project as the source, so the request can become a transfer instead of a purchase."
+/>
+
+When an LDO files a shortage, the system checks every other active project before the request reaches procurement, and offers a transfer in the same form. The Logistics Manager doesn't have to trust that nothing was double-ordered. She can see it.
+
+*Considered instead:* a low-stock alert that tells procurement to reorder. Rejected, because it solves counting and creates exactly the duplicate it was meant to prevent.
+
+### 2. Match the alert to how urgent it actually is
+
+<ScreenPair>
+  <Screen
+    project="aeropulse"
+    name="decision-2-cable-low-stock"
+    pin={2}
+    alt="The Cable and Harness Inventory table in AeroPulse with one low-stock row. The warning is a small icon inside the row itself, a recoverable problem that stays in place without interrupting the page."
+  />
+  <Screen
+    project="aeropulse"
+    name="decision-2-defect-banner"
+    pin={2}
+    alt="The Defect and Maintenance Analysis page in AeroPulse. A red banner above the chart explains a concentrated defect cause, so an urgent and unexplained problem sends the reader straight to the evidence."
+  />
+</ScreenPair>
+
+Low stock on a cable gets a warning icon in its row. A concentrated defect cause gets a red banner above the chart that explains it. Recoverable stays in the row. Urgent and unexplained goes straight to the evidence.
+
+*Considered instead:* one alert style for everything. Rejected, because when everything is red, nothing is.
+
+### 3. Confirm with evidence, not with a status
+
+<Screen
+  project="aeropulse"
+  name="decision-3-shipment-confirmed"
+  pin={3}
+  alt="The Shipment Requests screen in AeroPulse with an arrival that has been confirmed. The delivery photo and the bill of lading are attached to the shipment, which is what marks it as arrived rather than its ETA passing."
+/>
+
+A shipment isn't marked arrived because its ETA passed. Someone attaches the delivery photo and the bill of lading and confirms it. HQ-sourced parts move forward through a manual Advance action.
+
+*Trade-off:* more clicks for the person on site. Worth it, because a status nobody confirmed is the number nobody trusts.
+
+## Build
+
+**My part:** the operating model, the research, the information architecture, every decision above, and the iteration on the request flow.
+
+**The tools' part:** Base44 generated the working app from my prompts, both the real system and this version. Claude helped turn my brief into research structure and build prompts.
+
+**How it was decided:** direction and decisions from me, implementation from the tools, checked against the real operation with its logistics manager.
+
+## Outcome
+
+**Adopted across the whole operation.** The real system became the shared picture for every role above, from LDOs in the field to the VP. Planning and equipment tracking stopped depending on phone calls and parallel spreadsheets.
+
+What's in the product: inventory across warehouse and sites, cable and battery stock with reorder thresholds, field requests with cross-project transfer, a shipment pipeline with evidence-based arrival, defect analysis, and US/Israel procurement tracking.
+
+<ExternalLink href="https://aero-pulse-ops.base44.app">Try the live app</ExternalLink>
+
+## Still open
+
+- **Role-based navigation.** The sidebar doesn't yet separate the Logistics Manager's full view from the LDO's. For an LDO this is a side tool; for a Logistics Manager it's the whole job.
+- **A freshness signal on availability.** A transfer approved against a stale "available" count could leave the other project short, exactly the failure the thesis exists to prevent. It needs a "last verified" marker, not just a number.
+- **A usability test with a real logistics manager** on the request-to-fulfillment flow, the one I iterated on most without watching anyone else use it.

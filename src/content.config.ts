@@ -23,6 +23,10 @@ const work = defineCollection({
     annotation: z.string(),
     /** Text alternative for the hero stage (role="img"). Falls back to a generic placeholder line. */
     stageAlt: z.string().optional(),
+    /** Overrides the label for `status` on the case-study page, e.g. "Built and in daily use". */
+    statusLabel: z.string().optional(),
+    /** One line under the meta row: where the project comes from, and what is and is not shown. */
+    origin: z.string().optional(),
   }),
 });
 

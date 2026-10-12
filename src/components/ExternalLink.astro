@@ -1,0 +1,36 @@
+---
+/**
+ * A link to an external site: opens in a new tab, shows an icon, and says so in its
+ * accessible name. The visible label is the slot.
+ */
+interface Props {
+  href: string;
+}
+const { href } = Astro.props;
+---
+
+<a
+  class="ext inline-flex items-center gap-[8px] min-h-[44px] px-[18px] rounded-pill border border-line bg-raise text-ink text-[15px] font-medium no-underline hover:bg-surface transition-colors"
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <span><slot /></span>
+  <span class="sr-only-text">(opens an external site in a new tab)</span>
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M14 4h6v6"></path>
+    <path d="M20 4l-9 9"></path>
+    <path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"></path>
+  </svg>
+</a>
