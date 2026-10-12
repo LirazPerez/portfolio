@@ -20,7 +20,7 @@ const items: { key: Key; label: string; href: string }[] = [
 ---
 
 <header class="navbar">
-  <a class="home" href="/" aria-label="Liraz Hazala Perez, home">
+  <a class="home" href="/" aria-label="Liraz Perez, home">
     <span class="sig" aria-hidden="true">
       <span class="s1">Liraz</span>
       <span class="s2">Perez</span>
@@ -33,7 +33,7 @@ const items: { key: Key; label: string; href: string }[] = [
       {
         items.map((item) => (
           <li>
-            <a href={item.href} aria-current={current(item.key)} class:list={[item.key === 'cv' && 'cv-link']}>
+            <a href={item.href} aria-current={current(item.key)} download={item.key === 'cv'} class:list={[item.key === 'cv' && 'cv-link']}>
               {item.key === active && <span class="pill" aria-hidden="true" />}
               <span class="label">{item.label}</span>
               {item.key === 'cv' && (
