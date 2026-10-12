@@ -17,6 +17,12 @@ const work = defineCollection({
     tools: z.array(z.string()),
     status: z.enum(['shipped', 'prototype', 'in-progress', 'concept']),
     tags: z.array(z.string()),
+    /** The card's "What I noticed" line: the one observation the project started from. */
+    noticed: z.string(),
+    /** One annotation, numbered 1 on the card, pointing at a detail in the hero stage. */
+    annotation: z.string(),
+    /** Text alternative for the hero stage (role="img"). Falls back to a generic placeholder line. */
+    stageAlt: z.string().optional(),
   }),
 });
 

@@ -1,13 +1,20 @@
 ---
+/**
+ * A home-page project card, matching the specimen card:
+ * hero stage on top, then title, tagline, tags, a "What I noticed" line with the purple
+ * left rule, one numbered annotation, and "View case study".
+ *
+ * Everything comes from the work collection frontmatter. Role, duration, status and
+ * tools are not shown here; they live on the case-study page.
+ */
 import type { CollectionEntry } from 'astro:content';
 import Stage from './Stage.astro';
-import { STATUS_LABEL } from '../lib/case-study';
 
 interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { title, tagline, platform, tags, role, duration, status } = entry.data;
+const { title, tagline, platform, tags, noticed, annotation, stageAlt } = entry.data;
 const titleId = `card-${entry.id}`;
 ---
 
@@ -19,7 +26,7 @@ const titleId = `card-${entry.id}`;
     platform === 'desktop' && 'md:col-span-2',
   ]}
 >
-  <Stage slug={entry.id} title={title} platform={platform} />
+  <Stage slug={entry.id} title={title} platform={platform} alt={stageAlt} />
   <div
     class:list={[
       'grid gap-x-4.5 gap-y-3 p-[clamp(18px,3vw,30px)] items-start',
@@ -29,16 +36,23 @@ const titleId = `card-${entry.id}`;
     <div class="grid gap-1.5 min-w-0">
       <h3 id={titleId} class="m-0 text-[26px] font-semibold tracking-[-0.015em]">{title}</h3>
       <p class="m-0 text-[16px] leading-relaxed text-muted">{tagline}</p>
-      <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
+      <ul role="list" aria-label="Tags" class="m-0 p-0 list-none flex flex-wrap gap-1">
         {tags.map((tag) => <li class="text-[13px] border border-line rounded-pill px-[11px] py-0.5 bg-raise">{tag}</li>)}
       </ul>
     </div>
+
     <div class="grid gap-2 min-w-0">
-      <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-[14px]">
-        <dt class="text-muted">Role</dt><dd class="m-0">{role}</dd>
-        <dt class="text-muted">Duration</dt><dd class="m-0">{duration}</dd>
-        <dt class="text-muted">Status</dt><dd class="m-0">{STATUS_LABEL[status]}</dd>
-      </dl>
+      <div class="noticed grid gap-0.75 border-l-2 border-accent pl-[14px]">
+        <p class="m-0 text-[12px] font-semibold tracking-[0.06em] uppercase text-accent-strong">What I noticed</p>
+        <p class="m-0 text-[15.5px] leading-[1.55]">{noticed}</p>
+      </div>
+      <p class="m-0 flex items-start gap-[10px] text-[14px] leading-normal text-muted">
+        <span
+          class="flex-none grid place-items-center w-[22px] h-[22px] mt-px rounded-full bg-accent text-on-accent text-[11px] font-bold"
+          aria-hidden="true">1</span
+        >
+        <span><span class="sr-only-text">Annotation 1: </span>{annotation}</span>
+      </p>
       <span class="more inline-flex items-center gap-[6px] text-[15px] font-semibold text-accent-strong">
         View case study <i class="not-italic" aria-hidden="true">→</i>
       </span>

@@ -1,17 +1,64 @@
 ---
 import { CV_HREF, CV_SIZE_LABEL } from '../lib/cv';
+
+const EMAIL = 'lirazhazala@gmail.com';
+const LINKEDIN = 'https://www.linkedin.com/in/liraz-hazala-perez';
 const year = new Date().getFullYear();
 ---
 
 <footer id="contact" tabindex="-1" class="border-t border-line mt-8" aria-labelledby="contact-h">
-  <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] py-6 grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-end">
-    <div class="grid gap-1.5">
+  <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] py-6 grid gap-4 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:items-end">
+    <div class="grid gap-1.5 min-w-0">
       <h2 id="contact-h" class="text-[22px] font-semibold tracking-[-0.012em] m-0">Contact</h2>
       <p class="m-0 text-muted text-[16px] leading-relaxed max-w-[52ch]">
-        Placeholder: email and LinkedIn go here, with one line on the kind of roles and problems I want to hear about.
+        Hiring a product designer who builds? A sentence is enough to start.
       </p>
+
+      <!-- The address is plain, selectable text (always works), with a mailto link and, once JS
+           is on, a copy button. Without JS the copy button stays hidden. -->
+      <div class="flex flex-wrap items-center gap-1 pt-1">
+        <span
+          id="contact-email"
+          class="inline-flex items-center min-h-[44px] px-[14px] rounded-pill border border-line bg-raise text-[15px] font-medium select-all"
+          >{EMAIL}</span
+        >
+        <button
+          type="button"
+          class="copy-btn items-center gap-[6px] min-h-[44px] px-[14px] rounded-pill border border-line bg-raise text-ink text-[15px] font-medium hover:bg-surface transition-colors cursor-pointer"
+          data-copy={EMAIL}
+          aria-label="Copy email address"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+            <path d="M5 15V6a2 2 0 0 1 2-2h9"></path>
+          </svg>
+          <span data-copy-label>Copy</span>
+        </button>
+        <a
+          class="inline-flex items-center min-h-[44px] px-[18px] rounded-pill bg-accent text-on-accent text-[15px] font-medium no-underline hover:bg-accent-strong transition-colors"
+          href={`mailto:${EMAIL}`}>Email me</a
+        >
+      </div>
+      <p class="m-0 min-h-[1.2em] text-[13px] text-muted" role="status" aria-live="polite" data-copy-status></p>
     </div>
+
     <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-x-3 gap-y-1 text-[15px] md:justify-end">
+      <li>
+        <a class="prose-link inline-flex items-center min-h-[44px]" href={LINKEDIN} target="_blank" rel="noopener noreferrer">
+          LinkedIn<span class="sr-only-text"> (opens in a new tab)</span>
+        </a>
+      </li>
       <li>
         <a class="prose-link inline-flex items-center min-h-[44px]" href={CV_HREF} download>
           CV<span class="sr-only-text">, PDF download, {CV_SIZE_LABEL}</span>
@@ -24,3 +71,51 @@ const year = new Date().getFullYear();
     © {year} Liraz Hazala Perez. Designed and built by me.
   </p>
 </footer>
+
+<style>
+  /* No JS, no copy button: the text above is selectable and the mailto link works. */
+  .copy-btn {
+    display: none;
+  }
+  :global(.js) .copy-btn {
+    display: inline-flex;
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy]');
+  const label = document.querySelector<HTMLElement>('[data-copy-label]');
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  const emailEl = document.getElementById('contact-email');
+
+  if (button && label && status) {
+    let timer = 0;
+    const reset = () => {
+      label.textContent = 'Copy';
+      status.textContent = '';
+    };
+
+    button.addEventListener('click', async () => {
+      const text = button.dataset.copy ?? '';
+      window.clearTimeout(timer);
+      try {
+        await navigator.clipboard.writeText(text);
+        label.textContent = 'Copied';
+        status.textContent = 'Email address copied.';
+      } catch {
+        // Clipboard blocked (insecure context, permissions): select the text so the
+        // visitor can copy it with the keyboard.
+        if (emailEl) {
+          const range = document.createRange();
+          range.selectNodeContents(emailEl);
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+        label.textContent = 'Selected';
+        status.textContent = 'Email address selected. Press Control C or Command C to copy.';
+      }
+      timer = window.setTimeout(reset, 3000);
+    });
+  }
+</script>

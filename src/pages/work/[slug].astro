@@ -53,7 +53,7 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
       </ul>
     </header>
 
-    <Stage slug={entry.id} title={title} platform={platform} size="hero" />
+    <Stage slug={entry.id} title={title} platform={platform} size="hero" alt={entry.data.stageAlt} />
 
     <div class="grid gap-4 pt-4 pb-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
       <CaseStudyToc />

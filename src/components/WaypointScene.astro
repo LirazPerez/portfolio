@@ -1,0 +1,333 @@
+---
+/**
+ * The Waypoint hero stage scene, rebuilt from reference/specimen.html: a phone shows an
+ * emergency code, a scan line sweeps it, the physician view rises, its rows appear one
+ * after another, and the numbered pin (1) lands on the alert.
+ *
+ * Pure CSS, looping, 7s. It starts mid-cycle (negative animation delay) so the very
+ * first frame is the complete scene, and with prefers-reduced-motion nothing animates and
+ * the un-animated style IS that complete frame (scan line hidden, everything in place).
+ *
+ * Colors come only from --waypoint-* custom properties, defined in Stage.astro and
+ * scoped to this project's stage. They never leak into site chrome.
+ *
+ * `backdrop` is the built-in scene behind the UI (a blurred airport glass wall). It is
+ * what Waypoint shows until a real photo is dropped in src/assets/stages/, which then
+ * takes its place.
+ */
+interface Props {
+  backdrop?: boolean;
+}
+const { backdrop = true } = Astro.props;
+
+const FINDERS =
+  'M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2z';
+const MODULES =
+  'M9 0h1v2H9zM11 1h2v1h-2zM8 3h2v1H8zM11 3h1v3h-1zM9 5h1v2H9zM8 8h3v1H8zM12 8h2v1h-2zM15 8h1v2h-1zM17 8h4v1h-4zM0 9h2v1H0zM3 9h3v1H3zM9 10h1v2H9zM11 10h3v1h-3zM18 10h2v2h-2zM1 11h3v1H1zM6 11h2v1H6zM12 12h1v3h-1zM14 12h3v1h-3zM8 13h2v1H8zM15 14h1v2h-1zM17 14h3v1h-3zM9 15h2v1H9zM8 17h1v4H8zM10 17h3v1h-3zM14 17h2v2h-2zM18 17h1v4h-1zM11 19h2v2h-2zM15 20h2v1h-2zM20 19h1v2h-1z';
+---
+
+{
+  backdrop && (
+    <div class="wp-backdrop" aria-hidden="true">
+      <svg viewBox="0 0 800 410" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <rect x="0" y="300" width="800" height="110" fill="var(--waypoint-scene-floor)" />
+        <g fill="var(--waypoint-scene-mullion)">
+          <rect x="0" y="40" width="800" height="10" />
+          <rect x="0" y="292" width="800" height="12" />
+          <rect x="96" y="40" width="8" height="260" />
+          <rect x="246" y="40" width="8" height="260" />
+          <rect x="396" y="40" width="8" height="260" />
+          <rect x="546" y="40" width="8" height="260" />
+          <rect x="696" y="40" width="8" height="260" />
+          <rect x="0" y="170" width="800" height="4" />
+          <path d="M470 236 l120 -10 l30 -18 l12 2 l-10 22 l60 -4 l6 6 l-62 10 l8 10 l-10 2 l-18 -9 l-118 10 z" />
+          <rect x="40" y="318" width="190" height="34" rx="6" />
+          <rect x="300" y="318" width="190" height="34" rx="6" />
+          <rect x="560" y="318" width="190" height="34" rx="6" />
+        </g>
+      </svg>
+    </div>
+  )
+}
+
+<div class="wp-scene" aria-hidden="true">
+  <div class="wp-phone">
+    <span class="ph-h">Signal</span>
+    <div class="wp-qr">
+      <svg viewBox="0 0 21 21" shape-rendering="crispEdges" focusable="false">
+        <g fill="var(--waypoint-ink)">
+          <path d={FINDERS} fill-rule="evenodd"></path>
+          <path d={MODULES}></path>
+        </g>
+      </svg>
+      <span class="wp-scan"></span>
+    </div>
+    <span class="ph-s">Scan for my medical profile</span>
+  </div>
+
+  <div class="wp-desk">
+    <div class="wp-desk-bar"><i></i><i></i><i></i></div>
+    <div class="wp-pv">
+      <div class="wp-pv-head"><strong>Dana K. · Emergency profile</strong><small>Scanned · no login</small></div>
+      <div class="wp-alert wp-stagger" style="--d:0s">
+        <b>Alerts</b><span>Severe latex allergy: use non-latex gloves</span><span class="wp-pin">1</span>
+      </div>
+      <div class="wp-row wp-stagger" style="--d:.25s"><span>Allergies</span><span>Latex</span></div>
+      <div class="wp-row wp-stagger" style="--d:.45s"><span>Medications</span><span>Metformin 500 mg</span></div>
+      <div class="wp-row wp-stagger" style="--d:.65s"><span>Language</span><span class="wp-pill">Hebrew · translated</span></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wp-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--waypoint-scene-sky);
+    overflow: hidden;
+  }
+  .wp-backdrop svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: blur(7px);
+    transform: scale(1.06);
+  }
+  .wp-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, color-mix(in srgb, var(--waypoint-flat) 55%, transparent) 100%);
+  }
+
+  .wp-scene {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 4vw, 44px);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .wp-phone {
+    flex: none;
+    width: clamp(92px, 15vw, 150px);
+    aspect-ratio: 9 / 18.5;
+    border-radius: 22px;
+    background: var(--waypoint-surface);
+    border: 1px solid var(--waypoint-border);
+    box-shadow: 0 20px 40px -18px rgb(0 0 0 / 0.55);
+    padding: 18px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    overflow: hidden;
+    color: var(--waypoint-ink);
+  }
+  .ph-h {
+    font-size: clamp(8px, 1.1vw, 11px);
+    font-weight: 600;
+    text-align: center;
+  }
+  .ph-s {
+    font-size: clamp(7px, 0.9vw, 9px);
+    color: var(--waypoint-muted);
+    text-align: center;
+  }
+  .wp-qr {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--waypoint-paper);
+    border: 1px solid var(--waypoint-border);
+    padding: 10%;
+    position: relative;
+    overflow: hidden;
+  }
+  .wp-qr svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  /* Final frame: the scan line has finished its sweep and faded, so it is hidden. */
+  .wp-scan {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    height: 2px;
+    top: 86%;
+    opacity: 0;
+    background: var(--waypoint-route);
+    box-shadow: 0 0 10px 2px var(--waypoint-route);
+    border-radius: 2px;
+  }
+
+  .wp-desk {
+    flex: 1 1 auto;
+    max-width: 470px;
+    min-width: 0;
+    background: var(--waypoint-surface);
+    border: 1px solid var(--waypoint-border);
+    border-radius: 10px;
+    box-shadow: 0 26px 50px -24px rgb(0 0 0 / 0.6);
+    overflow: hidden;
+    color: var(--waypoint-ink);
+  }
+  .wp-desk-bar {
+    display: flex;
+    gap: 5px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--waypoint-border);
+    background: var(--waypoint-paper);
+  }
+  .wp-desk-bar i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--waypoint-border);
+    display: block;
+  }
+  .wp-pv {
+    padding: clamp(10px, 1.6vw, 16px);
+    display: grid;
+    gap: 10px;
+    font-size: clamp(9.5px, 1.15vw, 12.5px);
+  }
+  .wp-pv-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .wp-pv-head strong {
+    font-size: 1.15em;
+  }
+  .wp-pv-head small {
+    color: var(--waypoint-muted);
+  }
+  .wp-alert {
+    background: var(--waypoint-critical-bg);
+    border: 1px solid var(--waypoint-critical);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: grid;
+    gap: 2px;
+    position: relative;
+  }
+  .wp-alert b {
+    color: var(--waypoint-critical);
+    font-size: 0.85em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .wp-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid var(--waypoint-border);
+    padding-bottom: 6px;
+  }
+  .wp-row span:last-child {
+    color: var(--waypoint-muted);
+    text-align: end;
+  }
+  .wp-row .wp-pill {
+    color: var(--waypoint-route);
+    font-weight: 600;
+  }
+  /* The pin is the "1" the card's annotation refers to. It uses the site accent on purpose:
+     it belongs to the portfolio's annotation system, not to Waypoint's own palette. */
+  .wp-pin {
+    position: absolute;
+    right: -7px;
+    top: -7px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 11px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 3px var(--waypoint-surface);
+  }
+
+  /* Motion only when allowed. Each animation starts 4.5s into its 7s cycle, so the first
+     frame already shows the complete scene (desk risen, rows in, pin placed). */
+  @media (prefers-reduced-motion: no-preference) {
+    .wp-scan {
+      animation: wp-scan 7s ease-in-out infinite;
+      animation-delay: -4.5s;
+    }
+    .wp-desk {
+      animation: wp-rise 7s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+      animation-delay: -4.5s;
+    }
+    .wp-stagger {
+      animation: wp-appear 7s ease-out infinite;
+      animation-delay: calc(-4.5s + var(--d, 0s));
+    }
+    .wp-pin {
+      animation: wp-pop 7s cubic-bezier(0.3, 1.6, 0.5, 1) infinite;
+      animation-delay: -4.5s;
+    }
+  }
+  /* With JS, the loop is held at its complete first frame until the stage is on screen
+     (the script below sets data-scene-playing), so a visitor who scrolls down later
+     still meets the complete scene first, and nothing animates off-screen. Without JS
+     the loop simply runs. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .wp-scan,
+    :global(.js) .wp-desk,
+    :global(.js) .wp-stagger,
+    :global(.js) .wp-pin {
+      animation-play-state: paused;
+    }
+    :global(.js) .wp-scene[data-scene-playing] .wp-scan,
+    :global(.js) .wp-scene[data-scene-playing] .wp-desk,
+    :global(.js) .wp-scene[data-scene-playing] .wp-stagger,
+    :global(.js) .wp-scene[data-scene-playing] .wp-pin {
+      animation-play-state: running;
+    }
+  }
+  @keyframes wp-scan {
+    0% { top: 12%; opacity: 1; }
+    22% { top: 86%; opacity: 1; }
+    26%, 100% { top: 86%; opacity: 0; }
+  }
+  @keyframes wp-rise {
+    0%, 22% { transform: translateY(10px); opacity: 0.55; }
+    32%, 92% { transform: none; opacity: 1; }
+    100% { transform: translateY(10px); opacity: 0.55; }
+  }
+  @keyframes wp-appear {
+    0%, 26% { opacity: 0.15; transform: translateY(4px); }
+    36%, 92% { opacity: 1; transform: none; }
+    100% { opacity: 0.15; transform: translateY(4px); }
+  }
+  @keyframes wp-pop {
+    0%, 40% { transform: scale(0.4); opacity: 0; }
+    46%, 92% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.4); opacity: 0; }
+  }
+</style>
+
+<script>
+  const scenes = document.querySelectorAll<HTMLElement>('.wp-scene');
+  if (scenes.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          (entry.target as HTMLElement).toggleAttribute('data-scene-playing', entry.isIntersecting);
+        }
+      },
+      { threshold: 0.2 },
+    );
+    scenes.forEach((scene) => io.observe(scene));
+  }
+</script>

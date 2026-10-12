@@ -1,0 +1,84 @@
+---
+import { LAB, LAB_HEADING, LAB_INTRO, LAB_STATUS_LABEL } from '../data/lab';
+---
+
+<section id="lab" class="grid gap-3 pt-2 pb-8" aria-labelledby="lab-h">
+  <div class="grid gap-1 max-w-[62ch]">
+    <h2 id="lab-h" class="m-0 text-[22px] font-semibold tracking-[-0.012em]">{LAB_HEADING}</h2>
+    <p class="m-0 text-[16px] leading-relaxed text-muted">{LAB_INTRO}</p>
+  </div>
+
+  <ul role="list" class="m-0 p-0 list-none grid gap-[14px] md:grid-cols-3">
+    {
+      LAB.map((item) => (
+        <li class="lab-card flex flex-col items-stretch gap-1 p-[20px] bg-surface border border-line rounded-frame min-w-0">
+          <span class={`status status--${item.status}`}>
+            <i aria-hidden="true" />
+            {LAB_STATUS_LABEL[item.status]}
+          </span>
+          <h3 class="m-0 mt-0.5 text-[19px] font-semibold tracking-[-0.01em]">{item.name}</h3>
+          <p class="m-0 text-[15px] leading-[1.55] font-medium text-ink">{item.problem}</p>
+          <p class="m-0 text-[15px] leading-[1.55] text-muted">{item.body}</p>
+          {/* mt-auto inside a stretched grid row: the tools line sits at the same height at the bottom of every card. */}
+          <p class="m-0 mt-auto pt-[10px] text-[13px] text-muted border-t border-line">
+            <span class="sr-only-text">Tools: </span>
+            {item.tools.join(' · ')}
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .lab-card {
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 0.3s;
+  }
+  .lab-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  }
+
+  /* Status pill: shape AND word differ, never color alone. */
+  .status {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 4px 10px 4px 8px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line);
+    background: var(--raise);
+    color: var(--ink);
+  }
+  .status i {
+    display: block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex: none;
+  }
+  /* Active: solid dot with a soft halo. */
+  .status--active i {
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  /* Paused: hollow ring. */
+  .status--paused i {
+    background: transparent;
+    border: 2px solid var(--muted);
+  }
+  /* Planned: dashed ring, and a dashed pill border. */
+  .status--planned {
+    border-style: dashed;
+  }
+  .status--planned i {
+    background: transparent;
+    border: 1.5px dashed var(--muted);
+  }
+</style>

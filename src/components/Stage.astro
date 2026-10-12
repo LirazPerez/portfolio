@@ -2,36 +2,112 @@
 /**
  * A project's hero stage. This is the ONLY place a project's own colors may appear.
  * Define them as --<slug>-* custom properties scoped to [data-project="<slug>"] inside
- * the project's stage, never on site chrome. For now every stage is a neutral placeholder.
+ * the project's stage (see the global block below), never on site chrome.
+ *
+ * Layers, back to front:
+ *   1. Background: a blurred, darkened real-world photo from the project's world, with a
+ *      light and a dark version. If there is no photo yet: the project's own built-in
+ *      backdrop (Waypoint has one), otherwise the neutral placeholder gradient.
+ *   2. Foreground: Waypoint's CSS scene, or a framed placeholder that a muted looping
+ *      screen recording replaces automatically once it exists.
+ *
+ * TODO(Liraz): add the real files to src/assets/stages/. Nothing else to change; the
+ * stage finds them by name on the next build. Expected names, per project slug
+ * (aeropulse, waypoint, recall, classpass):
+ *   <slug>-light.jpg   <slug>-dark.jpg    background photo, one per theme
+ *   <slug>.mp4         <slug>-poster.jpg  screen recording and its poster frame
+ * Full list and specs: src/assets/stages/README.md
+ *
+ * The stage is one image to assistive tech (role="img"); the video is aria-hidden and the
+ * text alternative lives on the stage. Video only plays when motion is allowed.
  */
+import { Image } from 'astro:assets';
+import WaypointScene from './WaypointScene.astro';
+import StageVideo from './StageVideo.astro';
+import { stageMedia } from '../lib/stage-media';
+
 interface Props {
   slug: string;
   title: string;
   platform: 'desktop' | 'mobile';
   size?: 'card' | 'hero';
+  /** Text alternative for the whole stage. */
+  alt?: string;
 }
-const { slug, title, platform, size = 'card' } = Astro.props;
+const { slug, title, platform, size = 'card', alt } = Astro.props;
+
+const media = stageMedia(slug);
+const hasPhoto = Boolean(media.light || media.dark);
+const hasVideo = media.videos.length > 0;
+const label = alt ?? `${title}: ${platform} hero stage. Placeholder until the screen recording is added.`;
+const isScene = slug === 'waypoint';
 ---
 
-<div class:list={['stage', `stage--${platform}`, `stage--${size}`]} data-project={slug} aria-hidden="true">
+<div
+  class:list={['stage', `stage--${platform}`, `stage--${size}`, isScene && 'stage--scene']}
+  data-project={slug}
+  role="img"
+  aria-label={label}
+>
   {
-    platform === 'desktop' ? (
-      <div class="frame frame--desk">
+    hasPhoto && (
+      <div class="bg-photo" aria-hidden="true">
+        {media.light && (
+          <Image
+            src={media.light}
+            alt=""
+            widths={[640, 1280]}
+            sizes="(min-width: 760px) 1120px, 100vw"
+            loading="lazy"
+            class="bg-photo__img bg-photo__img--light"
+          />
+        )}
+        {media.dark && (
+          <Image
+            src={media.dark}
+            alt=""
+            widths={[640, 1280]}
+            sizes="(min-width: 760px) 1120px, 100vw"
+            loading="lazy"
+            class="bg-photo__img bg-photo__img--dark"
+          />
+        )}
+      </div>
+    )
+  }
+
+  {
+    isScene ? (
+      <WaypointScene backdrop={!hasPhoto} />
+    ) : platform === 'desktop' ? (
+      <div class="frame frame--desk" aria-hidden="true">
         <div class="frame-bar">
           <i />
           <i />
           <i />
         </div>
         <div class="frame-body">
-          <span>{title}</span>
-          <small>Hero stage placeholder</small>
+          {hasVideo ? (
+            <StageVideo sources={media.videos} poster={media.poster} />
+          ) : (
+            <>
+              <span>{title}</span>
+              <small>Hero stage placeholder</small>
+            </>
+          )}
         </div>
       </div>
     ) : (
-      <div class="frame frame--phone">
+      <div class="frame frame--phone" aria-hidden="true">
         <div class="frame-body">
-          <span>{title}</span>
-          <small>Hero stage placeholder</small>
+          {hasVideo ? (
+            <StageVideo sources={media.videos} poster={media.poster} />
+          ) : (
+            <>
+              <span>{title}</span>
+              <small>Hero stage placeholder</small>
+            </>
+          )}
         </div>
       </div>
     )
@@ -47,9 +123,11 @@ const { slug, title, platform, size = 'card' } = Astro.props;
     align-items: center;
     justify-content: center;
     padding: clamp(16px, 3vw, 32px);
-    background:
+    background: var(
+      --stage-bg,
       radial-gradient(120% 90% at 85% 10%, var(--accent-tint) 0%, transparent 60%),
-      var(--surface);
+      var(--surface)
+    );
   }
   .stage--desktop {
     aspect-ratio: 16 / 8.2;
@@ -61,6 +139,62 @@ const { slug, title, platform, size = 'card' } = Astro.props;
     border-radius: var(--radius-card);
     border: 1px solid var(--line);
   }
+  /* The Waypoint scene needs its natural height once the phone and desk stack tightly. */
+  @media (max-width: 47.49rem) {
+    .stage--scene {
+      aspect-ratio: auto;
+      padding-block: 22px;
+    }
+  }
+
+  /* Real-world photo: blurred and darkened so the foreground UI always reads on top. */
+  .bg-photo {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .bg-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.1) 0%, rgb(0 0 0 / 0.38) 100%);
+  }
+  .bg-photo :global(.bg-photo__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(7px) brightness(0.72) saturate(0.9);
+    transform: scale(1.06);
+  }
+  /* Theme switch: one photo per theme, same selectors the color tokens use. */
+  .bg-photo :global(.bg-photo__img--dark) {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .bg-photo :global(.bg-photo__img--light) {
+      display: none;
+    }
+    :global(:root:not([data-theme='light'])) .bg-photo :global(.bg-photo__img--dark) {
+      display: block;
+    }
+  }
+  :global(:root[data-theme='dark']) .bg-photo :global(.bg-photo__img--light) {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .bg-photo :global(.bg-photo__img--dark) {
+    display: block;
+  }
+  :global(:root[data-theme='light']) .bg-photo :global(.bg-photo__img--light) {
+    display: block;
+  }
+  :global(:root[data-theme='light']) .bg-photo :global(.bg-photo__img--dark) {
+    display: none;
+  }
+
   .frame {
     display: flex;
     flex-direction: column;
@@ -94,6 +228,8 @@ const { slug, title, platform, size = 'card' } = Astro.props;
   }
   .frame-body {
     flex: 1;
+    min-height: 0;
+    position: relative;
     display: grid;
     place-content: center;
     gap: 4px;
@@ -108,4 +244,82 @@ const { slug, title, platform, size = 'card' } = Astro.props;
   .frame-body small {
     font-size: 12px;
   }
+  /* A recording fills its frame edge to edge. */
+  .frame-body:has(.stage-video) {
+    padding: 0;
+  }
 </style>
+
+<!-- Project palettes. Light is the base; dark applies under the same two selectors the
+     site tokens use (device preference unless the visitor chose light, or chose dark). -->
+<style is:global>
+  .stage[data-project='waypoint'] {
+    --waypoint-surface: #ffffff;
+    --waypoint-paper: #fafaf9;
+    --waypoint-ink: #191919;
+    --waypoint-muted: #5f5e5a;
+    --waypoint-border: #e3e2de;
+    --waypoint-route: #3454d1;
+    --waypoint-critical: #c61900;
+    --waypoint-critical-bg: #fcedea;
+    --waypoint-flat: #e4e9fb;
+    --waypoint-scene-sky: linear-gradient(180deg, #f3f6ff 0%, #dce4fa 55%, #c9d3f2 100%);
+    --waypoint-scene-floor: #b9c2de;
+    --waypoint-scene-mullion: rgb(60 70 110 / 0.28);
+    --stage-bg: radial-gradient(120% 90% at 85% 10%, #dce3fb 0%, #eef1fc 55%, #f5f3f8 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .stage[data-project='waypoint'] {
+      --waypoint-surface: #1d1f24;
+      --waypoint-paper: #15161a;
+      --waypoint-ink: #eceae6;
+      --waypoint-muted: #a7a49e;
+      --waypoint-border: #34363c;
+      --waypoint-route: #8ea2f0;
+      --waypoint-critical: #ff8a7a;
+      --waypoint-critical-bg: #3a1f1c;
+      --waypoint-flat: #1a2245;
+      --waypoint-scene-sky: linear-gradient(180deg, #2b3566 0%, #1c2347 55%, #12162b 100%);
+      --waypoint-scene-floor: #0e1122;
+      --waypoint-scene-mullion: rgb(5 7 18 / 0.55);
+      --stage-bg: radial-gradient(120% 90% at 85% 10%, #22305e 0%, #18192a 55%, #141318 100%);
+    }
+  }
+  :root[data-theme='dark'] .stage[data-project='waypoint'] {
+    --waypoint-surface: #1d1f24;
+    --waypoint-paper: #15161a;
+    --waypoint-ink: #eceae6;
+    --waypoint-muted: #a7a49e;
+    --waypoint-border: #34363c;
+    --waypoint-route: #8ea2f0;
+    --waypoint-critical: #ff8a7a;
+    --waypoint-critical-bg: #3a1f1c;
+    --waypoint-flat: #1a2245;
+    --waypoint-scene-sky: linear-gradient(180deg, #2b3566 0%, #1c2347 55%, #12162b 100%);
+    --waypoint-scene-floor: #0e1122;
+    --waypoint-scene-mullion: rgb(5 7 18 / 0.55);
+    --stage-bg: radial-gradient(120% 90% at 85% 10%, #22305e 0%, #18192a 55%, #141318 100%);
+  }
+</style>
+
+<script>
+  // Recordings play only when motion is allowed, and only while on screen.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const videos = document.querySelectorAll<HTMLVideoElement>('video[data-stage-video]');
+  if (videos.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const video = entry.target as HTMLVideoElement;
+          if (entry.isIntersecting && !reduce.matches) void video.play().catch(() => {});
+          else video.pause();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    videos.forEach((video) => io.observe(video));
+    reduce.addEventListener('change', () => {
+      if (reduce.matches) videos.forEach((video) => video.pause());
+    });
+  }
+</script>

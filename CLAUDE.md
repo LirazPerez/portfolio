@@ -10,7 +10,7 @@ The approved visual direction is `reference/specimen.html`. When in doubt about 
 
 - **Astro 7** (static output), **TypeScript** (strict; pinned to TS 6 because `astro check` does not support TS 7 yet).
 - **Tailwind CSS v4** via `@tailwindcss/vite`. All config lives in CSS (`src/styles/global.css`), there is no `tailwind.config`.
-- **React** only for interactive islands (planned: the falling facts in the home hero). Everything else ships as zero-JS static HTML. Small progressive enhancements (theme toggle, signature stroke, TOC scroll-spy) are plain `<script>` tags inside `.astro` components.
+- **React** only for interactive islands. Today there is one: the falling facts in the home hero (`FallingFacts.tsx`, `client:visible`, physics by **matter-js** from npm, loaded lazily at the moment of the drop). Everything else ships as zero-JS static HTML. Small progressive enhancements (theme toggle, signature stroke, TOC scroll-spy) are plain `<script>` tags inside `.astro` components.
 - **MDX** for case studies, through the `work` content collection.
 - Markdown runs through `unified()` from `@astrojs/markdown-remark`, because Astro 7's default processor skips rehype plugins and we need one (see Content).
 
@@ -101,7 +101,11 @@ Two supporting tokens follow the theme too: `--glass` (translucent capsule fill)
 
 ## Project colors stay in their stage
 
-Every project may have its own palette, but **only inside its hero stage** (`src/components/Stage.astro`, marked `data-project="<slug>"`). Define project colors as `--<slug>-*` custom properties scoped to that stage, with dark variants under the same theme selectors as the tokens. Site chrome (nav, cards, text, buttons, TOC) stays neutral and purple. Right now every stage is a neutral placeholder.
+Every project may have its own palette, but **only inside its hero stage** (`src/components/Stage.astro`, marked `data-project="<slug>"`). Define project colors as `--<slug>-*` custom properties scoped to that stage, with dark variants under the same theme selectors as the tokens. Site chrome (nav, cards, text, buttons, TOC) stays neutral and purple.
+
+**Stage background and media** (`Stage.astro`, resolved by `src/lib/stage-media.ts`): a blurred, darkened real-world photo per project, one per theme, plus an optional muted looping screen recording. Nothing is registered in code: drop files in `src/assets/stages/` by name (`<slug>-light.jpg`, `<slug>-dark.jpg`, `<slug>.mp4`, `<slug>-poster.jpg`; see the README there for the TODO list). Until a photo exists: Waypoint shows its built-in backdrop, the other stages a neutral gradient. Videos are muted, looping, `playsinline`, no controls, `aria-hidden`; the text alternative is on the stage (`role="img"`, `aria-label`). They play only when motion is allowed and on screen; otherwise the poster shows.
+
+**Waypoint's stage** is a pure-CSS scene (`WaypointScene.astro`): phone with code, scan line, physician view rising, rows appearing, numbered pin. It loops over 7s, starts mid-cycle so the first frame is complete, is held at that frame until on screen, and under reduced motion shows the final frame (the un-animated style).
 
 ## Accessibility rules
 
@@ -132,8 +136,13 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   tools: string[];
   status: 'shipped' | 'prototype' | 'in-progress' | 'concept';
   tags: string[];
+  noticed: string;          // card: the "What I noticed" line (purple left rule)
+  annotation: string;       // card: the one annotation, numbered 1, pointing at the stage
+  stageAlt?: string;        // text alternative for the hero stage; generic fallback if omitted
 }
 ```
+
+The home card shows title, tagline, tags, `noticed`, `annotation` and "View case study". **Role, duration, status and tools are not on the card**; they live on the case-study page.
 
 Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `recall` (3, mobile), `classpass` (4, mobile).
 
@@ -154,6 +163,14 @@ Write each section in MDX as a `## <heading>` exactly as above. A rehype plugin 
 
 The TOC (`src/components/CaseStudyToc.astro`) is a sticky side column from 1024px and a collapsed "On this page" bar pinned to the top below that. Its links work without JS; a small script marks the current section (`aria-current="true"`) while scrolling.
 
+## Home page content you edit without touching code
+
+- `src/data/facts.ts`: the falling facts (text and `ops` purple / `build` neutral kind).
+- `src/data/lab.ts`: the "AI that works for me" heading, intro line and the three cards (status is `active` / `paused` / `planned`; the pill differs by shape and word, never color alone).
+- Contact (footer): email, LinkedIn URL and the CV link are constants at the top of `src/components/Footer.astro`.
+
+**Falling facts behavior.** Server-rendered as the static resting layout (this is also what no-JS and `prefers-reduced-motion` show, and it is exposed as a list labelled "What I bring"). With motion allowed, once the portrait is 40% in view the facts drop once under matter-js at a fixed 1/60 s step, rest just below the photo's bottom edge, and the loop stops when every body sleeps. Pills start over their row slots (bottom rows first) and the settle is simulated off-screen first, so the pile stays below the face and hair line (`KEEP_CLEAR_FRACTION` in `FallingFacts.tsx`). Change the portrait and that constant needs a re-check.
+
 ## Files at a glance
 
 ```
@@ -163,12 +180,19 @@ src/
   components/
     Nav.astro                signature wordmark + capsule
     ThemeToggle.astro
-    Footer.astro             #contact
+    Footer.astro             #contact: email (selectable, copy, mailto), LinkedIn, CV download
     WorkCard.astro           home cards (desktop / mobile variants)
     Stage.astro              project hero stage (the only place for project colors)
+    StageVideo.astro         muted looping recording inside a stage frame
+    WaypointScene.astro      Waypoint's CSS scene
+    FallingFacts.tsx/.css    the React island
+    AiLab.astro              "AI that works for me"
     CaseStudyToc.astro
   content.config.ts          `work` schema
   content/work/*.mdx
+  data/facts.ts, data/lab.ts home-page content
+  assets/stages/             stage photos and recordings, picked up by file name (see its README)
+  lib/stage-media.ts         finds a project's stage media by file name
   lib/case-study.ts          SECTIONS, status and platform labels
   lib/rehype-case-study-sections.mjs
   lib/cv.ts                  CV path + size label

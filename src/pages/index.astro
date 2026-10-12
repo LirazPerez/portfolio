@@ -3,22 +3,12 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
+import AiLab from '../components/AiLab.astro';
+import FallingFacts from '../components/FallingFacts';
+import { FACTS } from '../data/facts';
 import portrait from '../assets/liraz-portrait.jpg';
 
 const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
-
-// Static, final-state layout of the facts. The falling-facts React island replaces this later;
-// this list stays as its no-JS and reduced-motion fallback.
-const facts = [
-  { text: 'Former IDF war-room commander', kind: 'ops' },
-  { text: 'Led 150 soldiers', kind: 'ops' },
-  { text: 'Budgets in the hundreds of millions', kind: 'ops' },
-  { text: '30% cost reduction', kind: 'ops' },
-  { text: '15+ international vendors', kind: 'ops' },
-  { text: 'Partnered with the U.S. Armed Forces', kind: 'ops' },
-  { text: 'Research to React', kind: 'build' },
-  { text: 'Ships with Claude Code', kind: 'build' },
-];
 ---
 
 <BaseLayout title="Home">
@@ -52,9 +42,8 @@ const facts = [
             class="block w-full h-full object-cover object-[50%_8%] md:object-[50%_18%]"
           />
         </figure>
-        <ul class="facts" role="list" aria-label="What I bring">
-          {facts.map((f) => <li class:list={['fact', f.kind]}>{f.text}</li>)}
-        </ul>
+        <!-- Server-rendered as the static resting layout; hydrates when scrolled into view, then drops once. -->
+        <FallingFacts client:visible facts={FACTS} />
       </div>
     </section>
 
@@ -64,57 +53,7 @@ const facts = [
         {work.map((entry) => <WorkCard entry={entry} />)}
       </div>
     </section>
+
+    <AiLab />
   </div>
 </BaseLayout>
-
-<style>
-  /* The facts sit in a field wider and lower than the photo, so they break out of the frame. */
-  .facts {
-    position: absolute;
-    left: -96px;
-    right: -24px;
-    top: 0;
-    bottom: -36px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap-reverse;
-    align-content: flex-start; /* with wrap-reverse, "start" is the bottom edge: the facts rest there */
-    justify-content: center;
-    gap: 6px;
-    z-index: 2;
-    pointer-events: none;
-  }
-  .fact {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1;
-    padding: 9px 12px;
-    border-radius: var(--radius-pill);
-    white-space: nowrap;
-    background: var(--raise);
-    color: var(--ink);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
-  }
-  .fact.ops {
-    background: var(--accent-tint);
-    color: var(--accent-strong);
-    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  }
-  @media (max-width: 47.49rem) {
-    .facts {
-      left: -6px;
-      right: -6px;
-      bottom: -30px;
-    }
-    .fact {
-      font-size: 12px;
-      padding: 7px 10px;
-    }
-    .fact.build {
-      display: none;
-    }
-  }
-</style>
