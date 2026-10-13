@@ -69,6 +69,11 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
     /* A little breathing room beyond the text column on wide screens, never more. */
     width: 100%;
   }
+  /* Two stacked screens read as two frames, not one: 24px between them, with the
+     section's own 12px flow gap. */
+  .screen + .screen {
+    margin-top: 12px;
+  }
   @media (min-width: 47.5rem) {
     .screen {
       width: calc(100% + 48px);

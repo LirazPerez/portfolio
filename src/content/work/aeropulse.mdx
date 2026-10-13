@@ -63,24 +63,23 @@ When an LDO files a shortage, the system checks every other active project befor
 
 ### 2. Match the alert to how urgent it actually is
 
-<ScreenPair>
-  <Screen
-    project="aeropulse"
-    name="decision-2-cable-low-stock"
-    pin={2}
-    pinX={15.8}
-    pinY={75.1}
-    alt="The Qty on Hand, Min Threshold and Status columns of AeroPulse's Cable and Harness Inventory. Three rows read In Stock in green. The two rows below show a small red warning icon beside the quantity (8 against a threshold of 15, and 5 against 12) and a Low Stock pill. The warning stays inside the row; nothing else on the page changes."
-  />
-  <Screen
-    project="aeropulse"
-    name="decision-2-defect-banner"
-    pin={2}
-    pinX={94.7}
-    pinY={7.3}
-    alt="The top of AeroPulse's Defect and Maintenance Analysis page. A red banner states that Wear and Tear accounts for 63% of defects, a concentrated root cause to investigate. Below it are two summary cards, Total Defects 8 and Open or In Repair 4, and the start of the Defect Rate by Model chart that the banner points to."
-  />
-</ScreenPair>
+<Screen
+  project="aeropulse"
+  name="decision-2-cable-low-stock"
+  pin={2}
+  pinX={15.8}
+  pinY={75.1}
+  alt="The Qty on Hand, Min Threshold and Status columns of AeroPulse's Cable and Harness Inventory. Three rows read In Stock in green. The two rows below show a small red warning icon beside the quantity (8 against a threshold of 15, and 5 against 12) and a Low Stock pill. The warning stays inside the row; nothing else on the page changes."
+/>
+
+<Screen
+  project="aeropulse"
+  name="decision-2-defect-banner"
+  pin={2}
+  pinX={94.7}
+  pinY={7.3}
+  alt="The top of AeroPulse's Defect and Maintenance Analysis page. A red banner states that Wear and Tear accounts for 63% of defects, a concentrated root cause to investigate. Below it are two summary cards, Total Defects 8 and Open or In Repair 4, and the start of the Defect Rate by Model chart that the banner points to."
+/>
 
 Low stock on a cable gets a warning icon in its row. A concentrated defect cause gets a red banner above the chart that explains it. Recoverable stays in the row. Urgent and unexplained goes straight to the evidence.
 

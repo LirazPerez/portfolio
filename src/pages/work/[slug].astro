@@ -4,7 +4,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Stage from '../../components/Stage.astro';
 import CaseStudyToc from '../../components/CaseStudyToc.astro';
 import Screen from '../../components/Screen.astro';
-import ScreenPair from '../../components/ScreenPair.astro';
 import ExternalLink from '../../components/ExternalLink.astro';
 import { SECTIONS, STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
 
@@ -68,7 +67,7 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
       <div class="case-body grid gap-6 max-w-[68ch] min-w-0">
         {
           hasBody ? (
-            <Content components={{ Screen, ScreenPair, ExternalLink }} />
+            <Content components={{ Screen, ExternalLink }} />
           ) : (
             SECTIONS.map((s) => (
               <section id={s.id} class="cs-section" aria-labelledby={`${s.id}-heading`}>

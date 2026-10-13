@@ -172,7 +172,6 @@ The TOC (`src/components/CaseStudyToc.astro`) is a sticky side column from 1024p
 Available in every case-study MDX without importing (the template passes them as MDX components):
 
 - **`<Screen project="<slug>" name="<file>" alt="..." pin={n} pinX={..} pinY={..} />`** (`Screen.astro`): an app screenshot in the floating frame treatment (hairline border, soft shadow, three-dot bar). The still is found by name in `src/assets/work/<slug>/` (`src/lib/work-media.ts`: jpg, jpeg, png, webp or avif); if the file is missing a tagged "Screenshot to add" placeholder renders instead of failing the build. The frame is never wider than the text column plus 24px each side, and never taller than 70% of the viewport (its width derives from the image's aspect ratio; the image is never stretched). Stills lazy-load. **`alt` is required: say what the screen shows and what to notice.** One optional numbered pin, same style as the home cards' annotation badge, `aria-hidden` (the text beside it carries the meaning). `pinX` / `pinY` are percent from the image's top-left; place the pin on empty space or an element's edge, **never on text**. Without coordinates it sits on the frame's top-right corner.
-- **`<ScreenPair>`** (`ScreenPair.astro`): two `<Screen />` side by side from 760px, stacked below. Widths are proportional to each image's aspect ratio, so both end up the same height and the same scale.
 - **`<ExternalLink href="...">Label</ExternalLink>`** (`ExternalLink.astro`): a pill link that opens in a new tab (`rel="noopener noreferrer"`), shows an icon, and adds "(opens an external site in a new tab)" to its accessible name.
 
 Inside a `##` section use `###` for sub-headings (the decisions are `### 1. ...`). The template also renders a "Next project" link to the entry with the next `order` at the end of the page.
@@ -204,7 +203,6 @@ src/
     FallingFacts.tsx/.css    the React island
     AiLab.astro              "AI that works for me"
     Screen.astro             case-study screenshot: floating frame, one pin, placeholder when missing
-    ScreenPair.astro         two screens side by side
     ExternalLink.astro       external link with icon and "opens in a new tab" name
     CaseStudyToc.astro
   content.config.ts          `work` schema
