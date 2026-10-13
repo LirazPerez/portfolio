@@ -11,15 +11,19 @@
     width: 100%;
   }
   @media (min-width: 47.5rem) {
+    /* Each screen takes a share of the row proportional to its own aspect ratio (--ar,
+       set by <Screen />), so both come out the same height and the same scale. Equal
+       columns would shrink a wide crop to half size beside a narrow one. */
     .pair {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: start;
+      display: flex;
+      align-items: flex-start;
       width: calc(100% + 48px);
       margin-inline: -24px;
     }
-    /* Inside a pair each screen fills its cell; the pair itself carries the bleed. */
     .pair :global(.screen) {
-      width: 100%;
+      flex: var(--ar) 1 0;
+      min-width: 0;
+      width: auto;
       margin-inline: 0;
     }
   }

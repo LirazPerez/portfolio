@@ -139,8 +139,12 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   noticed: string;          // card: the "What I noticed" line (purple left rule)
   annotation: string;       // card: the one annotation, numbered 1, pointing at the stage
   stageAlt?: string;        // text alternative for the hero stage; generic fallback if omitted
+  statusLabel?: string;     // case-study meta row: overrides the label for `status` (e.g. "In daily use by 20 to 30 people")
+  origin?: string;          // one line under the meta row: where the project comes from, what is and is not shown
 }
 ```
+
+`statusLabel` and `origin` are shown only on the case-study page (the meta row and the line under it). `status` stays the enum; `statusLabel` just replaces its wording.
 
 The home card shows title, tagline, tags, `noticed`, `annotation` and "View case study". **Role, duration, status and tools are not on the card**; they live on the case-study page.
 
@@ -162,6 +166,18 @@ Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `recall` (3,
 Write each section in MDX as a `## <heading>` exactly as above. A rehype plugin (`src/lib/rehype-case-study-sections.mjs`) wraps each `##` and its content in `<section id="<id>" aria-labelledby="<id>-heading">`, and **fails the build** if the headings are missing, renamed or out of order. Use `###` and below freely inside a section. While an MDX body is empty, the template renders the outline with clearly tagged placeholder copy.
 
 The TOC (`src/components/CaseStudyToc.astro`) is a sticky side column from 1024px and a collapsed "On this page" bar pinned to the top below that. Its links work without JS; a small script marks the current section (`aria-current="true"`) while scrolling.
+
+## Case-study components and media
+
+Available in every case-study MDX without importing (the template passes them as MDX components):
+
+- **`<Screen project="<slug>" name="<file>" alt="..." pin={n} pinX={..} pinY={..} />`** (`Screen.astro`): an app screenshot in the floating frame treatment (hairline border, soft shadow, three-dot bar). The still is found by name in `src/assets/work/<slug>/` (`src/lib/work-media.ts`: jpg, jpeg, png, webp or avif); if the file is missing a tagged "Screenshot to add" placeholder renders instead of failing the build. The frame is never wider than the text column plus 24px each side, and never taller than 70% of the viewport (its width derives from the image's aspect ratio; the image is never stretched). Stills lazy-load. **`alt` is required: say what the screen shows and what to notice.** One optional numbered pin, same style as the home cards' annotation badge, `aria-hidden` (the text beside it carries the meaning). `pinX` / `pinY` are percent from the image's top-left; place the pin on empty space or an element's edge, **never on text**. Without coordinates it sits on the frame's top-right corner.
+- **`<ScreenPair>`** (`ScreenPair.astro`): two `<Screen />` side by side from 760px, stacked below. Widths are proportional to each image's aspect ratio, so both end up the same height and the same scale.
+- **`<ExternalLink href="...">Label</ExternalLink>`** (`ExternalLink.astro`): a pill link that opens in a new tab (`rel="noopener noreferrer"`), shows an icon, and adds "(opens an external site in a new tab)" to its accessible name.
+
+Inside a `##` section use `###` for sub-headings (the decisions are `### 1. ...`). The template also renders a "Next project" link to the entry with the next `order` at the end of the page.
+
+**Per-project media** lives in `src/assets/work/<slug>/` (each folder has a README with the file names and what each must show). A project's hero recording is `stage.mp4`, optionally `stage.webm`, and `stage-poster.webp` in that folder; `stage-media.ts` picks them up for both the home card and the top of the case study (they win over `src/assets/stages/<slug>.mp4`). The poster is the reduced-motion and no-JS fallback.
 
 ## Home page content you edit without touching code
 
@@ -187,11 +203,16 @@ src/
     WaypointScene.astro      Waypoint's CSS scene
     FallingFacts.tsx/.css    the React island
     AiLab.astro              "AI that works for me"
+    Screen.astro             case-study screenshot: floating frame, one pin, placeholder when missing
+    ScreenPair.astro         two screens side by side
+    ExternalLink.astro       external link with icon and "opens in a new tab" name
     CaseStudyToc.astro
   content.config.ts          `work` schema
   content/work/*.mdx
   data/facts.ts, data/lab.ts home-page content
   assets/stages/             stage photos and recordings, picked up by file name (see its README)
+  assets/work/<slug>/        case-study stills, hero recording and poster (see each README)
+  lib/work-media.ts          finds a case-study still by project and file name
   lib/stage-media.ts         finds a project's stage media by file name
   lib/case-study.ts          SECTIONS, status and platform labels
   lib/rehype-case-study-sections.mjs

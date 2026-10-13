@@ -1,38 +1,34 @@
-# AeroPulse media (TODO: add the real screens)
+# AeroPulse media
 
-These could not be captured automatically: the live app (aero-pulse-ops.base44.app) sends
-every page to its login screen, so a headless browser cannot reach the dashboard. Export
-them yourself while signed in, then drop the files here. They are picked up by file name on
-the next build; nothing in the MDX or the components needs to change. Until then each slot
-shows a clearly tagged "Screenshot to add" placeholder.
+Captured from https://aero-pulse-ops.base44.app (viewport 1440x900, device scale factor 2,
+the "Edit with Base44" badge hidden). Each file is picked up by name; nothing in the MDX or
+the components needs to change when one is replaced.
 
-## Stills (WebP, DPR 2)
+## Stills (WebP, each cropped to the part that proves its point)
 
-Crop each to the part that proves its point. No full-screen dumps. The frame is never
-wider than the text column plus a little, and never taller than 70% of the viewport, so a
-roughly 16:10 to 2:1 crop at about 1600 px wide works well.
-
-| File | What it must show |
+| File | What it shows |
 |---|---|
-| `decision-1-draft-projects.webp` | `/drafts`: the table with the colored "Central WH Avail" column and the "Transfer From" dropdown |
-| `decision-2-cable-low-stock.webp` | `/cables`: Cable & Harness Inventory, a low-stock row with its warning icon |
-| `decision-2-defect-banner.webp` | Defect & Maintenance Analysis: the red banner above its chart |
-| `decision-3-shipment-confirmed.webp` | Shipment Requests: an arrival confirmed, with the delivery photo attached |
+| `decision-1-draft-projects.webp` | `/drafts`: Central WH Avail colored by shortfall, and the Transfer From dropdown |
+| `decision-2-cable-low-stock.webp` | `/cables`: Qty on Hand, Min Threshold and Status; the warning icon sits in the low-stock rows |
+| `decision-2-defect-banner.webp` | `/defects`: the red banner above the KPI cards and charts |
+| `decision-3-shipment-confirmed.webp` | `/shipments`: a shipment row opened, showing the Bill of Lading / Package Photos slots and Mark Arrived |
 
-Close the floating "Edit with Base44" badge before capturing.
+Note on decision 3: no shipment in the demo data has a photo attached, so the still shows
+the evidence slots and the Mark Arrived action, not a populated photo.
 
 ## Hero recording (home card and top of the case study)
 
 | File | Notes |
 |---|---|
-| `stage.mp4` | H.264, muted, 4 to 6 seconds, loops. On `/drafts`, open a "Transfer From" dropdown and pick another project. Under 2 MB. |
-| `stage.webm` | Same clip as WebM (optional but recommended) |
-| `stage-poster.webp` | One frame from the clip: the reduced-motion and no-JS fallback |
+| `stage.mp4` | H.264, muted, 4.5 s, loops seamlessly (starts and ends on the original value) |
+| `stage.webm` | Same clip, VP9 |
+| `stage-poster.webp` | First frame: the reduced-motion and no-JS fallback |
+
+The clip is `/drafts`: the Transfer From dropdown on the Thermal Optic Pod T7 row is changed to
+another project and then put back.
 
 ## Pins
 
-Each decision shows one numbered pin. Without coordinates it sits on the frame's top-right
-corner, where it cannot cover text. Once the screens exist, place each pin on the element
-the decision is about, on empty space or an element's edge, never on text:
-`pinX` and `pinY` are percentages from the image's top-left, set on the `<Screen />` in
-`src/content/work/aeropulse.mdx`.
+Each decision shows one numbered pin, placed with `pinX` / `pinY` (percent from the image's
+top-left) on the `<Screen />` in `src/content/work/aeropulse.mdx`. If a still is replaced or
+re-cropped, re-place its pin on empty space or an element's edge, never on text.

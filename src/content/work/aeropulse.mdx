@@ -7,11 +7,12 @@ role: "Product design, research and build (solo)"
 duration: "1 month"
 tools: [Base44, Claude, Notion]
 status: shipped
-statusLabel: "Built and in daily use"
+statusLabel: "In daily use by 20 to 30 people"
 tags: [Systems thinking, Desktop SaaS, Built from a real system]
 origin: "Based on a real system I designed and built for a company's logistics operation, which is still in daily use. That work is confidential, so I rebuilt it from scratch around a drone operation. Every name, number and screen here is my own."
 noticed: "Nobody was short on equipment. They were short on proof."
 annotation: "Availability across every project is checked before a request becomes a purchase."
+stageAlt: "AeroPulse's Draft Projects screen: on a line that is short of stock, the Transfer From dropdown is switched to another project, then switched back."
 ---
 
 ## What I noticed
@@ -41,7 +42,7 @@ Most logistics tools treat equipment tracking as a counting problem. I treated i
 - Information architecture: navigation model, screen inventory, key flows.
 - Build in Base44, iterating on the request-to-fulfillment flow more than any other.
 - **What didn't work: syncing demand to reality automatically.** I first had the numbers in a draft request flow straight into the live project inventory. They kept drifting apart, because what a team asks for is not what ends up on site.
-- Draft: what I did instead.
+- **What I did instead: a deliberate manual step.** I took the automation out and made moving numbers from a request into project inventory a manual action. A number the system calculates wrong on its own costs more than the minute it takes someone to enter the right one. It's the same principle as decision 3: a person stands behind the number before anyone acts on it.
 
 ## Decisions
 
@@ -51,7 +52,9 @@ Most logistics tools treat equipment tracking as a counting problem. I treated i
   project="aeropulse"
   name="decision-1-draft-projects"
   pin={1}
-  alt="The Draft Projects table in AeroPulse. A colored Central WH Avail column shows whether the central warehouse can cover each requested line, and a Transfer From dropdown in the same row offers another active project as the source, so the request can become a transfer instead of a purchase."
+  pinX={88.3}
+  pinY={77.9}
+  alt="AeroPulse's Draft Projects table with six demand lines. The Central WH Avail column is orange where the warehouse falls short of the requested quantity (4 available against 8 requested for the Thermal Optic Pod T7) and green where it covers it. Each line has a Transfer From dropdown listing other projects, so a shortfall can be met by a transfer instead of a new purchase."
 />
 
 When an LDO files a shortage, the system checks every other active project before the request reaches procurement, and offers a transfer in the same form. The Logistics Manager doesn't have to trust that nothing was double-ordered. She can see it.
@@ -65,13 +68,17 @@ When an LDO files a shortage, the system checks every other active project befor
     project="aeropulse"
     name="decision-2-cable-low-stock"
     pin={2}
-    alt="The Cable and Harness Inventory table in AeroPulse with one low-stock row. The warning is a small icon inside the row itself, a recoverable problem that stays in place without interrupting the page."
+    pinX={15.8}
+    pinY={75.1}
+    alt="The Qty on Hand, Min Threshold and Status columns of AeroPulse's Cable and Harness Inventory. Three rows read In Stock in green. The two rows below show a small red warning icon beside the quantity (8 against a threshold of 15, and 5 against 12) and a Low Stock pill. The warning stays inside the row; nothing else on the page changes."
   />
   <Screen
     project="aeropulse"
     name="decision-2-defect-banner"
     pin={2}
-    alt="The Defect and Maintenance Analysis page in AeroPulse. A red banner above the chart explains a concentrated defect cause, so an urgent and unexplained problem sends the reader straight to the evidence."
+    pinX={94.7}
+    pinY={7.3}
+    alt="The top of AeroPulse's Defect and Maintenance Analysis page. A red banner states that Wear and Tear accounts for 63% of defects, a concentrated root cause to investigate. Below it are two summary cards, Total Defects 8 and Open or In Repair 4, and the start of the Defect Rate by Model chart that the banner points to."
   />
 </ScreenPair>
 
@@ -85,7 +92,9 @@ Low stock on a cable gets a warning icon in its row. A concentrated defect cause
   project="aeropulse"
   name="decision-3-shipment-confirmed"
   pin={3}
-  alt="The Shipment Requests screen in AeroPulse with an arrival that has been confirmed. The delivery photo and the bill of lading are attached to the shipment, which is what marks it as arrived rather than its ETA passing."
+  pinX={96.9}
+  pinY={57.9}
+  alt="A shipment row opened in AeroPulse's Shipment Requests. Below the pickup and delivery details are two dashed upload slots under the label Bill of Lading and Package Photos, and a Mark Arrived button beside Cancel. Arrival is confirmed from here, with evidence attached, not by the ETA passing."
 />
 
 A shipment isn't marked arrived because its ETA passed. Someone attaches the delivery photo and the bill of lading and confirms it. HQ-sourced parts move forward through a manual Advance action.
@@ -102,7 +111,7 @@ A shipment isn't marked arrived because its ETA passed. Someone attaches the del
 
 ## Outcome
 
-**Adopted across the whole operation.** The real system became the shared picture for every role above, from LDOs in the field to the VP. Planning and equipment tracking stopped depending on phone calls and parallel spreadsheets.
+**Adopted across the whole operation.** 20 to 30 people, in every role above from LDOs in the field to the VP, work from it every day. It saves the team 8 to 10 hours of work a week, and planning and equipment tracking stopped depending on phone calls and parallel spreadsheets.
 
 What's in the product: inventory across warehouse and sites, cable and battery stock with reorder thresholds, field requests with cross-project transfer, a shipment pipeline with evidence-based arrival, defect analysis, and US/Israel procurement tracking.
 
