@@ -9,12 +9,15 @@ the components needs to change when one is replaced.
 | File | What it shows |
 |---|---|
 | `decision-1-draft-projects.webp` | `/drafts`: Central WH Avail colored by shortfall, and the Transfer From dropdown |
-| `decision-2-cable-low-stock.webp` | `/cables`: Qty on Hand, Min Threshold and Status; the warning icon sits in the low-stock rows |
+| `decision-2-cable-low-stock.webp` | `/cables`: Part Number through Reorder Action (about 870 CSS px, close to the defect banner's width so both decision 2 screens render at a similar scale); the warning icon sits in the two low-stock rows |
 | `decision-2-defect-banner.webp` | `/defects`: the red banner above the KPI cards and charts |
-| `decision-3-shipment-confirmed.webp` | `/shipments`: a shipment row opened, showing the Bill of Lading / Package Photos slots and Mark Arrived |
+| `decision-3-shipment-confirmed.webp` | `/archive`: shipment FX-88520 opened with its row arrow, showing its two attachments, the delivery photo and the bill of lading, as thumbnails (Tracking # through Carrier, about 860 CSS px) |
 
-Note on decision 3: no shipment in the demo data has a photo attached, so the still shows
-the evidence slots and the Mark Arrived action, not a populated photo.
+Note on decision 3: FX-88520 was chosen over DHL-50501 because its bill of lading (bold header,
+FedEx mark) still reads at thumbnail size. The Final Status column ("Arrived") is left out of
+the crop so the thumbnails stay legible. The attachments are generated demo images: the bill's
+own details (Austin to Seattle, laptops, 2023) do not match the shipment; only its header and
+FedEx mark are legible in the still.
 
 ## Hero recording (home card and top of the case study)
 
