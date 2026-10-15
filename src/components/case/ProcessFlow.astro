@@ -1,0 +1,134 @@
+---
+/**
+ * The real operation as a numbered flow: steps left to right with arrows between them
+ * from 680px of its own width, a vertical column with downward arrows below that.
+ * It is an ordered list, so the order is announced. `key` steps (where a decision acts)
+ * get a heavier accent border and tint, plus a "key step" note for screen readers.
+ */
+interface Props {
+  steps: { title: string; text: string; key?: boolean }[];
+}
+const { steps } = Astro.props;
+---
+
+<div class="wrap">
+  <ol class="flow" role="list" style={`--n:${steps.length}`}>
+    {
+      steps.map((s, i) => (
+        <li class:list={['step', s.key && 'step--key']}>
+          <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <b>
+            {s.key && <span class="sr-only-text">Key step: </span>}
+            {s.title}
+          </b>
+          <span class="text">{s.text}</span>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .flow {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .step {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    min-width: 0;
+    padding: 16px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-frame);
+    background: var(--raise);
+  }
+  .step--key {
+    border: 2px solid var(--accent);
+    padding: 15px 13px;
+    background: var(--accent-tint);
+  }
+  .num {
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-strong);
+  }
+  b {
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+  .text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  /* Arrows: a shaft and a head, pointing down (column) or right (row). */
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 24px;
+    bottom: -18px;
+    width: 2px;
+    height: 14px;
+    background: var(--accent);
+  }
+  .step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    bottom: -24px;
+    border: 5px solid transparent;
+    border-top-color: var(--accent);
+  }
+  .step--key:not(:last-child)::after {
+    left: 23px;
+    bottom: -19px;
+  }
+  .step--key:not(:last-child)::before {
+    left: 19px;
+    bottom: -25px;
+  }
+
+  @container (min-width: 680px) {
+    .flow {
+      grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr));
+      gap: 22px;
+    }
+    .step:not(:last-child)::after,
+    .step--key:not(:last-child)::after {
+      left: auto;
+      right: -20px;
+      top: 50%;
+      bottom: auto;
+      width: 14px;
+      height: 2px;
+    }
+    .step:not(:last-child)::before,
+    .step--key:not(:last-child)::before {
+      left: auto;
+      right: -24px;
+      top: calc(50% - 4px);
+      bottom: auto;
+      border-top-color: transparent;
+      border-left-color: var(--accent);
+    }
+    .step--key:not(:last-child)::after {
+      right: -21px;
+    }
+    .step--key:not(:last-child)::before {
+      right: -25px;
+      top: calc(50% - 4px);
+    }
+  }
+</style>

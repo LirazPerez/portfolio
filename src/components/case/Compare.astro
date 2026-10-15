@@ -1,0 +1,83 @@
+---
+/**
+ * Two framings side by side: how others see the problem, and how I framed it.
+ * The second box is the emphasized one (accent tint and border, and its own label says
+ * which is which, so nothing relies on color). Stacks below 560px of its own width.
+ */
+interface Side {
+  label: string;
+  quote: string;
+  note?: string;
+}
+interface Props {
+  before: Side;
+  after: Side;
+}
+const { before, after } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="vs">
+    {
+      [before, after].map((side, i) => (
+        <div class:list={['box', i === 1 && 'box--new']}>
+          <p class="label">{side.label}</p>
+          <p class="quote">{side.quote}</p>
+          {side.note && <p class="note">{side.note}</p>}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .vs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 560px) {
+    .vs {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .box {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-frame);
+    background: var(--surface);
+  }
+  .box--new {
+    background: var(--accent-tint);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  p {
+    margin: 0;
+  }
+  .label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .box--new .label,
+  .box--new .note {
+    color: var(--accent-strong);
+  }
+  .quote {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .note {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+</style>

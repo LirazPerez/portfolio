@@ -1,0 +1,154 @@
+---
+/**
+ * "Many sources, one answer": sources that disagree on the left, an arrow, and the one
+ * shared number on the right. It is one image to assistive tech, so `label` must say
+ * everything the picture says (the before, the numbers, the after).
+ * Below 440px of its own width it stacks vertically and the arrow points down.
+ */
+interface Props {
+  /** Full text alternative. */
+  label: string;
+  sources: { name: string; value: string }[];
+  /** Line under the sources, e.g. "3 phone calls to check". */
+  note?: string;
+  /** How many phone icons to draw before the note. */
+  calls?: number;
+  result: { title: string; value: string; caption: string };
+}
+const { label, sources, note, calls = 0, result } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="panel" role="img" aria-label={label}>
+    <div class="sources">
+      {
+        sources.map((s) => (
+          <div class="sheet">
+            <span class="k">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M3 15h18M9 3v18" />
+              </svg>
+              <span class="name">{s.name}</span>
+            </span>
+            <span class="n">{s.value}</span>
+          </div>
+        ))
+      }
+      {
+        note && (
+          <div class="calls">
+            {Array.from({ length: calls }, () => (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z" />
+              </svg>
+            ))}
+            <span>{note}</span>
+          </div>
+        )
+      }
+    </div>
+    <div class="arrow" aria-hidden="true">
+      <svg width="34" height="20" viewBox="0 0 34 20" focusable="false">
+        <path d="M2 10h26M22 3l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="one">
+      <span>{result.title}</span>
+      <span class="big">{result.value}</span>
+      <span>{result.caption}</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+    min-width: 0;
+  }
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: clamp(18px, 3vw, 28px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  @container (min-width: 440px) {
+    .panel {
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+  }
+  .sources {
+    display: grid;
+    gap: 10px;
+  }
+  .sheet {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 13.5px;
+  }
+  .k {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--muted);
+  }
+  .name {
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .n {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--warn);
+  }
+  .calls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .calls span {
+    margin-inline-start: 4px;
+  }
+  .arrow {
+    display: grid;
+    justify-self: center;
+    color: var(--accent);
+    transform: rotate(90deg);
+  }
+  @container (min-width: 440px) {
+    .arrow {
+      transform: none;
+    }
+  }
+  .one {
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    text-align: center;
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius-frame);
+    background: var(--accent-tint);
+    font-size: 13px;
+    color: var(--accent-strong);
+  }
+  .big {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

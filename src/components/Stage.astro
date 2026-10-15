@@ -19,7 +19,7 @@
  * Full list and specs: src/assets/stages/README.md
  *
  * The stage is one image to assistive tech (role="img"); the video is aria-hidden and the
- * text alternative lives on the stage. Video only plays when motion is allowed.
+ * text alternative lives on the stage. Video only plays when motion is allowed (StageVideo).
  */
 import { Image } from 'astro:assets';
 import WaypointScene from './WaypointScene.astro';
@@ -301,25 +301,3 @@ const isScene = slug === 'waypoint';
     --stage-bg: radial-gradient(120% 90% at 85% 10%, #22305e 0%, #18192a 55%, #141318 100%);
   }
 </style>
-
-<script>
-  // Recordings play only when motion is allowed, and only while on screen.
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const videos = document.querySelectorAll<HTMLVideoElement>('video[data-stage-video]');
-  if (videos.length) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const video = entry.target as HTMLVideoElement;
-          if (entry.isIntersecting && !reduce.matches) void video.play().catch(() => {});
-          else video.pause();
-        }
-      },
-      { threshold: 0.25 },
-    );
-    videos.forEach((video) => io.observe(video));
-    reduce.addEventListener('change', () => {
-      if (reduce.matches) videos.forEach((video) => video.pause());
-    });
-  }
-</script>

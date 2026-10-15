@@ -17,11 +17,11 @@ const work = defineCollection({
     tools: z.array(z.string()),
     status: z.enum(['shipped', 'prototype', 'in-progress', 'concept']),
     tags: z.array(z.string()),
-    /** The card's "What I noticed" line: the one observation the project started from. */
-    noticed: z.string(),
-    /** One annotation, numbered 1 on the card, pointing at a detail in the hero stage. */
-    annotation: z.string(),
-    /** Text alternative for the hero stage (role="img"). Falls back to a generic placeholder line. */
+    /** Case-study eyebrow after "Case study ·", e.g. "Desktop SaaS". Falls back to the platform. */
+    category: z.string().optional(),
+    /** Up to two screens (file names in src/assets/work/<slug>/) floating beside the hero laptop. */
+    heroScreens: z.array(z.string()).max(2).optional(),
+    /** Text alternative for the hero stage or laptop recording (role="img"). Falls back to a generic line. */
     stageAlt: z.string().optional(),
     /** Overrides the label for `status` on the case-study page, e.g. "Built and in daily use". */
     statusLabel: z.string().optional(),

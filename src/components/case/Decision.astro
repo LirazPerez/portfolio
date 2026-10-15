@@ -1,0 +1,86 @@
+---
+/**
+ * One key decision: a numbered heading (### level), one sentence of what it does, its
+ * screens (the default slot, usually one or two <Screen />), and one "Considered" line:
+ * the alternative in the warn color, then why it lost. The alternative's own words
+ * ("Considered:", "Trade-off:") carry the meaning, not the color.
+ */
+interface Props {
+  n: number;
+  title: string;
+  summary: string;
+  /** The alternative, including its lead word, e.g. "Considered: a low-stock alert to procurement." */
+  considered: string;
+  /** Why it lost, e.g. "Rejected, because ..." */
+  verdict: string;
+}
+const { n, title, summary, considered, verdict } = Astro.props;
+---
+
+<article class="dec" aria-labelledby={`decision-${n}`}>
+  <div class="head">
+    <span class="num" aria-hidden="true">{n}</span>
+    <div class="grid gap-0.5 min-w-0">
+      <h3 id={`decision-${n}`}><span class="sr-only-text">Decision {n}: </span>{title}</h3>
+      <p class="summary">{summary}</p>
+    </div>
+  </div>
+  <div class="screens">
+    <slot />
+  </div>
+  <p class="considered"><span class="alt">{considered}</span> <span>{verdict}</span></p>
+</article>
+
+<style>
+  .dec {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+  .head {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .num {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 14px;
+    font-weight: 700;
+    transform: translateY(-2px);
+  }
+  h3 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  .summary {
+    margin: 4px 0 0;
+    max-width: 64ch;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .screens {
+    display: grid;
+    min-width: 0;
+  }
+  .considered {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .alt {
+    font-weight: 600;
+    color: var(--warn);
+  }
+</style>

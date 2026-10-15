@@ -1,0 +1,96 @@
+---
+/**
+ * What didn't work next to what I did instead. Each side has a visible heading, an icon
+ * (cross / check) and its own tint, so the meaning never rests on color. The part that
+ * was abandoned is struck through. Stacks below 560px of its own width.
+ */
+interface Props {
+  /** The approach that was dropped (struck through). */
+  dropped: string;
+  /** Why it didn't work, after the struck part. */
+  why: string;
+  /** What replaced it. */
+  instead: string;
+}
+const { dropped, why, instead } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="fix">
+    <div class="side no">
+      <span class="ico" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" focusable="false"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </span>
+      <p>
+        <b>What didn't work</b>
+        <s>{dropped}</s>{' '}{why}
+      </p>
+    </div>
+    <div class="side yes">
+      <span class="ico" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+      </span>
+      <p>
+        <b>What I did instead</b>
+        {instead}
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .fix {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 560px) {
+    .fix {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .side {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: var(--radius-frame);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .no {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .yes {
+    background: var(--ok-tint);
+    color: var(--ok);
+  }
+  .ico {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: currentColor;
+  }
+  .ico svg {
+    color: var(--raise);
+  }
+  p {
+    margin: 0;
+  }
+  b {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  s {
+    text-decoration-thickness: 2px;
+  }
+</style>

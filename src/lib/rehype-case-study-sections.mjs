@@ -9,6 +9,10 @@ const EXPECTED = [
   'decisions', 'build', 'outcome', 'still-open',
 ]; // keep in sync with SECTIONS
 
+// A section's visible heading may use other words than its TOC title; its id stays the same.
+// Keep in sync with `heading` in SECTIONS.
+const ALIASES = { 'key-decisions': 'decisions', 'the-build': 'build' };
+
 const slug = (text) =>
   text.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
 
@@ -25,7 +29,8 @@ export default function rehypeCaseStudySections() {
     let current = null;
     for (const node of tree.children) {
       if (node.type === 'element' && node.tagName === 'h2') {
-        const id = slug(textOf(node));
+        const raw = slug(textOf(node));
+        const id = ALIASES[raw] ?? raw;
         ids.push(id);
         node.properties = { ...node.properties, id: `${id}-heading` };
         current = {

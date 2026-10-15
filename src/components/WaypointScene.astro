@@ -2,7 +2,7 @@
 /**
  * The Waypoint hero stage scene, rebuilt from reference/specimen.html: a phone shows an
  * emergency code, a scan line sweeps it, the physician view rises, its rows appear one
- * after another, and the numbered pin (1) lands on the alert.
+ * after another, alerts first.
  *
  * Pure CSS, looping, 7s. It starts mid-cycle (negative animation delay) so the very
  * first frame is the complete scene, and with prefers-reduced-motion nothing animates and
@@ -70,7 +70,7 @@ const MODULES =
     <div class="wp-pv">
       <div class="wp-pv-head"><strong>Dana K. · Emergency profile</strong><small>Scanned · no login</small></div>
       <div class="wp-alert wp-stagger" style="--d:0s">
-        <b>Alerts</b><span>Severe latex allergy: use non-latex gloves</span><span class="wp-pin">1</span>
+        <b>Alerts</b><span>Severe latex allergy: use non-latex gloves</span>
       </div>
       <div class="wp-row wp-stagger" style="--d:.25s"><span>Allergies</span><span>Latex</span></div>
       <div class="wp-row wp-stagger" style="--d:.45s"><span>Medications</span><span>Metformin 500 mg</span></div>
@@ -221,8 +221,6 @@ const MODULES =
   .wp-alert b {
     color: var(--waypoint-critical);
     font-size: 0.85em;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .wp-row {
     display: flex;
@@ -239,26 +237,9 @@ const MODULES =
     color: var(--waypoint-route);
     font-weight: 600;
   }
-  /* The pin is the "1" the card's annotation refers to. It uses the site accent on purpose:
-     it belongs to the portfolio's annotation system, not to Waypoint's own palette. */
-  .wp-pin {
-    position: absolute;
-    right: -7px;
-    top: -7px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: var(--on-accent);
-    font-size: 11px;
-    font-weight: 700;
-    display: grid;
-    place-items: center;
-    box-shadow: 0 0 0 3px var(--waypoint-surface);
-  }
 
   /* Motion only when allowed. Each animation starts 4.5s into its 7s cycle, so the first
-     frame already shows the complete scene (desk risen, rows in, pin placed). */
+     frame already shows the complete scene (desk risen, rows in). */
   @media (prefers-reduced-motion: no-preference) {
     .wp-scan {
       animation: wp-scan 7s ease-in-out infinite;
@@ -272,10 +253,6 @@ const MODULES =
       animation: wp-appear 7s ease-out infinite;
       animation-delay: calc(-4.5s + var(--d, 0s));
     }
-    .wp-pin {
-      animation: wp-pop 7s cubic-bezier(0.3, 1.6, 0.5, 1) infinite;
-      animation-delay: -4.5s;
-    }
   }
   /* With JS, the loop is held at its complete first frame until the stage is on screen
      (the script below sets data-scene-playing), so a visitor who scrolls down later
@@ -284,14 +261,12 @@ const MODULES =
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) .wp-scan,
     :global(.js) .wp-desk,
-    :global(.js) .wp-stagger,
-    :global(.js) .wp-pin {
+    :global(.js) .wp-stagger {
       animation-play-state: paused;
     }
     :global(.js) .wp-scene[data-scene-playing] .wp-scan,
     :global(.js) .wp-scene[data-scene-playing] .wp-desk,
-    :global(.js) .wp-scene[data-scene-playing] .wp-stagger,
-    :global(.js) .wp-scene[data-scene-playing] .wp-pin {
+    :global(.js) .wp-scene[data-scene-playing] .wp-stagger {
       animation-play-state: running;
     }
   }
@@ -309,11 +284,6 @@ const MODULES =
     0%, 26% { opacity: 0.15; transform: translateY(4px); }
     36%, 92% { opacity: 1; transform: none; }
     100% { opacity: 0.15; transform: translateY(4px); }
-  }
-  @keyframes wp-pop {
-    0%, 40% { transform: scale(0.4); opacity: 0; }
-    46%, 92% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(0.4); opacity: 0; }
   }
 </style>
 

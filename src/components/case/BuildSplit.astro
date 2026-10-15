@@ -1,0 +1,86 @@
+---
+/**
+ * Who did what in the build: my part (accent tint) next to the tools' part, each a short
+ * heading over a set of chips. Stacks below 560px of its own width.
+ */
+interface Props {
+  mine: string[];
+  tools: string[];
+  mineTitle?: string;
+  toolsTitle?: string;
+}
+const { mine, tools, mineTitle = 'My part', toolsTitle = "The tools' part" } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="split">
+    {
+      [
+        { title: mineTitle, items: mine, me: true },
+        { title: toolsTitle, items: tools, me: false },
+      ].map((col) => (
+        <div class:list={['col', col.me && 'col--me']}>
+          <h3>{col.title}</h3>
+          <ul class="chips" role="list">
+            {col.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 560px) {
+    .split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .col {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-frame);
+  }
+  .col--me {
+    background: var(--accent-tint);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .col--me h3 {
+    color: var(--accent-strong);
+  }
+  .chips {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  li {
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--raise);
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+</style>

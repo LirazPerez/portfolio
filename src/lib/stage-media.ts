@@ -9,14 +9,14 @@ import type { ImageMetadata } from 'astro';
  *   <slug>.<mp4|webm>                       muted looping screen recording
  *   <slug>-poster.<jpg|jpeg|png|webp|avif>  poster frame for that video
  *
- * A project's own folder works too, for media that belongs to its case study:
+ * If only one of -light / -dark exists it is used for both themes. See
+ * src/assets/stages/README.md for the expected file names.
  *
- *   src/assets/work/<slug>/stage.<mp4|webm>        the recording (same role as <slug>.mp4)
- *   src/assets/work/<slug>/stage-poster.<ext>      its poster frame
+ * A desktop project's flow recording lives in its own folder and is shown in the laptop
+ * mockup (home card and case-study hero) instead of the stage; see `flowMedia` below:
  *
- * The project folder wins when both exist. If only one of -light / -dark exists it is
- * used for both themes. See src/assets/stages/README.md and the README in each work
- * folder for the expected file names.
+ *   src/assets/work/<slug>/flow.<mp4|webm>     one continuous recording of the app in use
+ *   src/assets/work/<slug>/flow-poster.<ext>   its first frame (reduced motion and no JS)
  */
 const images = import.meta.glob<ImageMetadata>('../assets/stages/*.{jpg,jpeg,png,webp,avif}', {
   eager: true,
@@ -81,18 +81,27 @@ export function stageMedia(slug: string): StageMedia {
   const light = imageByName.get(`${slug}-light`);
   const dark = imageByName.get(`${slug}-dark`);
 
-  // The project's own folder first, then the shared stages folder.
-  const ownSources = videoSources(workVideos, (folder, name) => folder === slug && name === 'stage');
-  const sources = ownSources.length > 0 ? ownSources : videoSources(videos, (_folder, name) => name === slug);
-
-  const ownPoster = Object.entries(workImages).find(([path]) =>
-    path.endsWith(`/work/${slug}/stage-poster.${path.split('.').pop()}`),
-  )?.[1];
-
   return {
     light: light ?? dark,
     dark: dark ?? light,
-    poster: ownPoster ?? imageByName.get(`${slug}-poster`),
-    videos: sources,
+    poster: imageByName.get(`${slug}-poster`),
+    videos: videoSources(videos, (_folder, name) => name === slug),
   };
+}
+
+export interface FlowMedia {
+  poster?: ImageMetadata;
+  videos: StageVideoSource[];
+}
+
+/** The project's flow recording, or null when it has none (then the stage is used). */
+export function flowMedia(slug: string): FlowMedia | null {
+  const sources = videoSources(workVideos, (folder, name) => folder === slug && name === 'flow');
+  if (sources.length === 0) return null;
+  // MP4 first: every browser plays it, so it should be the one picked.
+  sources.sort((a, b) => (a.type === 'video/mp4' ? -1 : 0) - (b.type === 'video/mp4' ? -1 : 0));
+  const poster = Object.entries(workImages).find(([path]) =>
+    /\/work\/[^/]+\/flow-poster\.[a-z]+$/.test(path) && path.includes(`/work/${slug}/`),
+  )?.[1];
+  return { poster, videos: sources };
 }

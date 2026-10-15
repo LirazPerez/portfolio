@@ -3,121 +3,200 @@ title: AeroPulse
 tagline: "One equipment picture that a logistics team across dozens of sites and two countries is willing to act on."
 order: 1
 platform: desktop
-role: "Product design, research and build (solo)"
+category: "Desktop SaaS"
+role: "Product design, research, build"
 duration: "1 month"
 tools: [Base44, Claude, Notion]
 status: shipped
 statusLabel: "In daily use by 20 to 30 people"
-tags: [Systems thinking, Desktop SaaS, Built from a real system]
-origin: "Based on a real system I designed and built for a company's logistics operation, which is still in daily use. That work is confidential, so I rebuilt it from scratch around a drone operation. Every name, number and screen here is my own."
-noticed: "Nobody was short on equipment. They were short on proof."
-annotation: "Availability across every project is checked before a request becomes a purchase."
-stageAlt: "AeroPulse's Draft Projects screen: on a line that is short of stock, the Transfer From dropdown is switched to another project, then switched back."
+tags: [Systems thinking, Desktop SaaS, In daily use]
+origin: "Based on a real system I designed and built for a company's logistics operation, still in daily use. That work is confidential, so I rebuilt it from scratch around a drone operation."
+heroScreens: [decision-2-defect-banner, decision-3-shipment-confirmed]
+stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens Draft Projects and points at a warehouse availability of 4 against 8 requested, then at that line's Transfer From cell. It opens Defect and Maintenance Analysis and rests on the red banner: Wear and Tear accounts for 63% of defects. It opens the Archive, expands shipment FX-88520, opens its delivery photo of a drone deployment kit on a pallet, closes it, and returns to the dashboard."
 ---
 
 ## What I noticed
 
-Nobody was short on equipment. They were short on proof.
-
-Answering "is this a problem right now?" took three phone calls, because cables, batteries and shipments lived in separate spreadsheets that never agreed. So people did the safe thing: they approved the request and bought again. The duplicate purchase was never the real problem. It was what happens when nobody trusts the number.
+<Intro
+  headline="Nobody was short on equipment. They were short on proof."
+  lede="So people approved the request and bought again. The duplicate was never the problem; distrust was."
+>
+  <Converge
+    label="Before: three spreadsheets that disagree, 12, 9 and 14 units, and three phone calls to check. After: one shared picture, 9 available, verified on site."
+    sources={[
+      { name: 'cables.xlsx', value: '12' },
+      { name: 'field-count.xlsx', value: '9' },
+      { name: 'shipments.xlsx', value: '14' },
+    ]}
+    note="3 phone calls to check"
+    calls={3}
+    result={{ title: 'One shared picture', value: '9', caption: 'available · verified on site' }}
+  />
+</Intro>
 
 ## Problem
 
-Most logistics tools treat equipment tracking as a counting problem. I treated it as a trust problem: the question is not how much there is, it is who will act on that number without checking it first.
+<Intro headline="I treated equipment tracking as a trust problem, not a counting problem." />
 
-- Dozens of active field sites across the US, coordinated with a supply-chain team in Israel.
-- Two very different core users: a Logistics Manager who owns the whole picture, and an LDO embedded in one field team who needs to know a request is moving without chasing it.
-- Every competitor I reviewed (Dronedesk, Airdata UAV, EZOfficeInventory) solves counting. None carries trust across a project boundary and an international border at the same time.
+<Compare
+  before={{
+    label: 'How most tools see it',
+    quote: 'How many do we have?',
+    note: 'Dronedesk, Airdata UAV, EZOfficeInventory all answer this.',
+  }}
+  after={{
+    label: 'How I framed it',
+    quote: 'Will someone act on this number without checking it first?',
+    note: 'Across a project boundary and an international border.',
+  }}
+/>
+
+<StatRow
+  stats={[
+    { value: 'Dozens', label: 'active field sites in the US' },
+    { value: '2', label: 'countries, one supply chain' },
+    { value: '2', label: 'core users with opposite needs' },
+    { value: '0', label: 'reviewed tools that solve trust' },
+  ]}
+/>
 
 ## How I ran it
 
-- **I built the real system with the people who run it, not just for them.** The company's US logistics manager was my stakeholder and the system's owner. I designed the flows with him against how the operation really ran, and he runs it today.
-- **I designed for everyone who touches equipment, not just the people who order it.** Each field team has one LDO who logs requests and counts. The warehouse team, the supply-chain team in Israel, regional managers, team leads, the head of operations and the VP all work from the same screens.
-- **I started from the operation, not the screens.** The first artifact was a map of the real flow: field request, availability check, purchase or transfer, shipment, receipt.
-- **I scoped to the three decisions that carry the thesis** and deliberately deferred anything that did not depend on them, including role-based navigation.
+<Intro
+  headline="Built with the people who run it, for everyone who touches equipment."
+  lede="I designed the flows with the US logistics manager against the real operation. He owns it today."
+>
+  <MapLegend slot="after" owner="Owner and co-designer" others="Daily users" />
+  <StakeholderMap
+    label="AeroPulse at the center, connected to the logistics manager in the US, who owns it and co-designed the flows, and to its daily users: LDOs, one per field team; the warehouse, which receives and ships; the supply-chain team in Israel, for procurement; regional managers; team leads; the head of operations; and the VP."
+    hub="AeroPulse"
+    owner={{ label: 'Logistics Manager, US', sub: 'owner · co-designed the flows' }}
+    nodes={[
+      { label: 'LDOs', sub: 'one per field team' },
+      { label: 'Warehouse', sub: 'receives and ships' },
+      { label: 'Supply chain, Israel', sub: 'procurement' },
+      { label: 'Regional managers' },
+      { label: 'Team leads' },
+      { label: 'Head of ops' },
+      { label: 'VP' },
+    ]}
+  />
+</Intro>
 
 ## Process
 
-- Research: competitive and heuristic review, two personas, asset identification standards, a findings log.
-- Information architecture: navigation model, screen inventory, key flows.
-- Build in Base44, iterating on the request-to-fulfillment flow more than any other.
-- **What didn't work: syncing demand to reality automatically.** I first had the numbers in a draft request flow straight into the live project inventory. They kept drifting apart, because what a team asks for is not what ends up on site.
-- **What I did instead: a deliberate manual step.** I took the automation out and made moving numbers from a request into project inventory a manual action. A number the system calculates wrong on its own costs more than the minute it takes someone to enter the right one. It's the same principle as decision 3: a person stands behind the number before anyone acts on it.
+<Intro headline="I mapped the operation before drawing a single screen." />
 
-## Decisions
-
-### 1. Check availability before a request becomes a purchase
-
-<Screen
-  project="aeropulse"
-  name="decision-1-draft-projects"
-  pin={1}
-  pinX={88.3}
-  pinY={77.9}
-  alt="AeroPulse's Draft Projects table with six demand lines. The Central WH Avail column is orange where the warehouse falls short of the requested quantity (4 available against 8 requested for the Thermal Optic Pod T7) and green where it covers it. Each line has a Transfer From dropdown listing other projects, so a shortfall can be met by a transfer instead of a new purchase."
+<ProcessFlow
+  steps={[
+    { title: 'Field request', text: 'An LDO logs a shortage' },
+    { title: 'Availability check', text: 'Every active project, first', key: true },
+    { title: 'Transfer or purchase', text: 'Transfer offered in the same form' },
+    { title: 'Shipment', text: 'US and Israel, tracked' },
+    { title: 'Receipt, with proof', text: 'Photo and bill of lading', key: true },
+  ]}
 />
 
-When an LDO files a shortage, the system checks every other active project before the request reaches procurement, and offers a transfer in the same form. The Logistics Manager doesn't have to trust that nothing was double-ordered. She can see it.
-
-*Considered instead:* a low-stock alert that tells procurement to reorder. Rejected, because it solves counting and creates exactly the duplicate it was meant to prevent.
-
-### 2. Match the alert to how urgent it actually is
-
-<Screen
-  project="aeropulse"
-  name="decision-2-cable-low-stock"
-  pin={2}
-  pinX={42.2}
-  pinY={83}
-  alt="AeroPulse's Cable and Harness Inventory, from Part Number to Reorder Action. Three cables read In Stock in green, with no reorder action. The two rows below, TR-RBN-22 and GS-USBC-04, show a small red warning icon beside the quantity (8 against a minimum of 15, and 5 against 12), a Low Stock pill, and a reorder already in motion: Pending and Ordered. The warning stays inside the row; nothing else on the page changes."
+<DidInstead
+  dropped="Draft request numbers synced automatically into project inventory."
+  why="They drifted: what a team asks for isn't what lands on site."
+  instead="A deliberate manual step. A wrong number the system made up costs more than a minute of someone entering the right one."
 />
 
-<Screen
-  project="aeropulse"
-  name="decision-2-defect-banner"
-  pin={2}
-  pinX={94.7}
-  pinY={7.3}
-  alt="The top of AeroPulse's Defect and Maintenance Analysis page. A red banner states that Wear and Tear accounts for 63% of defects, a concentrated root cause to investigate. Below it are two summary cards, Total Defects 8 and Open or In Repair 4, and the start of the Defect Rate by Model chart that the banner points to."
+## Key decisions
+
+<Intro headline="Three decisions carry the whole idea." />
+
+<Decision
+  n={1}
+  title="Check availability before a request becomes a purchase."
+  summary="The system looks across every active project and offers a transfer in the same form."
+  considered="Considered: a low-stock alert to procurement."
+  verdict="Rejected, because it creates exactly the duplicate it tries to prevent."
+>
+  <Screen
+    project="aeropulse"
+    name="decision-1-draft-projects"
+    pin={1}
+    pinX={88.3}
+    pinY={77.9}
+    alt="Draft Projects table: Central WH availability colored by shortfall, and a Transfer From dropdown on each line. The Thermal Optic Pod T7 line has 4 available against 8 requested, so it can be met by a transfer from another project instead of a new purchase."
+  />
+</Decision>
+
+<Decision
+  n={2}
+  title="Match the alert to how urgent it actually is."
+  summary="Recoverable stays in the row. Urgent and unexplained goes straight to the evidence."
+  considered="Considered: one alert style for everything."
+  verdict="Rejected, because when everything is red, nothing is."
+>
+  <Screen
+    project="aeropulse"
+    name="decision-2-cable-low-stock"
+    pin={2}
+    pinX={42.2}
+    pinY={83}
+    alt="Cable inventory: warning icons on the two low-stock rows, 8 against a minimum of 15 and 5 against 12, with a reorder already in motion. The warning stays inside the row; nothing else on the page changes."
+  />
+  <Screen
+    project="aeropulse"
+    name="decision-2-defect-banner"
+    pin={2}
+    pinX={94.7}
+    pinY={7.3}
+    alt="Defect analysis: a red banner says Wear and Tear accounts for 63 percent of defects, a concentrated root cause to investigate, above the defect totals and the chart it points to."
+  />
+</Decision>
+
+<Decision
+  n={3}
+  title="Confirm with evidence, not with a status."
+  summary="A shipment is marked arrived when someone attaches the photo and the bill of lading."
+  considered="Trade-off: more clicks on site."
+  verdict="Worth it, because a status nobody confirmed is the number nobody trusts."
+>
+  <Screen
+    project="aeropulse"
+    name="decision-3-shipment-confirmed"
+    pin={3}
+    pinX={14.3}
+    pinY={53.7}
+    alt="Archived shipment FX-88520, Central Logistics Depot to Mountain Region Hub by FedEx, Arrived, with the delivery photo and the bill of lading attached."
+  />
+</Decision>
+
+## The build
+
+<Intro headline="Direction from me, implementation from the tools." />
+
+<BuildSplit
+  mine={['Operating model', 'Research', 'Information architecture', 'Every decision above', 'Request-flow iterations']}
+  tools={['Base44: the working app', 'Claude: research structure and prompts']}
 />
-
-Low stock on a cable gets a warning icon in its row. A concentrated defect cause gets a red banner above the chart that explains it. Recoverable stays in the row. Urgent and unexplained goes straight to the evidence.
-
-*Considered instead:* one alert style for everything. Rejected, because when everything is red, nothing is.
-
-### 3. Confirm with evidence, not with a status
-
-<Screen
-  project="aeropulse"
-  name="decision-3-shipment-confirmed"
-  pin={3}
-  pinX={14.3}
-  pinY={53.7}
-  alt="Shipment FX-88520, Central Logistics Depot to Mountain Region Hub by FedEx, opened in AeroPulse's Archive with a final status of Arrived. Under the label Bill of Lading / Package Photos sit two attached thumbnails: a delivery photo of a black hard case stenciled Drone Deployment Kit, Fragile, on a wooden pallet at a warehouse loading dock, a signed delivery sheet clipped on top; and the shipment's FedEx bill of lading, for drone parts on tracking number FX-88520, dated October 12, 2026 and signed by shipper and carrier. The shipment was closed with this evidence attached, not by its ETA passing."
-/>
-
-A shipment isn't marked arrived because its ETA passed. Someone attaches the delivery photo and the bill of lading and confirms it. HQ-sourced parts move forward through a manual Advance action.
-
-*Trade-off:* more clicks for the person on site. Worth it, because a status nobody confirmed is the number nobody trusts.
-
-## Build
-
-**My part:** the operating model, the research, the information architecture, every decision above, and the iteration on the request flow.
-
-**The tools' part:** Base44 generated the working app from my prompts, both the real system and this version. Claude helped turn my brief into research structure and build prompts.
-
-**How it was decided:** direction and decisions from me, implementation from the tools, checked against the real operation with its logistics manager.
 
 ## Outcome
 
-**Adopted across the whole operation.** 20 to 30 people, in every role above from LDOs in the field to the VP, work from it every day. It saves the team 8 to 10 hours of work a week, and planning and equipment tracking stopped depending on phone calls and parallel spreadsheets.
+<Intro headline="Adopted across the whole operation." />
 
-What's in the product: inventory across warehouse and sites, cable and battery stock with reorder thresholds, field requests with cross-project transfer, a shipment pipeline with evidence-based arrival, defect analysis, and US/Israel procurement tracking.
+<OutcomeStats
+  stats={[
+    { value: '20–30', spoken: '20 to 30', label: 'people use it every day' },
+    { value: '8–10 h', spoken: '8 to 10 hours', label: 'of work saved every week' },
+    { value: 'Field → VP', spoken: 'From the field to the VP:', label: 'every role on one picture' },
+  ]}
+/>
 
-<ExternalLink href="https://aero-pulse-ops.base44.app">Try the live app</ExternalLink>
+<ExternalLink href="https://aero-pulse-ops.base44.app" variant="primary">Try the live app</ExternalLink>
 
 ## Still open
 
-- **Role-based navigation.** The sidebar doesn't yet separate the Logistics Manager's full view from the LDO's. For an LDO this is a side tool; for a Logistics Manager it's the whole job.
-- **A freshness signal on availability.** A transfer approved against a stale "available" count could leave the other project short, exactly the failure the thesis exists to prevent. It needs a "last verified" marker, not just a number.
-- **A usability test with a real logistics manager** on the request-to-fulfillment flow, the one I iterated on most without watching anyone else use it.
+<Intro headline="What I'd do next." />
+
+<OpenCards
+  items={[
+    { title: 'Role-based navigation', text: 'The LDO and the manager still share one sidebar.' },
+    { title: 'A freshness signal', text: '"Last verified" next to every available count.' },
+    { title: 'Test with a real manager', text: 'On the request flow I iterated on most.' },
+  ]}
+/>

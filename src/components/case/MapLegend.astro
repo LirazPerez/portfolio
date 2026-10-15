@@ -1,0 +1,45 @@
+---
+/**
+ * The key for StakeholderMap: the owner swatch (accent) and the everyone-else swatch
+ * (an outlined node). The swatches differ in shape as well as color: filled vs outlined.
+ */
+interface Props {
+  owner: string;
+  others: string;
+}
+const { owner, others } = Astro.props;
+---
+
+<ul class="legend" role="list">
+  <li><i class="own" aria-hidden="true"></i>{owner}</li>
+  <li><i aria-hidden="true"></i>{others}</li>
+</ul>
+
+<style>
+  .legend {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--muted);
+    background: var(--raise);
+  }
+  i.own {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+</style>

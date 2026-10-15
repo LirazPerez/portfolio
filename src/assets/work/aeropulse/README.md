@@ -19,16 +19,30 @@ Logistics Depot to Mountain Region Hub, drone parts, October 2026). The app's th
 120 px, so the crop now includes the Final Status column ("Arrived") and they still render larger
 than before.
 
-## Hero recording (home card and top of the case study)
+## Flow recording (laptop on the home card and at the top of the case study)
 
 | File | Notes |
 |---|---|
-| `stage.mp4` | H.264, muted, 4.5 s, loops seamlessly (starts and ends on the original value) |
-| `stage.webm` | Same clip, VP9 |
-| `stage-poster.webp` | First frame: the reduced-motion and no-JS fallback |
+| `flow.mp4` | H.264, 1440x900, 30 fps, muted, 20.6 s, about 1.0 MB |
+| `flow.webm` | Same clip, VP9, about 1.1 MB |
+| `flow-poster.webp` | First frame: what reduced motion and no JS show |
 
-The clip is `/drafts`: the Transfer From dropdown on the Thermal Optic Pod T7 row is changed to
-another project and then put back.
+One continuous take of the live app, signed out, with a drawn cursor (an arrow, plus a soft
+ring on each click) and the "Edit with Base44" badge hidden. Read-only: only navigation links,
+a row's expand arrow, a photo thumbnail and the lightbox close are clicked.
+
+1. Dashboard, resting.
+2. Draft Projects (Demands): the cursor points at the orange Central WH Avail on Thermal Optic
+   Pod T7 (4 against 8 requested), then at that line's Transfer From cell.
+3. Defect & Maintenance Analysis: rests on the red "Wear & Tear accounts for 63%" banner.
+4. Archive: opens FX-88520 with the arrow at the start of its row, opens the delivery photo,
+   rests, closes it with its X.
+5. Back to the Dashboard, cursor at its starting point: the last frame matches the first, so
+   the loop is seamless.
+
+It is captured frame by frame (one 2x screenshot per 1/30 s, downscaled with Lanczos), so no
+frame is ever dropped and text stays crisp. To re-record, run
+`scripts/record-aeropulse-flow.mjs` (its header has the steps).
 
 ## Pins
 

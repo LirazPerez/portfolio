@@ -25,6 +25,18 @@
   --on-accent: #FFFFFF;
   --glass: rgb(255 255 255 / 0.78);
   --shadow: 0 10px 30px -14px rgb(40 20 60 / 0.28);
+  --shadow-lift: 0 24px 60px -28px rgb(40 20 60 / 0.45);
+  /* Status pair for case-study diagrams: always paired with a word or an icon, never alone. */
+  --warn: #A84E26;
+  --warn-tint: #FBEDE6;
+  --ok: #2F7A57;
+  --ok-tint: #E7F4EC;
+  /* Laptop mockup: a generic dark bezel and a thin base. */
+  --bezel: #1D1B21;
+  --bezel-edge: #3A3740;
+  --deck: #CFCBD6;
+  --deck-edge: #9F9AA8;
+  --deck-shadow: rgb(40 20 60 / 0.18);
   color-scheme: light;
 }
 
@@ -42,6 +54,16 @@
     --on-accent: #131215;
     --glass: rgb(35 32 40 / 0.72);
     --shadow: 0 10px 30px -12px rgb(0 0 0 / 0.6);
+    --shadow-lift: 0 24px 60px -24px rgb(0 0 0 / 0.8);
+    --warn: #F0A27E;
+    --warn-tint: #3A2620;
+    --ok: #8FD3B0;
+    --ok-tint: #1E3329;
+    --bezel: #0B0A0D;
+    --bezel-edge: #2E2B33;
+    --deck: #3A3640;
+    --deck-edge: #26232A;
+    --deck-shadow: rgb(0 0 0 / 0.5);
     color-scheme: dark;
   }
 }
@@ -59,6 +81,16 @@
   --on-accent: #131215;
   --glass: rgb(35 32 40 / 0.72);
   --shadow: 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 24px 60px -24px rgb(0 0 0 / 0.8);
+  --warn: #F0A27E;
+  --warn-tint: #3A2620;
+  --ok: #8FD3B0;
+  --ok-tint: #1E3329;
+  --bezel: #0B0A0D;
+  --bezel-edge: #2E2B33;
+  --deck: #3A3640;
+  --deck-edge: #26232A;
+  --deck-shadow: rgb(0 0 0 / 0.5);
   color-scheme: dark;
 }
 
@@ -87,6 +119,10 @@
   --color-accent-tint: var(--accent-tint);
   --color-on-accent: var(--on-accent);
   --color-glass: var(--glass);
+  --color-warn: var(--warn);
+  --color-warn-tint: var(--warn-tint);
+  --color-ok: var(--ok);
+  --color-ok-tint: var(--ok-tint);
   --color-transparent: transparent;
   --color-current: currentColor;
 
@@ -100,6 +136,7 @@
   --radius-control-sm: 6px;
 
   --shadow-soft: var(--shadow);
+  --shadow-lift: var(--shadow-lift);
 }
 
 /* `dark:` for the rare case a token is not enough (e.g. inside a project stage). */

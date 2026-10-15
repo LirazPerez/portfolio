@@ -1,9 +1,9 @@
 ---
 /**
  * A stage screen recording: muted, looping, inline, no controls, hidden from assistive
- * tech (the text alternative lives on the stage). It is not set to autoplay in markup;
- * the script in Stage.astro plays it only when motion is allowed and it is on screen,
- * so it shows its poster with no JS and under prefers-reduced-motion.
+ * tech (the text alternative lives on the stage or laptop around it). It is not set to
+ * autoplay in markup; the script below plays it only when motion is allowed and it is on
+ * screen, so it shows its poster with no JS and under prefers-reduced-motion.
  */
 import type { StageVideoSource } from '../lib/stage-media';
 import type { ImageMetadata } from 'astro';
@@ -11,12 +11,14 @@ import type { ImageMetadata } from 'astro';
 interface Props {
   sources: StageVideoSource[];
   poster?: ImageMetadata;
+  /** Which part of the recording stays in view when the frame crops it. */
+  position?: 'top' | 'top-left';
 }
-const { sources, poster } = Astro.props;
+const { sources, poster, position = 'top' } = Astro.props;
 ---
 
 <video
-  class="stage-video"
+  class:list={['stage-video', position === 'top-left' && 'stage-video--top-left']}
   data-stage-video
   muted
   loop
@@ -42,4 +44,29 @@ const { sources, poster } = Astro.props;
     object-position: top center;
     display: block;
   }
+  .stage-video--top-left {
+    object-position: top left;
+  }
 </style>
+
+<script>
+  // Recordings play only when motion is allowed, and only while on screen.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const videos = document.querySelectorAll<HTMLVideoElement>('video[data-stage-video]');
+  if (videos.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const video = entry.target as HTMLVideoElement;
+          if (entry.isIntersecting && !reduce.matches) void video.play().catch(() => {});
+          else video.pause();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    videos.forEach((video) => io.observe(video));
+    reduce.addEventListener('change', () => {
+      if (reduce.matches) videos.forEach((video) => video.pause());
+    });
+  }
+</script>

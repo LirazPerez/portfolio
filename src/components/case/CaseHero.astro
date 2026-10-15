@@ -1,0 +1,209 @@
+---
+/**
+ * The top of every case study: eyebrow, title, tagline, one meta row (role, time, tools,
+ * status), the product, and the origin line.
+ *
+ * The product is the laptop with the project's flow recording when it has one (desktop
+ * projects), with up to two `heroScreens` floating beside it; otherwise the hero stage.
+ * The floats are decoration (aria-hidden): the laptop's label and the decisions below
+ * describe the same screens. They drift gently only when motion is allowed.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import Laptop from '../Laptop.astro';
+import Stage from '../Stage.astro';
+import { flowMedia } from '../../lib/stage-media';
+import { workScreen } from '../../lib/work-media';
+import { STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+const { entry } = Astro.props;
+const { title, tagline, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens } =
+  entry.data;
+
+const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
+const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).filter((img): img is ImageMetadata => img !== undefined);
+---
+
+<header class="hero">
+  <a href="/#work" class="back justify-self-start inline-flex items-center gap-1 min-h-[44px] text-[15px] text-muted hover:text-ink no-underline">
+    <span aria-hidden="true">←</span> All work
+  </a>
+  <p class="eyebrow">Case study · {category ?? PLATFORM_LABEL[platform]}</p>
+  <h1 id="cs-title">{title}</h1>
+  <p class="lede">{tagline}</p>
+  <dl class="meta">
+    <div><dt>Role</dt><dd>{role}</dd></div>
+    <div><dt>Time</dt><dd>{duration}</dd></div>
+    <div><dt>Tools</dt><dd>{tools.join(' · ')}</dd></div>
+    <div><dt>Status</dt><dd>{statusLabel ?? STATUS_LABEL[status]}</dd></div>
+  </dl>
+
+  {
+    flow ? (
+      <div class="showcase">
+        {floats[0] && (
+          <div class="float f1" aria-hidden="true">
+            <div class="bar"><i /><i /><i /></div>
+            <Image src={floats[0]} alt="" widths={[360, 560, 720]} sizes="(min-width: 1120px) 330px, 40vw" />
+          </div>
+        )}
+        <Laptop media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} />
+        {floats[1] && (
+          <div class="float f2" aria-hidden="true">
+            <div class="bar"><i /><i /><i /></div>
+            <Image src={floats[1]} alt="" widths={[360, 560, 720]} sizes="(min-width: 1120px) 330px, 40vw" />
+          </div>
+        )}
+      </div>
+    ) : (
+      <div class="stage-wrap">
+        <Stage slug={entry.id} title={title} platform={platform} size="hero" alt={stageAlt} />
+      </div>
+    )
+  }
+
+  {origin && <p class="origin">{origin}</p>}
+</header>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 22px;
+    justify-items: center;
+    text-align: center;
+    padding-bottom: clamp(32px, 6vw, 64px);
+  }
+  .back {
+    margin-bottom: -6px;
+  }
+  .eyebrow {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+  h1 {
+    margin: -10px 0 0;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    text-wrap: balance;
+  }
+  .lede {
+    margin: 0;
+    max-width: 58ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 28px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .meta div {
+    display: flex;
+    gap: 6px;
+  }
+  .meta dt {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .meta dd {
+    margin: 0;
+  }
+
+  .showcase {
+    position: relative;
+    width: 100%;
+    padding: 28px 0 46px;
+  }
+  .stage-wrap {
+    width: 100%;
+    text-align: start;
+  }
+  .float {
+    position: absolute;
+    z-index: 2;
+    width: 30%;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--raise);
+    box-shadow: var(--shadow-lift);
+  }
+  .float :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .bar {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    height: 14px;
+    padding-left: 8px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .bar i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .f1 {
+    left: 0;
+    top: 12%;
+  }
+  .f2 {
+    right: 0;
+    bottom: 6%;
+  }
+  @media (max-width: 47.49rem) {
+    .float {
+      width: 40%;
+      border-radius: 8px;
+    }
+    .bar {
+      height: 10px;
+    }
+    .showcase {
+      padding: 20px 0 32px;
+    }
+  }
+  /* A gentle drift, only when motion is allowed; the resting position is the final state. */
+  @media (prefers-reduced-motion: no-preference) {
+    .float {
+      animation: drift 7s ease-in-out infinite alternate;
+    }
+    .f2 {
+      animation-delay: -3.5s;
+    }
+    @keyframes drift {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-14px);
+      }
+    }
+  }
+
+  .origin {
+    margin: 0;
+    max-width: 70ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+</style>

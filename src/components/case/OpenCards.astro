@@ -1,0 +1,62 @@
+---
+/**
+ * What is still open: short dashed cards (dashed = not done), a title and one line each.
+ * Three across from 600px of its own width.
+ */
+interface Props {
+  items: { title: string; text: string }[];
+}
+const { items } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="open" role="list">
+    {
+      items.map((item) => (
+        <li>
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .open {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 600px) {
+    .open {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  li {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 18px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-frame);
+  }
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+</style>

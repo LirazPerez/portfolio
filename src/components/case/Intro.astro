@@ -1,0 +1,68 @@
+---
+/**
+ * The opening of a case-study section, right after its `## heading` (which renders as the
+ * small eyebrow): one big headline sentence, an optional lede of at most two sentences,
+ * an optional `after` slot (e.g. a legend), and an optional visual in the default slot.
+ *
+ * With a visual and room for it (case-body container 820px and up), the section becomes
+ * two columns: eyebrow, headline and lede on the left, the visual on the right. The grid
+ * rule lives in the case-study template, because it spans the section's own heading.
+ *
+ * The headline is a statement, not a heading: the section's heading is the `##` above it,
+ * which matches the table of contents.
+ */
+interface Props {
+  headline: string;
+  lede?: string;
+}
+const { headline, lede } = Astro.props;
+const hasVisual = Astro.slots.has('default');
+---
+
+<div class:list={['intro', hasVisual && 'intro--split']}>
+  <div class="intro-head">
+    <p class="headline">{headline}</p>
+    {lede && <p class="lede">{lede}</p>}
+    <slot name="after" />
+  </div>
+  {
+    hasVisual && (
+      <div class="intro-visual">
+        <slot />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .intro {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+  }
+  .intro-head {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    min-width: 0;
+  }
+  .intro-visual {
+    min-width: 0;
+  }
+  .headline {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.012em;
+    font-weight: 620;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .lede {
+    margin: 0;
+    max-width: 58ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+</style>

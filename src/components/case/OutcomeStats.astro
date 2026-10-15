@@ -1,0 +1,74 @@
+---
+/**
+ * The outcome in big numbers: one card per stat, value over label. Three across from
+ * 600px of its own width. `spoken` replaces the value for screen readers when the
+ * visible form reads badly aloud (ranges, arrows).
+ */
+interface Props {
+  stats: { value: string; label: string; spoken?: string }[];
+}
+const { stats } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="outcome" role="list">
+    {
+      stats.map((s) => (
+        <li class="stat">
+          {s.spoken ? (
+            <>
+              <b aria-hidden="true">{s.value}</b>
+              <span class="sr-only-text">{s.spoken}</span>
+            </>
+          ) : (
+            <b>{s.value}</b>
+          )}
+          <span class="label">{s.label}</span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .outcome {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  @container (min-width: 600px) {
+    .outcome {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .stat {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  b {
+    /* Sized by the room the row really has, so "Field → VP" fits its card. */
+    font-size: clamp(32px, 5.4cqi, 52px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-strong);
+    text-wrap: balance;
+  }
+  .label {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+</style>

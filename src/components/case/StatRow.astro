@@ -1,0 +1,70 @@
+---
+/**
+ * A row of small stats, each a value over a short label, with an accent rule on top.
+ * Four across from 560px of its own width, two across below. `spoken` replaces the
+ * value for screen readers when the visible form reads badly aloud.
+ */
+interface Props {
+  stats: { value: string; label: string; spoken?: string }[];
+}
+const { stats } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="stats" role="list">
+    {
+      stats.map((s) => (
+        <li class="stat">
+          {s.spoken ? (
+            <>
+              <b aria-hidden="true">{s.value}</b>
+              <span class="sr-only-text">{s.spoken}</span>
+            </>
+          ) : (
+            <b>{s.value}</b>
+          )}
+          <span class="label">{s.label}</span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .stats {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 12px;
+  }
+  @container (min-width: 560px) {
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .stat {
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    padding-top: 12px;
+    border-top: 2px solid var(--accent);
+  }
+  b {
+    font-size: clamp(26px, 3.4vw, 38px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .label {
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+</style>
