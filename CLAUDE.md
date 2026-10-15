@@ -151,16 +151,25 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   stageAlt?: string;        // text alternative for the hero stage or laptop recording; generic fallback if omitted
   statusLabel?: string;     // case-study meta row: overrides the label for `status` (e.g. "In daily use by 20 to 30 people")
   origin?: string;          // one line under the meta row: where the project comes from, what is and is not shown
+  lede?: string;            // case-study lede when it should differ from the card's tagline
+  phones?: { clip, title, caption, alt }[];  // mobile: up to three recordings, each in a <Phone>; the hero shows all, middle one larger
+  cardPhones?: string[];    // which `phones` (by clip) the home card shows, up to two
+  comingSoon?: boolean;     // the page shows "Case study coming soon" instead of the outline and TOC
+  draft?: boolean;          // hidden everywhere: no card, no page, no "Next project" link (src/lib/work.ts)
 }
 ```
 
 `statusLabel` and `origin` are shown only on the case-study page (the meta row and the line under it). `status` stays the enum; `statusLabel` just replaces its wording.
 
-The home card shows the product on top (the laptop with the flow recording for a desktop project that has one, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. **Role, duration, status and tools are not on the card**; they live on the case-study page.
+The home card shows the product on top (the laptop with the flow recording for a desktop project that has one, two phones for a mobile project with `cardPhones`, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. **Role, duration, status and tools are not on the card**; they live on the case-study page.
 
 **Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), the product (laptop plus `heroScreens` floating beside it, drifting only when motion is allowed; or the stage), then `origin`.
 
-Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `recall` (3, mobile), `classpass` (4, mobile).
+Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, mobile, coming soon), `recall` (4, mobile, phones). `classpass` is a draft: its file is kept, nothing links to it.
+
+Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCollection('work')` directly, so drafts stay hidden.
+
+**Phone mockup** (`Phone.astro`): a generic dark frame (`--bezel`, `--bezel-edge`), a pill camera cutout, no logo, a 390:844 screen with the recording filling it (cover, from the top). Everything scales with its own width (container units). One image to assistive tech (`label`). A mobile project's recordings live in its media folder as `<clip>.mp4`, `<clip>.webm`, `<clip>-poster.*` (`workClip` in `stage-media.ts`); Recall's are recorded by `scripts/record-recall-flows.mjs` (see the README in its media folder).
 
 **Case-study sections.** Every case study has these sections, in this order, with these ids (single source: `SECTIONS` in `src/lib/case-study.ts`):
 
@@ -200,6 +209,19 @@ Available in every case-study MDX without importing (the template passes them as
 | `<Decision n title summary considered verdict>` | A `###` decision with its number, one sentence, its `<Screen />`s as children, and one "Considered" line. |
 | `<BuildSplit mine tools>` | My part vs the tools' part, as chips. |
 | `<OpenCards items>` | Still-open cards (dashed = not done). |
+| `<SubIntro eyebrow headline lede>` | A sub-part inside a section (e.g. "Edge cases" in Process): `###` eyebrow plus a smaller headline. |
+| `<FailureModes under over>` | Two ways something fails, side by side, with a small decorative pin drawing. |
+| `<GapMatrix caption columns rows>` | A real `<table>` (caption, row and column headers) that scrolls inside its own frame on phones. Marks are ✓ ½ ✕ – with a spoken word each, and a key. Last column = ours. |
+| `<PivotNote when title text>` | A dated moment that changed the plan. |
+| `<Persona name role quote stats>` | Persona card next to big numbers. |
+| `<FlowRow project clip alt eyebrow title steps decision flip component>` | One flow: its recording in a `<Phone>`, steps as pills, the key decision, an optional component loop. |
+| `<ComponentStrip project items>` | Component loops in matching 3:4 frames, five across from 720px, stacked on phones. |
+| `<ClipFrame project clip alt>` | One component loop in a hairline frame (used by the two above and `TagOptions`). |
+| `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. |
+| `<ScopeSplit proven unproven quote next>` | Proven vs not proven (icon + word), then one quoted line. |
+| `<EdgeCards project items>` | Edge-case cards with a still or a recording in a small phone. |
+
+`Decision` takes any visual as children, and its `summary` and "Considered" line are optional.
 
 Every diagram has a text alternative (`role="img"` with a full `aria-label`, or real text in lists). Nothing carries meaning by color alone.
 
@@ -210,7 +232,7 @@ The template also renders a "Next project" link to the entry with the next `orde
 ## Home page content you edit without touching code
 
 - `src/data/facts.ts`: the falling facts (text and `ops` purple / `build` neutral kind).
-- `src/data/lab.ts`: the "AI that works for me" heading, intro line and the three cards (status is `active` / `paused` / `planned`; the pill differs by shape and word, never color alone).
+- `src/data/lab.ts`: the "AI that works for me" heading, intro line and the cards (two today: the job search agent and the money app) (status is `active` / `paused` / `planned`; the pill differs by shape and word, never color alone).
 - Contact (footer): email, LinkedIn URL and the CV link are constants at the top of `src/components/Footer.astro`.
 
 **Falling facts behavior.** Server-rendered as the static resting layout (this is also what no-JS and `prefers-reduced-motion` show, and it is exposed as a list labelled "What I bring"). With motion allowed, once the portrait is 40% in view the facts drop once under matter-js at a fixed 1/60 s step, rest just below the photo's bottom edge, and the loop stops when every body sleeps. Pills start over their row slots (bottom rows first) and the settle is simulated off-screen first, so the pile stays below the face and hair line (`KEEP_CLEAR_FRACTION` in `FallingFacts.tsx`). Change the portrait and that constant needs a re-check.
@@ -225,8 +247,9 @@ src/
     Nav.astro                signature wordmark + capsule
     ThemeToggle.astro
     Footer.astro             #contact: email (selectable, copy, mailto), LinkedIn, CV download
-    WorkCard.astro           home cards: product on top (laptop or stage), title, tagline, tags
+    WorkCard.astro           home cards: product on top (laptop, phones or stage), title, tagline, tags
     Laptop.astro             generic laptop mockup playing a flow recording
+    Phone.astro              generic phone mockup playing a recording
     Stage.astro              project hero stage (the only place for project colors)
     StageVideo.astro         muted looping recording (stage or laptop); plays only when motion is allowed and on screen
     WaypointScene.astro      Waypoint's CSS scene
@@ -242,11 +265,13 @@ src/
   assets/stages/             stage photos and recordings, picked up by file name (see its README)
   assets/work/<slug>/        case-study stills, flow recording and poster (see each README)
   lib/work-media.ts          finds a case-study still by project and file name
-  lib/stage-media.ts         finds a project's stage media and flow recording by file name
+  lib/stage-media.ts         finds a project's stage media, flow recording and named clips by file name
+  lib/work.ts                publishedWork(): entries in order, drafts left out
   lib/case-study.ts          SECTIONS, status and platform labels
   lib/rehype-case-study-sections.mjs
   lib/cv.ts                  CV path + size label
   pages/  index, about, accessibility, 404, work/[slug]
 public/cv/liraz-hazala-perez-cv.pdf
 scripts/record-aeropulse-flow.mjs   re-records AeroPulse's flow video (Playwright, not a dependency)
+scripts/record-recall-flows.mjs     re-records Recall's three phone flows (same approach)
 ```

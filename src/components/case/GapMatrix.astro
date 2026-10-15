@@ -1,0 +1,157 @@
+---
+/**
+ * A comparison matrix as a real <table>: rows are gaps, columns are products, the last column
+ * is ours (accent tint, and its header says its name). Each mark shows a symbol (✓ ½ ✕ –)
+ * and gives screen readers its word (Yes, Partly, No, Not its job), so nothing relies on
+ * color. The caption says what the table compares. On a narrow screen the table keeps its
+ * width and scrolls sideways inside its own frame (focusable, labelled), never the page.
+ */
+type Mark = 'yes' | 'partly' | 'no' | 'na';
+interface Props {
+  caption: string;
+  columns: string[];
+  rows: { gap: string; marks: Mark[] }[];
+}
+const { caption, columns, rows } = Astro.props;
+const MARK: Record<Mark, { symbol: string; word: string }> = {
+  yes: { symbol: '✓', word: 'Yes' },
+  partly: { symbol: '½', word: 'Partly' },
+  no: { symbol: '✕', word: 'No' },
+  na: { symbol: '–', word: 'Not its job' },
+};
+const last = columns.length - 1;
+---
+
+<div class="matrix-block">
+  <div class="scroller" tabindex="0" role="region" aria-label={`${caption} Scrolls sideways.`}>
+    <table>
+      <caption class="sr-only-text">{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Gap</th>
+          {columns.map((c, i) => <th scope="col" class:list={[i === last && 'us']}>{c}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r) => (
+            <tr>
+              <th scope="row">{r.gap}</th>
+              {r.marks.map((m, i) => (
+                <td class:list={[i === last && 'us']}>
+                  <span class:list={['mk', `mk--${m}`]} aria-hidden="true">{MARK[m].symbol}</span>
+                  <span class="sr-only-text">{MARK[m].word}</span>
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <ul class="key" role="list" aria-label="Key">
+    {
+      (['yes', 'partly', 'no', 'na'] as Mark[]).map((m) => (
+        <li>
+          <span class:list={['mk', `mk--${m}`]} aria-hidden="true">{MARK[m].symbol}</span> {MARK[m].word}
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .matrix-block {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+  .scroller {
+    /* Positioned, so the visually hidden labels inside the table stay in its scroll box
+       instead of widening the page. */
+    position: relative;
+    min-width: 0;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+  }
+  thead th {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--muted);
+  }
+  thead th:first-child,
+  tbody th {
+    text-align: left;
+  }
+  tbody th {
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .us {
+    background: var(--accent-tint);
+  }
+  thead .us {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .mk {
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .mk--yes {
+    background: var(--ok-tint);
+    color: var(--ok);
+  }
+  .mk--partly {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .mk--no {
+    background: var(--surface);
+    color: var(--muted);
+  }
+  .mk--na {
+    color: var(--muted);
+  }
+  .key {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .key li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+</style>

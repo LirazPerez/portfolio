@@ -1,0 +1,63 @@
+---
+/**
+ * A dated moment that changed the plan: a date pill, one bold sentence, and what I did
+ * about it (`text`, one or two sentences).
+ */
+interface Props {
+  when: string;
+  title: string;
+  text: string;
+}
+const { when, title, text } = Astro.props;
+---
+
+<div class="pivot">
+  <p class="when">{when}</p>
+  <div class="grid gap-0.5 min-w-0">
+    <p class="title">{title}</p>
+    <p class="body">{text}</p>
+  </div>
+</div>
+
+<style>
+  .pivot {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 16px 18px;
+    border-radius: var(--radius-frame);
+    background: var(--accent-tint);
+  }
+  p {
+    margin: 0;
+  }
+  .when {
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--raise);
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--accent-strong);
+  }
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .body {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--accent-strong);
+  }
+  @media (max-width: 29.99rem) {
+    .pivot {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .when {
+      justify-self: start;
+    }
+  }
+</style>

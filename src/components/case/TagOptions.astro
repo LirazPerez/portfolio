@@ -1,0 +1,232 @@
+---
+/**
+ * Three ways an AI tag could explain itself, drawn as real chips: A (label, icon, color and
+ * value on every chip), B (text only) and C (the label once, the icon stays). Each option
+ * has a status pill whose word says what happened to it (Rejected, Cut before build,
+ * Shipped); the chosen one also gets a 1.5px accent border.
+ *
+ * The chip colors are the product's, so they live here as --recall-* properties scoped to
+ * [data-project="recall"], with dark variants, like a hero stage. In A and C each chip also
+ * carries its icon, so telling them apart never depends on color (B is the flat option).
+ */
+import ClipFrame from './ClipFrame.astro';
+
+type Chip = { kind: 'vibe' | 'cuisine' | 'location'; icon?: string; text: string; key?: string };
+interface Option {
+  letter: string;
+  title: string;
+  status: 'rejected' | 'cut' | 'shipped';
+  statusLabel: string;
+  rows: Chip[][];
+  note: string;
+  flat?: boolean;
+}
+interface Props {
+  options: Option[];
+  /** The shipped component as a loop under the options (a clip in src/assets/work/recall/). */
+  component?: { clip: string; name: string; alt: string };
+}
+const { options, component } = Astro.props;
+---
+
+<div class="wrap" data-project="recall">
+  <ul class="opts" role="list">
+    {
+      options.map((o) => (
+        <li class:list={['opt', o.status === 'shipped' && 'opt--picked', o.flat && 'opt--flat']}>
+          <div class="lab">
+            <h4>
+              {o.letter} · {o.title}
+            </h4>
+            <span class:list={['st', `st--${o.status}`]}>{o.statusLabel}</span>
+          </div>
+          <div class="chips" aria-hidden="true">
+            {o.rows.map((row) => (
+              <div class="row">
+                {row.map((c) => (
+                  <>
+                    {c.key && <span class="k">{c.key}</span>}
+                    <span class:list={['chip', `chip--${c.kind}`]}>
+                      {c.icon && <span class="ic">{c.icon}</span>}
+                      {c.text}
+                    </span>
+                  </>
+                ))}
+              </div>
+            ))}
+          </div>
+          <p class="sr-only-text">
+            Chips shown: {o.rows.flat().map((c) => (c.key ? `${c.key}: ${c.text}` : c.text)).join(', ')}.
+          </p>
+          <p class="note">{o.note}</p>
+        </li>
+      ))
+    }
+  </ul>
+  {
+    component && (
+      <figure class="comp">
+        <ClipFrame project="recall" clip={component.clip} alt={component.alt} maxWidth="340px" />
+        <figcaption>Shipped component · {component.name}</figcaption>
+      </figure>
+    )
+  }
+</div>
+
+<style>
+  .comp {
+    margin: 16px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+  .comp figcaption {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .wrap {
+    container-type: inline-size;
+  }
+  [data-project='recall'] {
+    --recall-chip-text: #44474e;
+    --recall-chip-key: #74777f;
+    --recall-flat-bg: #f1f1f3;
+    --recall-vibe-bg: #fce4e6;
+    --recall-vibe-text: #8c1d2c;
+    --recall-cuisine-bg: #fdebd3;
+    --recall-cuisine-text: #7a4a06;
+    --recall-location-bg: #e6e3f6;
+    --recall-location-text: #3f3778;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) [data-project='recall'] {
+      --recall-chip-text: #c8c6ce;
+      --recall-chip-key: #a7a1b0;
+      --recall-flat-bg: #2c2a31;
+      --recall-vibe-bg: #4a2228;
+      --recall-vibe-text: #ffd9dc;
+      --recall-cuisine-bg: #45321a;
+      --recall-cuisine-text: #ffdcb0;
+      --recall-location-bg: #2f2b4d;
+      --recall-location-text: #e2ddff;
+    }
+  }
+  :global(:root[data-theme='dark']) [data-project='recall'] {
+    --recall-chip-text: #c8c6ce;
+    --recall-chip-key: #a7a1b0;
+    --recall-flat-bg: #2c2a31;
+    --recall-vibe-bg: #4a2228;
+    --recall-vibe-text: #ffd9dc;
+    --recall-cuisine-bg: #45321a;
+    --recall-cuisine-text: #ffdcb0;
+    --recall-location-bg: #2f2b4d;
+    --recall-location-text: #e2ddff;
+  }
+  .opts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 640px) {
+    .opts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .opt {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-frame);
+    background: var(--raise);
+  }
+  .opt--picked {
+    border: 1.5px solid var(--accent);
+    background: var(--accent-tint);
+  }
+  .lab {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+  .st {
+    padding: 2px 9px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .st--rejected {
+    background: var(--surface);
+    color: var(--muted);
+  }
+  .st--cut {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .st--shipped {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .chips {
+    display: grid;
+    gap: 6px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    align-items: center;
+  }
+  .k {
+    width: 56px;
+    font-size: 12.5px;
+    color: var(--recall-chip-key);
+  }
+  .chip {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .ic {
+    font-size: 11px;
+  }
+  .chip--vibe {
+    background: var(--recall-vibe-bg);
+    color: var(--recall-vibe-text);
+  }
+  .chip--cuisine {
+    background: var(--recall-cuisine-bg);
+    color: var(--recall-cuisine-text);
+  }
+  .chip--location {
+    background: var(--recall-location-bg);
+    color: var(--recall-location-text);
+  }
+  .opt--flat .chip {
+    background: var(--recall-flat-bg);
+    color: var(--recall-chip-text);
+  }
+  .note {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,104 @@
+---
+/**
+ * What a decision rests on: what is proven (check icon) next to what is not (question icon),
+ * each with its own heading word, so color is never the only cue. Then my one line, as a
+ * quote. Stacks below 560px of its own width.
+ */
+interface Props {
+  proven: string[];
+  unproven: string[];
+  quote: string;
+  next?: string;
+}
+const { proven, unproven, quote, next } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="scope">
+    <div class="col col--ok">
+      <h4><span class="ico" aria-hidden="true">✓</span> Proven</h4>
+      <ul>{proven.map((p) => <li>{p}</li>)}</ul>
+    </div>
+    <div class="col col--warn">
+      <h4><span class="ico" aria-hidden="true">?</span> Not proven</h4>
+      <ul>{unproven.map((p) => <li>{p}</li>)}</ul>
+    </div>
+  </div>
+  <p class="quote">“{quote}”{next && <span class="next"> {next}</span>}</p>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+    display: grid;
+    gap: 16px;
+  }
+  .scope {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 560px) {
+    .scope {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .col {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 18px;
+    border-radius: var(--radius-frame);
+  }
+  .col--ok {
+    background: var(--ok-tint);
+  }
+  .col--warn {
+    background: var(--warn-tint);
+  }
+  h4 {
+    margin: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .col--ok h4 {
+    color: var(--ok);
+  }
+  .col--warn h4 {
+    color: var(--warn);
+  }
+  .ico {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    list-style: disc;
+  }
+  .quote {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .next {
+    font-weight: 400;
+    color: var(--muted);
+  }
+</style>

@@ -1,18 +1,18 @@
 ---
 /**
  * One key decision: a numbered heading (### level), one sentence of what it does, its
- * screens (the default slot, usually one or two <Screen />), and one "Considered" line:
+ * screens (the default slot, usually one or two <Screen />, or any visual), and an optional "Considered" line:
  * the alternative in the warn color, then why it lost. The alternative's own words
  * ("Considered:", "Trade-off:") carry the meaning, not the color.
  */
 interface Props {
   n: number;
   title: string;
-  summary: string;
+  summary?: string;
   /** The alternative, including its lead word, e.g. "Considered: a low-stock alert to procurement." */
-  considered: string;
+  considered?: string;
   /** Why it lost, e.g. "Rejected, because ..." */
-  verdict: string;
+  verdict?: string;
 }
 const { n, title, summary, considered, verdict } = Astro.props;
 ---
@@ -22,13 +22,13 @@ const { n, title, summary, considered, verdict } = Astro.props;
     <span class="num" aria-hidden="true">{n}</span>
     <div class="grid gap-0.5 min-w-0">
       <h3 id={`decision-${n}`}><span class="sr-only-text">Decision {n}: </span>{title}</h3>
-      <p class="summary">{summary}</p>
+      {summary && <p class="summary">{summary}</p>}
     </div>
   </div>
   <div class="screens">
     <slot />
   </div>
-  <p class="considered"><span class="alt">{considered}</span> <span>{verdict}</span></p>
+  {considered && <p class="considered"><span class="alt">{considered}</span> <span>{verdict}</span></p>}
 </article>
 
 <style>

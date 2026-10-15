@@ -4,21 +4,28 @@
  * "View case study". The whole card is one link.
  *
  * A desktop project with a flow recording (src/assets/work/<slug>/flow.mp4) shows it in
- * the laptop mockup, large; every other project shows its hero stage.
+ * the laptop mockup, large. A mobile project with `cardPhones` shows those recordings in two
+ * phones. Every other project shows its hero stage.
  * Role, duration, status and tools are not shown here; they live on the case-study page.
  */
 import type { CollectionEntry } from 'astro:content';
 import Stage from './Stage.astro';
 import Laptop from './Laptop.astro';
-import { flowMedia } from '../lib/stage-media';
+import Phone from './Phone.astro';
+import { flowMedia, workClip } from '../lib/stage-media';
 
 interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { title, tagline, platform, tags, stageAlt } = entry.data;
+const { title, tagline, platform, tags, stageAlt, phones, cardPhones } = entry.data;
 const titleId = `card-${entry.id}`;
 const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
+const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
+  const phone = phones?.find((p) => p.clip === clip);
+  const media = workClip(entry.id, clip);
+  return phone && media ? [{ ...phone, media }] : [];
+});
 ---
 
 <a
@@ -27,13 +34,19 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
   class:list={[
     'card group grid overflow-hidden rounded-card border border-line bg-surface text-inherit no-underline',
     platform === 'desktop' && 'md:col-span-2',
-    flow && 'card--laptop',
+    (flow || cardPhoneMedia.length > 0) && 'card--laptop',
   ]}
 >
   {
     flow ? (
       <div class="laptop-stage">
         <Laptop media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} />
+      </div>
+    ) : cardPhoneMedia.length > 0 ? (
+      <div class="phones-stage">
+        {cardPhoneMedia.map((p) => (
+          <Phone media={p.media} label={p.alt} />
+        ))}
       </div>
     ) : (
       <Stage slug={entry.id} title={title} platform={platform} alt={stageAlt} />
@@ -68,6 +81,20 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
   }
   .laptop-stage {
     padding: clamp(28px, 5vw, 56px) clamp(18px, 5vw, 64px) clamp(36px, 5vw, 56px);
+  }
+  .phones-stage {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(14px, 3vw, 36px);
+    align-items: end;
+    width: 100%;
+    max-width: 520px;
+    margin-inline: auto;
+    padding: clamp(28px, 5vw, 48px) clamp(18px, 5vw, 48px) clamp(36px, 5vw, 48px);
+  }
+  /* The second phone sits a little higher, as in the concept. */
+  .phones-stage > :global(.phone:last-child) {
+    transform: translateY(-28px);
   }
   .info {
     display: flex;

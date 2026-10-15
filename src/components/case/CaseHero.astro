@@ -7,13 +7,18 @@
  * projects), with up to two `heroScreens` floating beside it; otherwise the hero stage.
  * The floats are decoration (aria-hidden): the laptop's label and the decisions below
  * describe the same screens. They drift gently only when motion is allowed.
+ *
+ * A mobile project with `phones` shows its recordings in up to three phones instead, the
+ * middle one larger, each with a short caption. Below 760px the third one is left out
+ * (the flows section further down shows all three).
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import Laptop from '../Laptop.astro';
 import Stage from '../Stage.astro';
-import { flowMedia } from '../../lib/stage-media';
+import Phone from '../Phone.astro';
+import { flowMedia, workClip } from '../../lib/stage-media';
 import { workScreen } from '../../lib/work-media';
 import { STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
 
@@ -21,8 +26,12 @@ interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { title, tagline, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens } =
+const { title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens, phones } =
   entry.data;
+const phoneMedia = (phones ?? []).flatMap((p) => {
+  const media = workClip(entry.id, p.clip);
+  return media ? [{ ...p, media }] : [];
+});
 
 const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
 const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).filter((img): img is ImageMetadata => img !== undefined);
@@ -34,7 +43,7 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
   </a>
   <p class="eyebrow">Case study · {category ?? PLATFORM_LABEL[platform]}</p>
   <h1 id="cs-title">{title}</h1>
-  <p class="lede">{tagline}</p>
+  <p class="lede">{lede ?? tagline}</p>
   <dl class="meta">
     <div><dt>Role</dt><dd>{role}</dd></div>
     <div><dt>Time</dt><dd>{duration}</dd></div>
@@ -43,7 +52,18 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
   </dl>
 
   {
-    flow ? (
+    phoneMedia.length > 0 ? (
+      <ul class="trio" role="list">
+        {phoneMedia.map((p) => (
+          <li>
+            <Phone media={p.media} label={p.alt} />
+            <p class="trio-cap">
+              <b>{p.title}</b> · {p.caption}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ) : flow ? (
       <div class="showcase">
         {floats[0] && (
           <div class="float f1" aria-hidden="true">
@@ -126,6 +146,57 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
     position: relative;
     width: 100%;
     padding: 28px 0 46px;
+  }
+  .trio {
+    margin: 0;
+    padding: 24px 0 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(14px, 3vw, 36px);
+    align-items: end;
+    width: 100%;
+    max-width: 920px;
+  }
+  .trio li {
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+    min-width: 0;
+  }
+  .trio :global(.phone) {
+    max-width: 250px;
+  }
+  .trio li:nth-child(2) :global(.phone) {
+    max-width: 290px;
+  }
+  .trio li:nth-child(1),
+  .trio li:nth-child(3) {
+    transform: translateY(-18px);
+  }
+  .trio-cap {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .trio-cap b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  @media (max-width: 47.49rem) {
+    .trio {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .trio li:nth-child(3) {
+      display: none;
+    }
+    .trio li:nth-child(1) {
+      transform: none;
+    }
+    .trio-cap {
+      font-size: 13px;
+    }
   }
   .stage-wrap {
     width: 100%;

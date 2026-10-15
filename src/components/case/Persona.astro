@@ -1,0 +1,121 @@
+---
+/**
+ * Who it's for: a small persona card (initial, name, role, the quote) next to the numbers
+ * that explain the design. Stacks below 560px of its own width.
+ */
+interface Props {
+  name: string;
+  role: string;
+  quote: string;
+  stats: { value: string; label: string; spoken?: string }[];
+}
+const { name, role, quote, stats } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="persona">
+    <div class="who">
+      <span class="av" aria-hidden="true">{name.charAt(0)}</span>
+      <div>
+        <p class="name">{name}</p>
+        <p class="role">{role}</p>
+      </div>
+      <p class="quote">“{quote}”</p>
+    </div>
+    <ul class="nums" role="list">
+      {
+        stats.map((s) => (
+          <li>
+            {s.spoken ? (
+              <>
+                <b aria-hidden="true">{s.value}</b>
+                <span class="sr-only-text">{s.spoken}</span>
+              </>
+            ) : (
+              <b>{s.value}</b>
+            )}
+            <span class="label">{s.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .persona {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 560px) {
+    .persona {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  p {
+    margin: 0;
+  }
+  .who {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  .av {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .name {
+    font-weight: 600;
+  }
+  .role {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .quote {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .nums {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .nums li {
+    display: grid;
+    gap: 8px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  b {
+    font-size: clamp(38px, 5.4vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-strong);
+  }
+  .label {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+</style>

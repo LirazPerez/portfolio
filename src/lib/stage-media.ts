@@ -13,7 +13,8 @@ import type { ImageMetadata } from 'astro';
  * src/assets/stages/README.md for the expected file names.
  *
  * A desktop project's flow recording lives in its own folder and is shown in the laptop
- * mockup (home card and case-study hero) instead of the stage; see `flowMedia` below:
+ * mockup (home card and case-study hero) instead of the stage; see `flowMedia` below.
+ * A mobile project's recordings play in the phone mockup instead; see `workClip`:
  *
  *   src/assets/work/<slug>/flow.<mp4|webm>     one continuous recording of the app in use
  *   src/assets/work/<slug>/flow-poster.<ext>   its first frame (reduced motion and no JS)
@@ -96,12 +97,21 @@ export interface FlowMedia {
 
 /** The project's flow recording, or null when it has none (then the stage is used). */
 export function flowMedia(slug: string): FlowMedia | null {
-  const sources = videoSources(workVideos, (folder, name) => folder === slug && name === 'flow');
+  return workClip(slug, 'flow');
+}
+
+/**
+ * Any named recording in a project's folder: `<name>.mp4` / `<name>.webm` plus
+ * `<name>-poster.<ext>` (what reduced motion and no JS show). Null when the video is missing.
+ * Recall's phones use this: capture, browse and ask, and the component loops (comp-*).
+ */
+export function workClip(slug: string, name: string): FlowMedia | null {
+  const sources = videoSources(workVideos, (folder, file) => folder === slug && file === name);
   if (sources.length === 0) return null;
   // MP4 first: every browser plays it, so it should be the one picked.
   sources.sort((a, b) => (a.type === 'video/mp4' ? -1 : 0) - (b.type === 'video/mp4' ? -1 : 0));
   const poster = Object.entries(workImages).find(([path]) =>
-    /\/work\/[^/]+\/flow-poster\.[a-z]+$/.test(path) && path.includes(`/work/${slug}/`),
+    new RegExp(`/work/${slug}/${name}-poster\\.[a-z]+$`).test(path),
   )?.[1];
   return { poster, videos: sources };
 }

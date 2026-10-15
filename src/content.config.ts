@@ -27,6 +27,22 @@ const work = defineCollection({
     statusLabel: z.string().optional(),
     /** One line under the meta row: where the project comes from, and what is and is not shown. */
     origin: z.string().optional(),
+    /** Case-study lede under the title, when it should differ from the card's tagline. */
+    lede: z.string().optional(),
+    /**
+     * A mobile project's recordings, each shown in a phone (src/assets/work/<slug>/<clip>.mp4,
+     * .webm and <clip>-poster.*). The case-study hero shows them all, the middle one larger.
+     */
+    phones: z
+      .array(z.object({ clip: z.string(), title: z.string(), caption: z.string(), alt: z.string() }))
+      .max(3)
+      .optional(),
+    /** Which of `phones` (by clip) the home card shows. */
+    cardPhones: z.array(z.string()).max(2).optional(),
+    /** The case study is not written yet: the page says it's coming soon. */
+    comingSoon: z.boolean().optional(),
+    /** Hidden everywhere: no card, no page, no "Next project" link. The file is kept. */
+    draft: z.boolean().optional(),
   }),
 });
 

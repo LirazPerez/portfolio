@@ -28,13 +28,6 @@ export const LAB_STATUS_LABEL: Record<LabStatus, string> = {
 
 export const LAB: LabItem[] = [
   {
-    name: 'Neta',
-    status: 'active',
-    problem: 'A half-marathon plan that bends to a real week.',
-    body: 'My running coach. It plans my training toward the race and adjusts it around the week I actually have.',
-    tools: ['Claude', 'GitHub'],
-  },
-  {
     name: 'Job search agent',
     status: 'paused',
     problem: 'Finding roles before everyone else does.',

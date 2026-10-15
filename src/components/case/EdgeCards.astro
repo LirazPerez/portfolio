@@ -1,0 +1,122 @@
+---
+/**
+ * Edge cases as short cards, each with what it looks like on top: a still
+ * (src/assets/work/<project>/<image>.*) or a recording in a small phone (`clip`). Media is
+ * one image to assistive tech (`alt`). Three across from 600px of its own width.
+ */
+import { Image } from 'astro:assets';
+import Phone from '../Phone.astro';
+import { workScreen } from '../../lib/work-media';
+import { workClip } from '../../lib/stage-media';
+
+interface Props {
+  project: string;
+  items: { title: string; text: string; alt: string; image?: string; clip?: string; fit?: 'cover' | 'contain' }[];
+}
+const { project, items } = Astro.props;
+const cards = items.map((item) => ({
+  ...item,
+  still: item.image ? workScreen(project, item.image) : undefined,
+  media: item.clip ? workClip(project, item.clip) : null,
+}));
+---
+
+<div class="wrap">
+  <ul class="edges" role="list">
+    {
+      cards.map((c) => (
+        <li>
+          <div class="media">
+            {c.media ? (
+              <Phone media={c.media} label={c.alt} class="mini" />
+            ) : c.still ? (
+              <Image
+                src={c.still}
+                alt={c.alt}
+                widths={[320, 640]}
+                sizes="(min-width: 1024px) 280px, 90vw"
+                loading="lazy"
+                class:list={['still', c.fit === 'contain' && 'still--contain']}
+              />
+            ) : (
+              <p class="missing">Media to add</p>
+            )}
+          </div>
+          <h4>{c.title}</h4>
+          <p>{c.text}</p>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .edges {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 600px) {
+    .edges {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  li {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-frame);
+    background: var(--raise);
+  }
+  .media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-height: 340px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    background: var(--surface);
+  }
+  .still {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .still--contain {
+    object-fit: contain;
+    object-position: center;
+  }
+  /* A small phone, cropped at the bottom of the panel like it is peeking up. */
+  .media :global(.mini) {
+    width: 62%;
+    max-width: 210px;
+    margin-top: 14px;
+  }
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .missing {
+    display: grid;
+    place-items: center;
+    height: 100%;
+  }
+</style>

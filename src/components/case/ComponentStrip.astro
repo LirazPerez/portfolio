@@ -1,0 +1,79 @@
+---
+/**
+ * The new components, as short loops side by side: each a clip, its name (### level) and
+ * one line. Every clip sits whole in the same 3:4 frame so the row lines up. Five across
+ * from 720px of its own width, three from 520px, two from 400px, stacked below. Loops play only when motion is allowed and on screen; posters otherwise.
+ */
+import ClipFrame from './ClipFrame.astro';
+
+interface Props {
+  project: string;
+  items: { clip: string; name: string; line: string; alt: string }[];
+}
+const { project, items } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="strip" role="list">
+    {
+      items.map((item) => (
+        <li>
+          <ClipFrame project={project} clip={item.clip} alt={item.alt} ratio="3 / 4" />
+          <h4>{item.name}</h4>
+          <p>{item.line}</p>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .strip {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px 14px;
+  }
+  @container (min-width: 400px) {
+    .strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container (min-width: 520px) {
+    .strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @container (min-width: 720px) {
+    .strip {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  li {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+  }
+  li :global(.clip) {
+    max-width: 300px;
+    margin-bottom: 4px;
+  }
+  h4 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+</style>

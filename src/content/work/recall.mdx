@@ -1,11 +1,276 @@
 ---
-title: Recall
-tagline: "Draft tagline: one sentence on what Recall does in Google Maps."
-order: 3
+title: Google Maps Recall
+tagline: "Save a place in one tap, and find it again without remembering what you named it."
+lede: "Capturing a place costs one tap, and finding it again doesn't require remembering what you named it."
+order: 4
 platform: mobile
-role: Product designer
-duration: "TBD"
-tools: [Figma, React, Claude Code]
-status: concept
-tags: [Mobile, Concept feature]
+category: "Mobile"
+role: "Product design, solo, end to end"
+duration: "1 month"
+tools: [Figma, React, Tailwind, Claude]
+status: prototype
+statusLabel: "Coded, working prototype"
+tags: [AI-assisted UX, Mobile, Coded prototype]
+origin: "A concept project built inside Google Maps' real visual language, with mock data. Not affiliated with Google."
+stageAlt: "Google Maps Recall: recordings of the prototype on a phone."
+phones:
+  - clip: capture
+    title: Capture
+    caption: one tap
+    alt: "A recording of the capture flow. On the map, a tap on Sauced, a place not saved yet, opens its sheet with a photo of a burger. A tap on Save, and a Saved card appears with three tags applied automatically: Casual, American and Lower East Side. A tap on Done returns to the map."
+  - clip: ask
+    title: Ask
+    caption: saved places first
+    alt: "A recording of the Ask flow. From the map, a tap on Ask Maps opens the panel, and a tap on the field types the example question letter by letter: Looking for a nice date spot in the Lower East Side with outdoor seating where I can bring my dog. Sent, the answer lists what it matches on and checks the 9 saved places first. Show results on map lists 8 matches, each marked Saved or Discovery, and a tap on Your pins narrows them to the saved ones."
+  - clip: browse
+    title: Browse
+    caption: filters that never return empty
+    alt: "A recording of the browse flow. From the map, a tap on the Save tab opens Saved Places, a grid of saved places with photos and tags. A tap on Vibe opens its options, and a tap on Date Night narrows the grid to Lucia Trattoria, Clover Club and Attaboy."
+cardPhones: [capture, ask]
 ---
+
+## What I noticed
+
+<Intro headline="Saving a place costs one tap. Organizing it costs a decision, at the worst possible moment." />
+
+<FailureModes
+  under={{ label: 'Under-capture', quote: "I'll remember this place. I never do.", note: 'The moment passes and nothing is saved.' }}
+  over={{ label: 'Over-capture', quote: 'I saved it. No idea which one it was.', note: 'Saved, then lost among hundreds of unlabeled pins.' }}
+/>
+
+## Problem
+
+<Intro headline="Every competitor charges the organizing cost at save time." />
+
+<GapMatrix
+  caption="How Google Maps Lists, Yelp Collections, Apple Maps Guides, Google Ask Maps and Recall handle four gaps."
+  columns={['Google Maps Lists', 'Yelp Collections', 'Apple Maps Guides', 'Ask Maps', 'Recall']}
+  rows={[
+    { gap: 'Save without deciding where it goes', marks: ['no', 'no', 'no', 'na', 'yes'] },
+    { gap: 'One place, many tags at once', marks: ['partly', 'no', 'no', 'na', 'yes'] },
+    { gap: 'Notes you can actually search', marks: ['no', 'partly', 'partly', 'na', 'yes'] },
+    { gap: 'Checks what you saved before suggesting new', marks: ['no', 'no', 'no', 'partly', 'yes'] },
+  ]}
+/>
+
+<PivotNote
+  when="March 2026"
+  title="Mid-project, Google shipped Ask Maps, overlapping my second feature."
+  text="I rebuilt the Ask UI to match its pattern, and kept what it still lacks: saved places checked first, shown apart from new suggestions."
+/>
+
+## How I ran it
+
+<Intro headline="Designed for a three-second moment." />
+
+<Persona
+  name="Maya, 29"
+  role="Brand marketing manager, Brooklyn"
+  quote="When I discover a place I might want to return to, I want to capture it with zero friction."
+  stats={[
+    { value: '3 s', spoken: '3 seconds', label: 'of attention mid-walk, not 30' },
+    { value: '300+', spoken: 'More than 300', label: "saved pins, in lists she hasn't opened in months" },
+  ]}
+/>
+
+## Process
+
+<Intro headline="Inside Google Maps' existing shell. Only the new parts are new." />
+
+<FlowRow
+  project="recall"
+  clip="capture"
+  alt="A recording of the capture flow: on the map, a tap on Sauced opens its sheet; a tap on Save shows a Saved card with three AI tags, Casual, American and Lower East Side; a tap on Done returns to the map."
+  eyebrow="1 · Capture"
+  title="Tap Save. That's the whole job."
+  steps={['Tap a place', 'Save', '3 AI tags']}
+  decision="Saving and tagging are separate from adding a note or photo. The three-second path is a complete end state."
+/>
+
+<FlowRow
+  project="recall"
+  clip="browse"
+  flip
+  alt="A recording of the browse flow: the Save tab opens Saved Places, a grid with Vibe, Cuisine and Location filters; Vibe, then Date Night, narrows the grid to three places."
+  eyebrow="2 · Browse and filter"
+  title="Filter by any tag, AI or your own."
+  steps={['Saved tab', 'Pick a tag', 'Grid narrows live']}
+  decision="Filters are built only from what you saved, so they never return empty."
+  component={{
+    clip: 'comp-saved-grid',
+    name: 'Saved grid',
+    alt: 'The Saved Places grid narrowing as Vibe, Cuisine and Location filters are added, down to one place, then Clear filters brings every place back.',
+  }}
+/>
+
+<FlowRow
+  project="recall"
+  clip="ask"
+  alt="A recording of the Ask flow: Ask Maps types its example question about a date spot with outdoor seating, checks the 9 saved places first, shows 8 matches marked Saved or Discovery, and Your pins narrows them to the saved ones."
+  eyebrow="3 · Ask"
+  title="What you know comes before what's new."
+  steps={['Ask a question', 'Saved first', 'Discovery if needed']}
+  decision="Every answer checks your saved places first, and says which results are yours and which are new."
+  component={{
+    clip: 'comp-match-cards',
+    name: 'Match reason cards',
+    alt: 'Result cards scrolling sideways, each marked Saved or Discovery with a Why line, while the All, Your pins and Discovery tabs switch between them.',
+  }}
+/>
+
+<SubIntro eyebrow="New components" headline="Ten new components, inside Maps' own shell." />
+
+<ComponentStrip
+  project="recall"
+  items={[
+    {
+      clip: 'comp-tag-group',
+      name: 'AI organized tag group',
+      line: 'The label shows the first time only. The icon stays, so scanning never depends on color.',
+      alt: 'A Saved card for Clover Club with three AI tags, Date Night, Cocktails and Cobble Hill. Tapping a tag opens a searchable list of options to change it.',
+    },
+    {
+      clip: 'comp-custom-tag',
+      name: 'Custom tag picker',
+      line: 'Filter by any tag, AI or your own.',
+      alt: 'Add custom tag opens a category, then its values, and a Parking: Street only tag joins the three AI tags.',
+    },
+    {
+      clip: 'comp-log-input',
+      name: 'Minimal log input',
+      line: 'A half-written note survives closing the sheet.',
+      alt: 'Under the tags, one quiet field asks what you want to remember about this place, and a note is typed into it.',
+    },
+    {
+      clip: 'comp-photo-row',
+      name: 'Photo attach row',
+      line: 'Saving and tagging are separate from adding a note or photo.',
+      alt: 'Under a saved note, a row of photo slots: tapping the camera slot attaches a photo.',
+    },
+    {
+      clip: 'comp-match-cards',
+      name: 'Match reason card',
+      line: 'Says which results are yours and which are new.',
+      alt: 'Ask result cards, each marked Saved or Discovery with a Why line explaining the match.',
+    },
+  ]}
+/>
+
+<SubIntro eyebrow="Edge cases" headline="No dead ends." />
+
+<EdgeCards
+  project="recall"
+  items={[
+    {
+      title: 'Empty state teaches',
+      text: 'The Saved tab explains the feature and how to start, instead of a blank screen.',
+      image: 'edge-zero-saved',
+      alt: 'Saved Places with nothing saved: a line says nothing is saved yet, and places you save will show up here.',
+    },
+    {
+      title: 'No results offers a way out',
+      text: 'It names the gap and offers to widen the search.',
+      image: 'edge-empty-query',
+      fit: 'contain',
+      alt: 'Ask results with no match: Nothing matches that exact combination yet, with a Broaden the search link.',
+    },
+    {
+      title: 'Nothing is lost',
+      text: 'A half-written note survives closing the sheet.',
+      clip: 'edge-note',
+      alt: 'A phone recording: on Karaage Guys, a note is typed, the sheet is closed, and reopening the place shows the note still there.',
+    },
+  ]}
+/>
+
+## Key decisions
+
+<Decision n={1} title="How much should an AI tag explain itself?">
+  <TagOptions
+    options={[
+      {
+        letter: 'A',
+        title: 'Everything, every time',
+        status: 'rejected',
+        statusLabel: 'Rejected',
+        rows: [
+          [{ kind: 'vibe', key: 'Vibe', icon: '♥', text: 'Quick Bite' }],
+          [{ kind: 'cuisine', key: 'Cuisine', icon: '🍴', text: 'Japanese' }],
+          [{ kind: 'location', key: 'Location', icon: '⌖', text: 'East Village' }],
+        ],
+        note: 'Label, icon, color and value on every chip. Too heavy.',
+      },
+      {
+        letter: 'B',
+        title: 'Lighter, but flat',
+        status: 'cut',
+        statusLabel: 'Cut before build',
+        flat: true,
+        rows: [[{ kind: 'vibe', text: 'Quick Bite' }, { kind: 'cuisine', text: 'Japanese' }, { kind: 'location', text: 'East Village' }]],
+        note: 'Text only. Too flat to scan.',
+      },
+      {
+        letter: 'C',
+        title: 'Teach once',
+        status: 'shipped',
+        statusLabel: 'Shipped',
+        rows: [
+          [{ kind: 'vibe', icon: '♥', text: 'Quick Bite' }, { kind: 'cuisine', icon: '🍴', text: 'Japanese' }],
+          [{ kind: 'location', icon: '⌖', text: 'East Village' }],
+        ],
+        note: 'The label shows the first time only. The icon stays, so scanning never depends on color.',
+      },
+    ]}
+    component={{
+      clip: 'comp-tag-group',
+      name: 'AI organized tag group',
+      alt: 'The shipped tag group on a Saved card for Clover Club: Date Night, Cocktails and Cobble Hill, each with its icon. Tapping a tag opens a searchable list of options to change it.',
+    }}
+  />
+</Decision>
+
+<Decision n={2} title="A business product I chose not to design." summary="Selling “why customers save you” insights to local businesses.">
+  <ScopeSplit
+    proven={['Restaurants pay for occasion-level guest insight. SevenRooms is built on it.']}
+    unproven={[
+      'Would private saves ever be shared, even anonymized?',
+      'Would a small business get enough saves to mean anything?',
+      "Would owners trust strangers' habits over their own data?",
+    ]}
+    quote="I chose not to design screens for a hypothesis I hadn't validated yet."
+    next="Next step: 3 to 5 interviews with business owners."
+  />
+</Decision>
+
+## The build
+
+<Intro headline="Designed and coded, not handed off." />
+
+<BuildSplit
+  mine={['Research and competitive scan', 'Information architecture', 'Component system', 'Every decision above']}
+  tools={['Figma: mockups', 'React and Tailwind: the build', 'Claude: coding partner']}
+/>
+
+## Outcome
+
+<OutcomeStats
+  stats={[
+    { value: '3', label: 'complete flows, working in the browser' },
+    { value: '10', label: "new components inside Maps' own shell" },
+    { value: '1 month', label: 'from research to working code, solo' },
+  ]}
+/>
+
+<ExternalLink href="https://google-maps-recall-2.vercel.app" variant="primary">Try the prototype</ExternalLink>
+
+## Still open
+
+<Intro headline="What I'd do next." lede="With three more weeks." />
+
+<OpenCards
+  items={[
+    { title: 'Interview business owners', text: 'Run the validation, not only the plan.' },
+    { title: 'Test the place sheet', text: 'Peek, then expand: the interaction I iterated on most.' },
+    { title: 'Real AI tagging', text: 'Replace the mock and see if three tags hold on messy places.' },
+  ]}
+/>
