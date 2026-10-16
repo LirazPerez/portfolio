@@ -8,12 +8,15 @@
  * (StageVideo). With reduced motion or no JS its poster shows.
  * Everything scales with the phone's own width (container units), so it reads the same at
  * 140px in an edge-case card and at 300px in the hero. Colors are tokens (--bezel, --bezel-edge).
+ *
+ * Without `media` the screen shows the default slot instead, on a neutral surface (e.g. a
+ * "Case study coming soon" screen).
  */
 import StageVideo from './StageVideo.astro';
 import type { FlowMedia } from '../lib/stage-media';
 
 interface Props {
-  media: FlowMedia;
+  media?: FlowMedia;
   /** Text alternative: what the recording shows, start to end. */
   label: string;
   class?: string;
@@ -24,7 +27,7 @@ const { media, label, class: className } = Astro.props;
 <div class:list={['phone', className]} role="img" aria-label={label}>
   <div class="body">
     <div class="screen">
-      <StageVideo sources={media.videos} poster={media.poster} />
+      {media ? <StageVideo sources={media.videos} poster={media.poster} /> : <slot />}
     </div>
   </div>
 </div>

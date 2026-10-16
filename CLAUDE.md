@@ -165,7 +165,7 @@ The home card shows the product on top (the laptop with the flow recording for a
 
 **Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), the product (laptop plus `heroScreens` floating beside it, drifting only when motion is allowed; or the stage), then `origin`.
 
-Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, mobile, coming soon), `recall` (4, mobile, phones). `classpass` is a draft: its file is kept, nothing links to it.
+Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, mobile, coming soon: card and hero show `ComingSoonPhone`), `recall` (4, mobile, phones). `classpass` is a draft: its file is kept, nothing links to it.
 
 Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCollection('work')` directly, so drafts stay hidden.
 
@@ -215,9 +215,9 @@ Available in every case-study MDX without importing (the template passes them as
 | `<PivotNote when title text>` | A dated moment that changed the plan. |
 | `<Persona name role quote stats>` | Persona card next to big numbers. |
 | `<FlowRow project clip alt eyebrow title steps decision flip component>` | One flow: its recording in a `<Phone>`, steps as pills, the key decision, an optional component loop. |
-| `<ComponentStrip project items>` | Component loops in matching 3:4 frames, five across from 720px, stacked on phones. |
+| `<ComponentStrip project items>` | Component loops cropped tight to the component, two across from 600px (an odd last item spans the row, text beside it), stacked on phones. |
 | `<ClipFrame project clip alt>` | One component loop in a hairline frame (used by the two above and `TagOptions`). |
-| `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. |
+| `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. The shipped component's loop sits beside a short caption. |
 | `<ScopeSplit proven unproven quote next>` | Proven vs not proven (icon + word), then one quoted line. |
 | `<EdgeCards project items>` | Edge-case cards with a still or a recording in a small phone. |
 
@@ -249,7 +249,8 @@ src/
     Footer.astro             #contact: email (selectable, copy, mailto), LinkedIn, CV download
     WorkCard.astro           home cards: product on top (laptop, phones or stage), title, tagline, tags
     Laptop.astro             generic laptop mockup playing a flow recording
-    Phone.astro              generic phone mockup playing a recording
+    Phone.astro              generic phone mockup playing a recording (or any slot content)
+    ComingSoonPhone.astro    the phone with a neutral "Case study coming soon" screen (comingSoon projects)
     Stage.astro              project hero stage (the only place for project colors)
     StageVideo.astro         muted looping recording (stage or laptop); plays only when motion is allowed and on screen
     WaypointScene.astro      Waypoint's CSS scene

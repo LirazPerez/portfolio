@@ -18,6 +18,7 @@ import type { CollectionEntry } from 'astro:content';
 import Laptop from '../Laptop.astro';
 import Stage from '../Stage.astro';
 import Phone from '../Phone.astro';
+import ComingSoonPhone from '../ComingSoonPhone.astro';
 import { flowMedia, workClip } from '../../lib/stage-media';
 import { workScreen } from '../../lib/work-media';
 import { STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
@@ -26,7 +27,7 @@ interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens, phones } =
+const { comingSoon, title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens, phones } =
   entry.data;
 const phoneMedia = (phones ?? []).flatMap((p) => {
   const media = workClip(entry.id, p.clip);
@@ -52,7 +53,11 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
   </dl>
 
   {
-    phoneMedia.length > 0 ? (
+    comingSoon ? (
+      <div class="soon-wrap">
+        <ComingSoonPhone title={title} />
+      </div>
+    ) : phoneMedia.length > 0 ? (
       <ul class="trio" role="list">
         {phoneMedia.map((p) => (
           <li>
@@ -146,6 +151,11 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
     position: relative;
     width: 100%;
     padding: 28px 0 46px;
+  }
+  .soon-wrap {
+    width: 100%;
+    max-width: 240px;
+    padding-top: 12px;
   }
   .trio {
     margin: 0;

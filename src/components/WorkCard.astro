@@ -5,20 +5,22 @@
  *
  * A desktop project with a flow recording (src/assets/work/<slug>/flow.mp4) shows it in
  * the laptop mockup, large. A mobile project with `cardPhones` shows those recordings in two
- * phones. Every other project shows its hero stage.
+ * phones. A `comingSoon` project shows a calm coming-soon phone. Every other project shows
+ * its hero stage.
  * Role, duration, status and tools are not shown here; they live on the case-study page.
  */
 import type { CollectionEntry } from 'astro:content';
 import Stage from './Stage.astro';
 import Laptop from './Laptop.astro';
 import Phone from './Phone.astro';
+import ComingSoonPhone from './ComingSoonPhone.astro';
 import { flowMedia, workClip } from '../lib/stage-media';
 
 interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { title, tagline, platform, tags, stageAlt, phones, cardPhones } = entry.data;
+const { title, tagline, platform, tags, stageAlt, phones, cardPhones, comingSoon } = entry.data;
 const titleId = `card-${entry.id}`;
 const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
 const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
@@ -34,13 +36,17 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   class:list={[
     'card group grid overflow-hidden rounded-card border border-line bg-surface text-inherit no-underline',
     platform === 'desktop' && 'md:col-span-2',
-    (flow || cardPhoneMedia.length > 0) && 'card--laptop',
+    (flow || cardPhoneMedia.length > 0 || comingSoon) && 'card--laptop',
   ]}
 >
   {
     flow ? (
       <div class="laptop-stage">
         <Laptop media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} />
+      </div>
+    ) : comingSoon ? (
+      <div class="soon-stage">
+        <ComingSoonPhone title={title} />
       </div>
     ) : cardPhoneMedia.length > 0 ? (
       <div class="phones-stage">
@@ -95,6 +101,14 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   /* The second phone sits a little higher, as in the concept. */
   .phones-stage > :global(.phone:last-child) {
     transform: translateY(-28px);
+  }
+  .soon-stage {
+    display: grid;
+    justify-items: center;
+    padding: clamp(28px, 5vw, 48px) clamp(18px, 5vw, 48px) clamp(20px, 3vw, 28px);
+  }
+  .soon-stage :global(.phone) {
+    max-width: 200px;
   }
   .info {
     display: flex;

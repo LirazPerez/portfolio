@@ -1,8 +1,9 @@
 ---
 /**
  * The new components, as short loops side by side: each a clip, its name (### level) and
- * one line. Every clip sits whole in the same 3:4 frame so the row lines up. Five across
- * from 720px of its own width, three from 520px, two from 400px, stacked below. Loops play only when motion is allowed and on screen; posters otherwise.
+ * one line. Each clip is cropped tight to its component and fills its column, so the UI
+ * reads at close to its real size. Two across from 600px of its own width; an odd last item
+ * spans the row with its text beside the clip. Stacked below 600px. Loops play only when motion is allowed and on screen; posters otherwise.
  */
 import ClipFrame from './ClipFrame.astro';
 
@@ -18,9 +19,11 @@ const { project, items } = Astro.props;
     {
       items.map((item) => (
         <li>
-          <ClipFrame project={project} clip={item.clip} alt={item.alt} ratio="3 / 4" />
-          <h4>{item.name}</h4>
-          <p>{item.line}</p>
+          <ClipFrame project={project} clip={item.clip} alt={item.alt} />
+          <div class="txt">
+            <h4>{item.name}</h4>
+            <p>{item.line}</p>
+          </div>
         </li>
       ))
     }
@@ -39,19 +42,16 @@ const { project, items } = Astro.props;
     grid-template-columns: minmax(0, 1fr);
     gap: 24px 14px;
   }
-  @container (min-width: 400px) {
+  @container (min-width: 600px) {
     .strip {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px 24px;
     }
-  }
-  @container (min-width: 520px) {
-    .strip {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @container (min-width: 720px) {
-    .strip {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+    li:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, calc(50% - 12px)) minmax(0, 1fr);
+      gap: 24px;
+      align-items: center;
     }
   }
   li {
@@ -61,8 +61,11 @@ const { project, items } = Astro.props;
     min-width: 0;
   }
   li :global(.clip) {
-    max-width: 300px;
-    margin-bottom: 4px;
+    max-width: 380px;
+  }
+  .txt {
+    display: grid;
+    gap: 6px;
   }
   h4 {
     margin: 0;

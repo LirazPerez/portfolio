@@ -36,16 +36,18 @@ over it, which would make the demo answer "This demo answers one example questio
 
 ## Component loops (from `V01/Google Maps Recall/Case Study Media/02 Component Clips`)
 
-Re-encoded from the edited clips (01 to 06) at 30 fps, muted. Poster = the middle frame.
+Re-encoded from the edited clips at 30 fps, muted, each cropped tight to the component (the
+card and the dropdowns it opens), so the UI fills its frame and reads at full size. The crop
+is fixed for the whole clip, so frames where a dropdown is closed show some white below the
+card. Poster = a representative frame.
 
-| File | Source | Used in |
-|---|---|---|
-| `comp-tag-group` | 01 Demo AI Organized Tag Group | New components strip; decision 1 (tag labels) |
-| `comp-custom-tag` | 02 Demo Custom Tag Picker | New components strip |
-| `comp-log-input` | 03 Demo Minimal Log Input | New components strip |
-| `comp-photo-row` | 04 Demo Photo Attach Row | New components strip |
-| `comp-saved-grid` | 05 Demo saved-grid | Next to the Browse flow |
-| `comp-match-cards` | 06 Demo match-cards | Next to the Ask flow; New components strip |
+| File | Source | Crop (w:h:x:y) | Used in |
+|---|---|---|---|
+| `comp-tag-group` | 01 Demo AI Organized Tag Group | 744:1040:136:122 | Decision 1, next to its caption |
+| `comp-custom-tag` | 02 Demo Custom Tag Picker | 742:1224:80:22 | New components strip |
+| `comp-log-input` | 03 Demo Minimal Log Input | 832:1200:66:0 | New components strip |
+| `comp-photo-row` | 04 Demo Photo Attach Row | 738:1212:96:12 | New components strip |
+| `comp-saved-grid` | 05 Demo saved-grid | 740:1350:30:50 (filters and two rows) | Next to the Browse flow |
 
 ## Edge cases (from `05 Edge case`)
 
@@ -53,4 +55,4 @@ Re-encoded from the edited clips (01 to 06) at 30 fps, muted. Poster = the middl
 |---|---|
 | `edge-zero-saved.webp` | `edge_zero_saved.png`, top 794x1060 |
 | `edge-empty-query.webp` | `edge_empty_query.png`, cropped to the tabs and the empty card |
-| `edge-note.*` | `note.MP4` (a phone screen recording), 600 px wide, 30 fps; poster at 12.5 s, the note back after reopening |
+| `edge-note.*` | `note.MP4` (a phone screen recording), 600 px wide, 30 fps. The phone's own status bar and camera cutout (top 180 px) are covered with the app's top-band color, so only the app shows inside the frame; poster at 12.5 s, the note back after reopening |

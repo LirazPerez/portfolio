@@ -23,8 +23,8 @@ interface Option {
 }
 interface Props {
   options: Option[];
-  /** The shipped component as a loop under the options (a clip in src/assets/work/recall/). */
-  component?: { clip: string; name: string; alt: string };
+  /** The shipped component as a loop under the options (a clip in src/assets/work/recall/), with a short caption beside it. */
+  component?: { clip: string; name: string; alt: string; caption?: string };
 }
 const { options, component } = Astro.props;
 ---
@@ -66,22 +66,44 @@ const { options, component } = Astro.props;
   {
     component && (
       <figure class="comp">
-        <ClipFrame project="recall" clip={component.clip} alt={component.alt} maxWidth="340px" />
-        <figcaption>Shipped component · {component.name}</figcaption>
+        <ClipFrame project="recall" clip={component.clip} alt={component.alt} />
+        <figcaption>
+          <b>Shipped component · {component.name}</b>
+          {component.caption && <span>{component.caption}</span>}
+        </figcaption>
       </figure>
     )
   }
 </div>
 
 <style>
+  /* The shipped clip next to its caption from 560px; stacked and centered below. */
   .comp {
     margin: 16px 0 0;
     display: grid;
-    gap: 8px;
+    grid-template-columns: minmax(0, 340px);
+    justify-content: center;
+    gap: 12px;
+  }
+  @container (min-width: 560px) {
+    .comp {
+      grid-template-columns: minmax(0, 340px) minmax(0, 32ch);
+      justify-content: start;
+      align-items: center;
+      gap: clamp(20px, 4cqi, 40px);
+    }
   }
   .comp figcaption {
-    font-size: 13px;
+    display: grid;
+    gap: 6px;
+    font-size: 14.5px;
+    line-height: 1.5;
     color: var(--muted);
+  }
+  .comp figcaption b {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-strong);
   }
   .wrap {
     container-type: inline-size;

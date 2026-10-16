@@ -45,7 +45,7 @@ const media = workClip(project, clip);
       {
         component && (
           <figure class="comp">
-            <ClipFrame project={project} clip={component.clip} alt={component.alt} maxHeight="360px" />
+            <ClipFrame project={project} clip={component.clip} alt={component.alt} />
             <figcaption>Component · {component.name}</figcaption>
           </figure>
         )
@@ -145,7 +145,7 @@ const media = workClip(project, clip);
     margin: 4px 0 0;
     display: grid;
     gap: 8px;
-    max-width: 420px;
+    max-width: 320px;
   }
   .comp figcaption {
     font-size: 13px;

@@ -111,24 +111,13 @@ cardPhones: [capture, ask]
   title="What you know comes before what's new."
   steps={['Ask a question', 'Saved first', 'Discovery if needed']}
   decision="Every answer checks your saved places first, and says which results are yours and which are new."
-  component={{
-    clip: 'comp-match-cards',
-    name: 'Match reason cards',
-    alt: 'Result cards scrolling sideways, each marked Saved or Discovery with a Why line, while the All, Your pins and Discovery tabs switch between them.',
-  }}
 />
 
-<SubIntro eyebrow="New components" headline="Ten new components, inside Maps' own shell." />
+<SubIntro eyebrow="New components" headline="New components, inside Maps' own shell." />
 
 <ComponentStrip
   project="recall"
   items={[
-    {
-      clip: 'comp-tag-group',
-      name: 'AI organized tag group',
-      line: 'The label shows the first time only. The icon stays, so scanning never depends on color.',
-      alt: 'A Saved card for Clover Club with three AI tags, Date Night, Cocktails and Cobble Hill. Tapping a tag opens a searchable list of options to change it.',
-    },
     {
       clip: 'comp-custom-tag',
       name: 'Custom tag picker',
@@ -146,12 +135,6 @@ cardPhones: [capture, ask]
       name: 'Photo attach row',
       line: 'Saving and tagging are separate from adding a note or photo.',
       alt: 'Under a saved note, a row of photo slots: tapping the camera slot attaches a photo.',
-    },
-    {
-      clip: 'comp-match-cards',
-      name: 'Match reason card',
-      line: 'Says which results are yours and which are new.',
-      alt: 'Ask result cards, each marked Saved or Discovery with a Why line explaining the match.',
     },
   ]}
 />
@@ -224,6 +207,7 @@ cardPhones: [capture, ask]
     component={{
       clip: 'comp-tag-group',
       name: 'AI organized tag group',
+      caption: 'Option C as it shipped, on a saved place. Tapping a tag opens a searchable list to change it; the icon stays on every chip.',
       alt: 'The shipped tag group on a Saved card for Clover Club: Date Night, Cocktails and Cobble Hill, each with its icon. Tapping a tag opens a searchable list of options to change it.',
     }}
   />
@@ -265,7 +249,7 @@ cardPhones: [capture, ask]
 
 ## Still open
 
-<Intro headline="What I'd do next." lede="With three more weeks." />
+<Intro headline="What I'd do next." />
 
 <OpenCards
   items={[
