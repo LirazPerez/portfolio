@@ -8,7 +8,8 @@
  *   - `notification`: a drawn notification (for one the Simulator can't capture), read as one
  *     image through its `label`;
  *   - `lines`: a few drawn label · value lines (e.g. a treadmill program), read through `label`.
- * Three across from 760px of its own width, stacked below.
+ * The moments stack, one group under the other. Inside a group the cards go two across from
+ * 740px of its own width (so a still in a card renders at about 340px or more), one below.
  */
 import { Image } from 'astro:assets';
 import Photo from '../Photo.astro';
@@ -66,12 +67,12 @@ const { project, columns } = Astro.props;
                 {d.image &&
                   (still ? (
                     <div class="scrn">
-                      <Image src={still} alt={d.image.alt} widths={[400, 640, 900]} sizes="(min-width: 1024px) 260px, (min-width: 760px) 30vw, 90vw" loading="lazy" />
+                      <Image src={still} alt={d.image.alt} widths={[400, 640, 900]} sizes="(min-width: 1024px) 360px, 90vw" loading="lazy" />
                     </div>
                   ) : (
                     <p class="missing">Screenshot to add: {d.image.name}</p>
                   ))}
-                {d.photo && <Photo project={project} name={d.photo.name} alt={d.photo.alt} flat ratio="wide" sizes="(min-width: 760px) 260px, 90vw" />}
+                {d.photo && <Photo project={project} name={d.photo.name} alt={d.photo.alt} flat ratio="wide" sizes="(min-width: 1024px) 360px, 90vw" />}
               </li>
             );
           })}
@@ -88,13 +89,7 @@ const { project, columns } = Astro.props;
   .moments {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 28px 16px;
-    align-items: start;
-  }
-  @container (min-width: 760px) {
-    .moments {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+    gap: 36px;
   }
   .moment {
     display: grid;
@@ -121,11 +116,19 @@ const { project, columns } = Astro.props;
     padding: 0;
     list-style: none;
     display: grid;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  @container (min-width: 740px) {
+    ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .det {
     display: grid;
     gap: 8px;
+    /* Cards in a row share a height; keep each card's content at its top. */
+    align-content: start;
     min-width: 0;
     padding: 14px;
     border: 1px solid var(--line);

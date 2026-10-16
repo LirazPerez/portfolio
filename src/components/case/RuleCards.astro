@@ -4,7 +4,8 @@
  * (the ones nothing bends) get the accent tint and border, and say "Firm rule" to screen
  * readers; their own words say the same. Under the cards, an optional work loop: the steps
  * of every phase as pills joined by arrows (an ordered list).
- * Five across from 760px of its own width, two across from 400px, stacked below.
+ * Three across on desktop (64rem; the second row starts at the left), two across from 37.5rem
+ * (tablets), one on phones.
  */
 interface Props {
   rules: { title: string; text: string; firm?: boolean }[];
@@ -54,14 +55,14 @@ const { rules, loop, loopLabel = 'Each phase' } = Astro.props;
     grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
-  @container (min-width: 400px) {
+  @media (min-width: 37.5rem) {
     .rules {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @container (min-width: 760px) {
+  @media (min-width: 64rem) {
     .rules {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   .rule {
