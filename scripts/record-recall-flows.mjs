@@ -1,5 +1,5 @@
-// Records the three Recall flows in src/assets/work/recall/ (capture, browse, ask) from the
-// live prototype. See the README in that folder for what each one shows.
+// Records the Recall flows in src/assets/work/recall/ (capture, browse, ask, custom-tag) from
+// the live prototype. See the README in that folder for what each one shows.
 //
 // Frame by frame, like record-aeropulse-flow.mjs: a 390x844 phone viewport at device scale 3,
 // one screenshot per 1/30 s, with the page's CSS animations slowed to the capture speed so
@@ -13,15 +13,15 @@
 //
 // Playwright is not a project dependency. In a scratch folder:
 //   npm i playwright && npx playwright install chromium
-//   cp /path/to/record-recall-flows.mjs . && node record-recall-flows.mjs frames [capture|browse|ask]
+//   cp /path/to/record-recall-flows.mjs . && node record-recall-flows.mjs frames [capture|browse|ask|custom-tag]
 // Then encode each flow, with a 0.4 s cross-dissolve back to frame 0 so it loops (N = frame count):
 //   F=frames/capture; OFF=$(echo "scale=4; N/30 - 0.4" | bc)
 //   FC="[0:v]scale=780:1688:flags=lanczos,setsar=1,fps=30[a];[1:v]scale=780:1688:flags=lanczos,setsar=1,fps=30,trim=duration=0.5[b];[a][b]xfade=transition=fade:duration=0.4:offset=$OFF,format=yuv420p[v]"
 //   ffmpeg -framerate 30 -i $F/%05d.jpg -loop 1 -framerate 30 -i $F/00000.jpg -filter_complex "$FC" -map "[v]" \
 //     -c:v libx264 -preset veryslow -crf 18 -tune animation -movflags +faststart -an capture.mp4
 //   (same for .webm with -c:v libvpx-vp9 -crf 30 -b:v 0 -row-mt 1)
-// Posters are each flow's key frame (frames 140, 190 and 262 in the current takes), resized to
-// 780x1688 and saved as WebP.
+// Posters are each flow's key frame (frames 140, 190 and 262 in the current takes; custom-tag:
+// the frame its new tag appears), resized to 780x1688 and saved as WebP.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 
@@ -86,7 +86,7 @@ async function recordFlow(name, script) {
   const { dir, context, page, cdp } = await setup(name);
   // Visit every screen with photos first, so each one is already loaded (and cached) when it
   // first appears on camera, instead of fading in from its placeholder.
-  for (const path of ['/place/sauced', '/saved']) {
+  for (const path of ['/place/sauced', '/place/clover/saved', '/saved']) {
     await page.goto(URL + path, { waitUntil: 'networkidle' });
     await context.clock.runFor(1500);
     await photosLoaded(page);
@@ -188,6 +188,15 @@ const flows = {
     await tapAt(await point(page.getByRole('button', { name: 'send' }).last()), 1300);
     await tapAt(await point(page.getByRole('button', { name: 'Show results on map' })), 1300);
     await tapAt(await point(page.getByRole('button', { name: 'Your pins' })), 1700);
+  },
+  // Map → a saved place (Clover Club) → its sheet with the AI tags → Add custom tag → Parking →
+  // Street only → rest on the new "Parking · Street only" tag beside the AI's.
+  'custom-tag': async ({ page, rest, tapAt, point }) => {
+    await rest(600);
+    await tapAt(await point(page.locator('a[href="/place/clover/saved"]').first(), 0, -6), 1500);
+    await tapAt(await point(page.getByRole('button', { name: 'Add custom tag' })), 1000);
+    await tapAt(await point(page.locator('button').filter({ hasText: /^\s*Parking\s*$/ }).first()), 1000);
+    await tapAt(await point(page.locator('button').filter({ hasText: /^\s*Street only\s*$/ }).first()), 2300);
   },
 };
 

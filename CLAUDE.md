@@ -2,7 +2,7 @@
 
 The personal portfolio of **Liraz Hazala Perez, product designer**. The site is itself proof of the work: it is designed and built by Liraz, so craft, accessibility and restraint in the code matter as much as the case studies.
 
-The approved visual direction is `reference/specimen.html`. When in doubt about a visual decision, open it in a browser and match it. (The portrait and CV originals in `reference/` are gitignored; the copies the site uses live in `src/assets/` and `public/cv/`.)
+The approved visual direction is `reference/specimen.html`. When in doubt about a visual decision, open it in a browser and match it. (The portrait, CV and persona-photo originals in `reference/` are gitignored; the copies the site uses live in `src/assets/` and `public/cv/`.)
 
 `V00/` and `V01/` are archived material from earlier versions (several GB, nested git repos). They are gitignored and excluded from Vite, Tailwind and TypeScript. Never import from them.
 

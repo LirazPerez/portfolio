@@ -22,6 +22,7 @@ npm-debug.log*
 V00/
 V01/
 
-# Reference originals: the portrait and CV are copied into src/assets and public/cv.
+# Reference originals: the portrait, CV and persona photo are copied (or exported) into src/assets and public/cv.
 reference/*.jpg
+reference/*.png
 reference/*.pdf

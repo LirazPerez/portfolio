@@ -4,7 +4,7 @@ Each file is picked up by name (`workClip` in `src/lib/stage-media.ts`); nothing
 components needs to change when one is replaced. Every recording has an `.mp4` (H.264, played
 first), a `.webm` (VP9) and a `-poster.webp`, which is what reduced motion and no JS show.
 
-## Flow recordings (phones on the home card, the case-study hero and the three flows)
+## Flow recordings (phones on the home card, the case-study hero, the three flows and the custom tag picker)
 
 Recorded from the live prototype, https://google-maps-recall-2.vercel.app, by
 `scripts/record-recall-flows.mjs` (its header has the steps to re-run it).
@@ -25,10 +25,12 @@ Recorded from the live prototype, https://google-maps-recall-2.vercel.app, by
 |---|---|---|---|---|
 | `capture` | 7.2 s | 0.66 MB | 0.49 MB | Map → tap Sauced (not saved yet) → its sheet with the photo → tap Save → the Saved card with three AI tags (Casual, American, Lower East Side) → tap Done → map |
 | `browse` | 6.8 s | 0.72 MB | 0.88 MB | Map → tap the Save tab → Saved Places grid → tap Vibe → tap Date Night → the grid narrows to Lucia Trattoria, Clover Club and Attaboy → tap Vibe to close → rest |
+| `custom-tag` | 6.9 s | 0.48 MB | 0.83 MB | Map → tap Clover Club (saved) → its sheet with three AI tags (Date Night, Cocktails, Cobble Hill) → tap Add custom tag → the category list → tap Parking → its values → tap Street only → rest on the new Parking · Street only tag. Shown in a full phone in the New components stop, so the dropdown never leaves empty space |
 | `ask` | 9.2 s | 0.61 MB | 0.83 MB | Map → tap Ask Maps → tap the field: the prototype types its example question letter by letter → tap send → the answer and its matching chips → tap Show results on map → 8 matches → tap Your pins → 3 saved |
 
-Posters are each flow's key moment, not its first frame (all three start on the same map):
-`capture-poster` the tags applied, `browse-poster` the narrowed grid, `ask-poster` Your pins.
+Posters are each flow's key moment, not its first frame (all four start on the same map):
+`capture-poster` the tags applied, `browse-poster` the narrowed grid, `ask-poster` Your pins,
+`custom-tag-poster` the new tag in the sheet (frame 150, once the tap ring has faded).
 
 Note on Ask: the demo answers one example question, and focusing its field types that
 question itself (26 ms a letter). The recording shows that real behavior rather than typing
@@ -47,7 +49,7 @@ with no jump (the list scrolls down, then back up).
 | File | Source | Take | Crop (w:h:x:y) | Used in |
 |---|---|---|---|---|
 | `comp-tag-group` | 01 Demo AI Organized Tag Group | 7.95 to 10.25 s, the Location list scrolling; 4.6 s loop | 744:1040:136:122 | Decision 1, next to its caption |
-| `comp-custom-tag` | 02 Demo Custom Tag Picker | 1.55 to 4.25 s, the category list scrolling; 5.4 s loop | 742:1114:80:96 | New components strip |
+| `comp-custom-tag` | 02 Demo Custom Tag Picker | 1.55 to 4.25 s, the category list scrolling; 5.4 s loop | 742:1114:80:96 | Not shown (replaced by the full-phone `custom-tag` recording) |
 | `comp-log-input` | 03 Demo Minimal Log Input | whole clip | 832:1200:66:0 | New components strip |
 | `comp-photo-row` | 04 Demo Photo Attach Row | whole clip | 738:1212:96:12 | New components strip |
 | `comp-saved-grid` | 05 Demo saved-grid | whole clip | 740:1350:30:50 (filters and two rows) | Not shown (the Browse phone already shows the grid) |
@@ -64,5 +66,4 @@ with no jump (the list scrolls down, then back up).
 
 | File | Source |
 |---|---|
-| `maya-persona.png` | `V01/Google Maps Recall/recall-app/docs/assets/maya-persona.png` (512x512; not the .jpg, a different image) |
-| `maya-persona.webp` | the .png at 192x192, WebP quality 82; shown in the 48px circle of the persona card |
+| `maya-persona.webp` | `V01/Google Maps Recall/recall-app/docs/assets/maya-persona.png` (512x512; not the .jpg, a different image) at 192x192, WebP quality 82; shown in the 48px circle of the persona card. The original is kept out of this folder (every image here is bundled) in `reference/maya-persona.png`, gitignored like the other originals |

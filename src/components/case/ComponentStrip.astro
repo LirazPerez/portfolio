@@ -4,12 +4,18 @@
  * one line. Each clip is cropped tight to its component and fills its column, so the UI
  * reads at close to its real size. Two across from 600px of its own width; an odd last item
  * spans the row with its text beside the clip. Stacked below 600px. Loops play only when motion is allowed and on screen; posters otherwise.
+ *
+ * `phone: true` shows an item as a full-screen recording in a <Phone> instead of a tight crop
+ * (for a component whose dropdown would otherwise leave empty space in its frame). It spans
+ * the row with its text beside the phone, and is left out when pairing the cropped clips.
  */
 import ClipFrame from './ClipFrame.astro';
+import Phone from '../Phone.astro';
+import { workClip } from '../../lib/stage-media';
 
 interface Props {
   project: string;
-  items: { clip: string; name: string; line: string; alt: string }[];
+  items: { clip: string; name: string; line: string; alt: string; phone?: boolean }[];
 }
 const { project, items } = Astro.props;
 ---
@@ -18,8 +24,21 @@ const { project, items } = Astro.props;
   <ul class="strip" role="list">
     {
       items.map((item) => (
-        <li>
-          <ClipFrame project={project} clip={item.clip} alt={item.alt} />
+        <li class:list={[item.phone && 'is-phone']}>
+          {item.phone ? (
+            <div class="phone-col">
+              {(() => {
+                const media = workClip(project, item.clip);
+                return media ? (
+                  <Phone media={media} label={item.alt} />
+                ) : (
+                  <p class="missing">Recording to add: {item.clip}</p>
+                );
+              })()}
+            </div>
+          ) : (
+            <ClipFrame project={project} clip={item.clip} alt={item.alt} />
+          )}
           <div class="txt">
             <h4>{item.name}</h4>
             <p>{item.line}</p>
@@ -47,12 +66,35 @@ const { project, items } = Astro.props;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 40px 24px;
     }
-    li:last-child:nth-child(odd) {
+    li:nth-last-child(1 of :not(.is-phone)):nth-child(odd of :not(.is-phone)) {
       grid-column: 1 / -1;
       grid-template-columns: minmax(0, calc(50% - 12px)) minmax(0, 1fr);
       gap: 24px;
       align-items: center;
     }
+    li.is-phone {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+      gap: clamp(24px, 6cqi, 64px);
+    }
+    /* Like a flow: the text starts near the phone's top third. */
+    li.is-phone .txt {
+      padding-top: clamp(24px, 9cqi, 72px);
+    }
+  }
+  .phone-col :global(.phone) {
+    max-width: 210px;
+  }
+  @container (min-width: 600px) {
+    .phone-col :global(.phone) {
+      max-width: 220px;
+    }
+  }
+  .missing {
+    padding: 24px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-frame);
+    font-size: 13px;
   }
   li {
     display: grid;
@@ -66,6 +108,7 @@ const { project, items } = Astro.props;
   .txt {
     display: grid;
     gap: 6px;
+    align-content: start;
   }
   h4 {
     margin: 0;
