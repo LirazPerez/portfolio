@@ -1,0 +1,50 @@
+---
+/**
+ * A sample of generated text (e.g. the summary Ask Claude copies), set as a quiet block:
+ * a lead line, then short sections each with a heading and its lines. Real text, so screen
+ * readers read it as written; `label` names what it is. Geist like everything else (no
+ * monospace on this site).
+ */
+interface Props {
+  label: string;
+  lead: string;
+  sections: { heading: string; lines: string[] }[];
+  end?: string;
+}
+const { label, lead, sections, end } = Astro.props;
+---
+
+<figure class="sample" aria-label={label}>
+  <p><b>{lead.split('. ')[0]}.</b> {lead.split('. ').slice(1).join('. ')}</p>
+  {sections.map((s) => (
+    <div>
+      <p><b>{s.heading}</b></p>
+      {s.lines.map((l) => (
+        <p>{l}</p>
+      ))}
+    </div>
+  ))}
+  {end && <p>{end}</p>}
+</figure>
+
+<style>
+  .sample {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  p {
+    margin: 0;
+  }
+  b {
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+</style>

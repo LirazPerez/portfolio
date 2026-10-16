@@ -1,0 +1,116 @@
+---
+/**
+ * Rules written before the build: one short card each, a title over one line. `firm` rules
+ * (the ones nothing bends) get the accent tint and border, and say "Firm rule" to screen
+ * readers; their own words say the same. Under the cards, an optional work loop: the steps
+ * of every phase as pills joined by arrows (an ordered list).
+ * Five across from 760px of its own width, two across from 400px, stacked below.
+ */
+interface Props {
+  rules: { title: string; text: string; firm?: boolean }[];
+  loop?: string[];
+  loopLabel?: string;
+}
+const { rules, loop, loopLabel = 'Each phase' } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="rules" role="list">
+    {rules.map((r) => (
+      <li class:list={['rule', r.firm && 'rule--firm']}>
+        <h3>
+          {r.firm && <span class="sr-only-text">Firm rule: </span>}
+          {r.title}
+        </h3>
+        <p>{r.text}</p>
+      </li>
+    ))}
+  </ul>
+  {
+    loop && (
+      <ol class="loop" role="list" aria-label={loopLabel}>
+        {loop.map((s, i) => (
+          <li>
+            {i > 0 && <span class="arrow" aria-hidden="true">→</span>}
+            <span class="pill">{s}</span>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+    display: grid;
+    gap: 18px;
+  }
+  .rules {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  @container (min-width: 400px) {
+    .rules {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container (min-width: 760px) {
+    .rules {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .rule {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--raise);
+  }
+  .rule--firm {
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    background: var(--accent-tint);
+  }
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .loop {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 13.5px;
+  }
+  .loop li {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .arrow {
+    color: var(--muted);
+  }
+  .pill {
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--raise);
+  }
+</style>

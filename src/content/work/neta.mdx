@@ -1,14 +1,340 @@
 ---
 title: Neta
 tagline: "A native iPhone coach that plans my half marathon from my own Apple Health data."
+lede: "A half-marathon coach that reads my Apple Health data, plans 20 weeks to race day, and bends the plan around the week I actually have."
 order: 3
 platform: mobile
-category: "iOS app"
-role: "Product design and build"
-duration: "Ongoing"
-tools: [Swift, SwiftUI, Apple Health, Apple Watch, Claude Code]
+category: "iOS"
+role: "Product, design and build, solo"
+duration: "8 days to daily use, ongoing"
+tools: [Swift, SwiftUI, HealthKit, WorkoutKit, Claude Code]
 status: in-progress
 statusLabel: "In daily use"
-tags: [iOS app, Apple Health, AI coach]
-comingSoon: true
+tags: [Native iOS, Apple Health & Watch, In daily use]
+origin: "Built for myself, for the Tel Aviv Half Marathon on February 26, 2027. App screens use sample data; the Watch and widget photos are mine."
+stageAlt: "Neta: recordings of the app on an iPhone, and my Apple Watch mid-run."
+nativeScreen: true
+phones:
+  - clip: replan
+    title: Replan
+    caption: around a busy day
+    alt: "My week: Thursday marked busy, Neta proposes moving the tempo run to Wednesday with a reason, then the week is approved."
+  - clip: why
+    title: Today
+    caption: every number has a why
+    alt: "Neta's Today screen: an easy treadmill run with a 154 bpm heart-rate cap, and its explanation opened in Hebrew."
+cardPhones: [why]
+cardPhoto:
+  image: watch-above-cap
+  alt: "An Apple Watch on a treadmill run showing heart rate 159, above the alert line, in red."
+heroPhoto:
+  image: watch-in-range
+  title: On the wrist
+  caption: the cap, live
+  alt: "My Apple Watch mid-run: heart rate 151, in range."
 ---
+
+## What I noticed
+
+<Intro headline="My “easy” runs were close to race effort." lede="Apple Health had every run. Nothing was reading it back to me." />
+
+<HrDrift
+  label="Heart rate across one 7 km run before the plan: it starts at 158 bpm and climbs to 186, averaging 174, while an easy run should stay under 154."
+  caption="One of my 7 km runs before the plan, from Apple Health."
+  start={158}
+  end={186}
+  cap={154}
+  distance="7 km"
+  stats={[
+    { value: '174 bpm', label: 'average on runs I thought were steady' },
+    { value: '154 bpm', label: 'where easy actually tops out for me' },
+  ]}
+/>
+
+## Problem
+
+<Intro headline="A plan that assumes a perfect week breaks in the first one." />
+
+<CompareTable
+  caption="How a typical fixed training plan and Neta handle five real-life situations."
+  columns={['When this happens', 'A fixed plan', 'Neta']}
+  rows={[
+    ['My easy pace is slower than the formula', "Pace target I can't hold", 'Heart rate first; pace is whatever that allows'],
+    ['Thursday fills up', 'Skip it, or stack two hard days', 'Moves the run, keeps 3 runs, explains why'],
+    ["It's a treadmill day", 'Pace per km', 'Speed and incline for the machine'],
+    ['Something hurts', 'Silent', 'Next run becomes rest. Never run through pain'],
+    ["I'd rather read it in Hebrew", 'English only', 'Every explanation in both, one tap'],
+  ]}
+/>
+
+## How I ran it
+
+<Intro headline="I was the user, so I wrote the rules before the code." />
+
+<RuleCards
+  rules={[
+    { title: '3 runs a week', text: 'Non-negotiable. Strength sessions are the flexible ones.', firm: true },
+    { title: 'Never two hard days in a row', text: 'Quality never next to the long run.' },
+    { title: 'Grow 10% at most', text: 'With a lighter week every 3 to 4.' },
+    { title: 'The cap is a firm line', text: 'Same 154 bpm in the app, on the Watch and in every review.', firm: true },
+    { title: 'Pain overrides everything', text: 'The only thing that breaks the 3-run rule.', firm: true },
+  ]}
+  loopLabel="Each phase"
+  loop={['Spec', 'Acceptance criteria', 'Build', 'Unit tests', 'Test on my iPhone and Watch', 'Merge']}
+/>
+
+## Process
+
+<Intro headline="Three moments that make it a coach, not a calendar." />
+
+<SubIntro eyebrow="Three moments" />
+
+<FlowRow
+  project="neta"
+  clip="why"
+  native
+  alt="Today: an easy treadmill run, scroll to the why, tap Read in Hebrew, the text switches to right-to-left Hebrew."
+  eyebrow="1 · Today"
+  title="Every number comes with a why."
+  steps={["Today's run", 'The why', 'Read in Hebrew']}
+  decision="Labels stay in English; anything longer than a line comes in both languages, with Neta speaking to me in my own Hebrew."
+/>
+
+<FlowRow
+  project="neta"
+  clip="replan"
+  native
+  flip
+  alt="My week: mark Thursday busy, see the proposed week with the tempo run moved to Wednesday and the reason, approve."
+  eyebrow="2 · My week"
+  title="Tell it the week. It moves the runs."
+  steps={['Mark a day busy', 'Proposed week', 'Approve']}
+  decision="Nothing changes until I approve. Then the plan, my calendar and the Watch update together."
+/>
+
+<FlowRow
+  project="neta"
+  clip="pain"
+  native
+  alt="After a run: log effort, flag knee pain, save, and Thursday's tempo run becomes rest with Neta's explanation."
+  eyebrow="3 · Pain"
+  title="Safety wins, and it says so."
+  steps={['Log the run', 'Flag pain', 'Next run becomes rest']}
+  decision="Logging takes under 15 seconds, and pain is a first-class answer, not a note field."
+/>
+
+<SubIntro eyebrow="Off the phone" headline="The plan follows me to the wrist and the home screen." />
+
+<DeviceFigures
+  project="neta"
+  items={[
+    {
+      kind: 'pair',
+      images: [
+        { name: 'watch-in-range', alt: 'Watch mid-run: 151 bpm, in range, shown in green.' },
+        { name: 'watch-above-cap', alt: 'Watch mid-run: 159 bpm, above the alert line, shown in red.' },
+      ],
+      title: 'Structured workouts on the Watch',
+      text: 'Sent from the plan with warm-up, steps and a heart-rate alert.',
+      pills: [
+        { tone: 'ok', text: 'In range' },
+        { tone: 'warn', text: 'Above the cap' },
+      ],
+    },
+    {
+      kind: 'widget',
+      images: [
+        {
+          name: 'widget-home',
+          alt: "Neta's home-screen widget: Today, easy run plus strides, 4.4 km, stay under 154 bpm, outdoor at 18:30, 134 days to race.",
+        },
+      ],
+      title: 'Today on the home screen',
+      text: 'The run, the cap and the time, without opening the app.',
+    },
+  ]}
+/>
+
+<SubIntro eyebrow="Thought of that" headline="The small things that keep a training week on track." />
+
+<MomentColumns
+  project="neta"
+  columns={[
+    {
+      title: 'Before the run',
+      items: [
+        {
+          title: 'Long runs at race hour',
+          text: 'Sunday at 8:00, like race morning, with a reminder to eat a light carb snack and drink water first.',
+          notification: {
+            app: 'Neta',
+            title: 'Long run at 8:00 · 10 km',
+            body: 'Stay under 154. Light carb snack 1–2 h before, and water.',
+            time: '6:00',
+            label: 'Example reminder: Long run at 8:00, 10 km easy, stay under 154. Light carb snack 1 to 2 hours before, and water.',
+          },
+        },
+        {
+          title: 'A bad night counts',
+          text: 'Under 6 hours of sleep, or a resting heart rate 5+ above usual, and Neta offers an easier version of a hard day.',
+          image: { name: 'today-make-it-easier', alt: 'Make today easier? You slept 5 h 17 min. Buttons: Make it easier, Keep plan.' },
+        },
+        {
+          title: "The calendar bends, the plan doesn't",
+          text: "Workouts land in my calendar and slide to the nearest free slot. Neta never touches an event it didn't create.",
+        },
+        {
+          title: 'Race morning, to the minute',
+          text: 'Wake-up, breakfast, warm-up and corral times counted back from the start, plus when to take each gel.',
+          image: {
+            name: 'race-guide-morning',
+            alt: 'Race morning: start 06:30, wake up 03:30, breakfast 03:45, at the start area by 05:45, warm up at 06:05, in the corral by 06:15.',
+          },
+        },
+      ],
+    },
+    {
+      title: 'During the run',
+      items: [
+        {
+          title: 'A tap on the wrist at 154',
+          text: 'The Watch buzzes the moment I go over the cap, so I slow down before the run turns hard.',
+          photo: { name: 'watch-above-cap', alt: 'Watch showing 159 bpm in red, above the alert line.' },
+        },
+        {
+          title: 'Numbers the treadmill understands',
+          text: 'Pace becomes speed and incline I can type into the machine.',
+          lines: {
+            label: 'Treadmill program: warm-up 4.4 mph, tempo 5.7 mph for 10 minutes twice, cool-down 4.4 mph, all at 1% incline.',
+            items: [
+              { label: 'Warm-up', value: '4.4 mph', rest: '1.5 km' },
+              { label: 'Tempo', value: '5.7 mph', rest: '2 × 10 min' },
+              { label: 'Cool-down', value: '4.4 mph', rest: '1% incline' },
+            ],
+          },
+        },
+        {
+          title: 'The workout is already on the Watch',
+          text: 'Warm-up, tempo blocks and cool-down arrive as one workout for the right day and time, in km even on the treadmill. The next 7 days stay in sync on their own.',
+        },
+        {
+          title: 'When it climbs anyway',
+          text: "Talk test, then walk 30–60 seconds. Easy only works when it's truly easy.",
+        },
+      ],
+    },
+    {
+      title: 'After the run',
+      items: [
+        {
+          title: '“How did your run go?”',
+          text: 'An hour after a planned run, and skipped if I already logged it. Logging takes under 15 seconds.',
+          image: { name: 'today-how-did-your-run-go', alt: 'How did your run go? Tuesday, 4.52 km, tap to log, 15 seconds.' },
+        },
+        {
+          title: 'Shoes have a mileage',
+          text: 'Each run counts toward its pair, with a default shoe for treadmill and outdoor, and a warning at 600 and 750 km.',
+          image: {
+            name: 'settings-shoes',
+            alt: 'Shoes: Pegasus 41 at 171 km, treadmill default; Ghost 16 at 610 km, outdoor default, time to think about new shoes; Novablast 5 at 5 km.',
+          },
+        },
+        {
+          title: 'Targets are earned',
+          text: "Two comfortable tempo runs in a row, and next week's pace gets 3 seconds per km faster.",
+        },
+        {
+          title: 'Missed a run?',
+          text: "Neta suggests a safe new day this week, never next to a hard one. Or skips it, if that's safer.",
+          image: { name: 'today-missed-run', alt: "Missed run: Missed Tuesday's easy run, do it today? Buttons: Move to today, Skip it." },
+        },
+      ],
+    },
+  ]}
+/>
+
+## Key decisions
+
+<Intro headline="Three calls I'd make again." />
+
+<Decision
+  n={1}
+  title="Heart rate first, pace second."
+  considered="Considered: pace zones from the formula, 7:15 to 7:50 per km."
+  verdict="My first easy run needed 8:28 to stay under the cap, so the pace range now comes from my own runs, updated every Monday."
+>
+  <TwoUp>
+    <Shot project="neta" name="today-hr-cap" alt="Today card: Stay under 154 bpm, pace is whatever that allows, roughly 7:56 to 8:56 per km for now." />
+    <Shot project="neta" name="progress-pace-at-hr-cap" alt="Progress chart: easy-run pace at 154 bpm improving from 8:24 to 7:53 per km." />
+  </TwoUp>
+</Decision>
+
+<Decision
+  n={2}
+  title="One line, everywhere."
+  considered="Considered: a soft buffer above the cap."
+  verdict="A buffer meant two numbers, and two numbers meant I trusted neither."
+>
+  <TwoUp>
+    <Shot project="neta" name="watch-above-cap" photo alt="My Watch on the first Neta run: 159 bpm, above 157, three beats over the cap." />
+    <Timeline
+      items={[
+        { when: 'Oct 11', text: 'The Watch alerted at the cap plus 3, so it said “above 157” while the app said 154.' },
+        { when: 'Oct 13', text: 'After that first run, I made 154 the single line: the app text, the Watch alert, the run review and the pace calibration.' },
+        { when: 'Now', text: '“Your Watch buzzes if you go over the cap” is literally true.', now: true },
+      ]}
+    />
+  </TwoUp>
+</Decision>
+
+<Decision n={3} title="Ask Claude, before building an AI coach.">
+  <TwoUp>
+    <PromptSample
+      label="Example of the summary Ask Claude copies: my goal, plan week, heart-rate cap, recent runs with logs, and the next 7 days."
+      lead="Neta training summary. Please act as my running coach."
+      sections={[
+        { heading: 'Me', lines: ['- Goal 2:10:00 (6:10 /km). Week 4 of 20 (Base).', '- Easy/long runs: heart rate first, under 154 bpm.'] },
+        { heading: 'Last 14 days: runs', lines: ['- Tue · planned Easy ≈4.5 km · done 4.52 km, 8:04 /km, treadmill, avg HR 148 · RPE 4, good'] },
+        { heading: 'Next 7 days', lines: ['…'] },
+      ]}
+      end="My question:"
+    />
+    <Compare
+      before={{ label: 'Considered', quote: 'An AI coach inside the app', note: 'API keys, a monthly cost cap, and health data leaving the phone.' }}
+      after={{ label: 'Shipped', quote: 'One tap: copy a summary, open Claude', note: 'Free, no key, and I see exactly what I share before I send it.' }}
+    />
+  </TwoUp>
+</Decision>
+
+## The build
+
+<Intro headline="I set the rules and the bar. Claude Code wrote the Swift." />
+
+<BuildSplit
+  mine={['Product spec', 'Training rules', 'Acceptance criteria per phase', 'Every decision above', 'Testing on my iPhone and Watch']}
+  tools={['Claude Code: the Swift and the tests', 'HealthKit, WorkoutKit, EventKit, WidgetKit, SwiftData', 'Xcode']}
+/>
+
+## Outcome
+
+<Intro headline="The coach I actually train with." />
+
+<OutcomeStats
+  stats={[
+    { value: '8 days', label: 'from an empty Xcode project to my daily training app' },
+    { value: '149', label: 'unit tests covering every training rule' },
+    { value: '20 weeks', label: 'planned to race day, rebuilt from my data every launch' },
+  ]}
+/>
+
+## Still open
+
+<Intro headline="What race day will tell me." />
+
+<OpenCards
+  items={[
+    { title: 'The first 5K benchmark', text: 'Does recalibrating every zone from one time trial hold up?' },
+    { title: 'A weekly review', text: 'An opt-in AI review of planned vs actual, if Ask Claude stops being enough.' },
+    { title: 'February 26', text: '2:10 is the goal. The result goes here, either way.' },
+  ]}
+/>

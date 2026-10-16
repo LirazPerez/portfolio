@@ -1,0 +1,73 @@
+---
+/**
+ * A real photo (e.g. my Apple Watch mid-run): rounded, cropped square by default, with the
+ * soft lift shadow. Found by name in src/assets/work/<project>/ (`workScreen`); a missing file
+ * renders a tagged placeholder instead of failing the build. `flat` drops the shadow, for a
+ * photo that sits inside a card. `ratio: 'auto'` keeps the file's own shape.
+ */
+import { Image } from 'astro:assets';
+import { workScreen } from '../lib/work-media';
+
+interface Props {
+  project: string;
+  name: string;
+  alt: string;
+  flat?: boolean;
+  ratio?: 'square' | 'wide' | 'auto';
+  sizes?: string;
+  /** `eager` for a photo above the fold (the case-study hero). */
+  loading?: 'lazy' | 'eager';
+  class?: string;
+}
+const { project, name, alt, flat = false, ratio = 'square', sizes = '(min-width: 760px) 300px, 45vw', loading = 'lazy', class: className } = Astro.props;
+const image = workScreen(project, name);
+---
+
+<div class:list={['photo', `photo--${ratio}`, flat && 'photo--flat', className]}>
+  {
+    image ? (
+      <Image src={image} alt={alt} widths={[320, 480, 640, 900].filter((w) => w <= image.width)} sizes={sizes} loading={loading} />
+    ) : (
+      <p class="missing">Photo to add: {name}</p>
+    )
+  }
+</div>
+
+<style>
+  .photo {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 26px;
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
+  }
+  .photo--flat {
+    border-radius: 14px;
+    box-shadow: none;
+  }
+  .photo--square {
+    aspect-ratio: 1;
+  }
+  .photo--wide {
+    aspect-ratio: 16 / 10;
+  }
+  .photo :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* A wide crop of a square Watch photo: keep the lower rows (heart rate) in view. */
+  .photo--wide :global(img) {
+    object-position: 50% 70%;
+  }
+  .photo--auto :global(img) {
+    height: auto;
+  }
+  .missing {
+    margin: 0;
+    padding: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+</style>

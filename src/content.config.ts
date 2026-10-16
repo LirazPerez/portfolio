@@ -39,6 +39,15 @@ const work = defineCollection({
       .optional(),
     /** Which of `phones` (by clip) the home card shows. */
     cardPhones: z.array(z.string()).max(2).optional(),
+    /**
+     * The recordings were captured in the iOS Simulator and already show the phone's own status
+     * bar and Dynamic Island: play them in the native phone (no drawn cutout, 590:1282 screen).
+     */
+    nativeScreen: z.boolean().optional(),
+    /** A real photo (file name in src/assets/work/<slug>/) beside the card's phone, slightly tilted. */
+    cardPhoto: z.object({ image: z.string(), alt: z.string() }).optional(),
+    /** A real photo after the hero's phones, as the last of the row, with its own caption. */
+    heroPhoto: z.object({ image: z.string(), title: z.string(), caption: z.string(), alt: z.string() }).optional(),
     /** The case study is not written yet: the page says it's coming soon. */
     comingSoon: z.boolean().optional(),
     /** Hidden everywhere: no card, no page, no "Next project" link. The file is kept. */

@@ -1,0 +1,138 @@
+---
+/**
+ * The product off the phone, in real photos: one card per surface (the Watch, the home-screen
+ * widget), each with its photos, a short title and one line. `pair` cards show two photos side
+ * by side (each with its own alt); a `widget` card shows one image centred on a surface.
+ * Optional status pills say their state in words (In range / Above the cap), so color is
+ * never the only cue. Two across from 600px of its own width.
+ */
+import Photo from '../Photo.astro';
+
+interface Item {
+  kind: 'pair' | 'widget';
+  images: { name: string; alt: string }[];
+  title: string;
+  text: string;
+  pills?: { tone: 'ok' | 'warn'; text: string }[];
+}
+interface Props {
+  project: string;
+  items: Item[];
+}
+const { project, items } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="off" role="list">
+    {items.map((item) => (
+      <li>
+        <figure>
+          <div class:list={[item.kind === 'pair' ? 'pair' : 'widget']}>
+            {item.images.map((img) => (
+              <Photo
+                project={project}
+                name={img.name}
+                alt={img.alt}
+                flat
+                ratio={item.kind === 'pair' ? 'square' : 'auto'}
+                sizes={item.kind === 'pair' ? '(min-width: 760px) 240px, 45vw' : '(min-width: 760px) 300px, 60vw'}
+              />
+            ))}
+          </div>
+          <figcaption>
+            <b>{item.title}</b>
+            {item.text}
+            {item.pills && (
+              <span class="pills">
+                {item.pills.map((p) => (
+                  <span class:list={['pill', `pill--${p.tone}`]}>{p.text}</span>
+                ))}
+              </span>
+            )}
+          </figcaption>
+        </figure>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .off {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  @container (min-width: 600px) {
+    .off {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  figure {
+    margin: 0;
+    height: 100%;
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--raise);
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .widget {
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    border-radius: 14px;
+    background: var(--surface);
+  }
+  .widget :global(.photo) {
+    width: 72%;
+    max-width: 260px;
+    border-radius: 22px;
+  }
+  figcaption {
+    display: grid;
+    gap: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  figcaption b {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
+  }
+  .pill {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .pill--ok {
+    background: var(--ok-tint);
+    color: var(--ok);
+  }
+  .pill--warn {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+</style>

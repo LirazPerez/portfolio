@@ -7,6 +7,7 @@
  * Two columns from 600px of its own width; below that the phone comes first. The text
  * starts near the phone's top third rather than its middle. Consecutive flows are set
  * apart by extra space and a hairline, so each reads as its own stop.
+ * `native` plays a Simulator recording in the native phone (see Phone.astro).
  */
 import Phone from '../Phone.astro';
 import ClipFrame from './ClipFrame.astro';
@@ -22,15 +23,16 @@ interface Props {
   decision: string;
   flip?: boolean;
   component?: { clip: string; name: string; alt: string };
+  native?: boolean;
 }
-const { project, clip, alt, eyebrow, title, steps, decision, flip = false, component } = Astro.props;
+const { project, clip, alt, eyebrow, title, steps, decision, flip = false, component, native = false } = Astro.props;
 const media = workClip(project, clip);
 ---
 
 <div class="wrap">
   <article class:list={['row', flip && 'row--flip']}>
     <div class="phone-col">
-      {media ? <Phone media={media} label={alt} /> : <p class="missing">Recording to add: {clip}</p>}
+      {media ? <Phone media={media} label={alt} native={native} /> : <p class="missing">Recording to add: {clip}</p>}
     </div>
     <div class="txt">
       <p class="eyebrow">{eyebrow}</p>

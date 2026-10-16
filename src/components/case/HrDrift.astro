@@ -1,0 +1,173 @@
+---
+/**
+ * Heart rate across one run against an easy-run cap: an SVG line drawn from tokens, the easy
+ * zone shaded and labelled in words (never color alone), start and end values marked, and
+ * big stats beside it. The chart is one image (`role="img"`, `label` says everything it
+ * shows). Two columns from 640px of its own width, stacked below.
+ *
+ * The y scale is fixed by `min` / `max`; the line is a smooth climb from `start` to `end`
+ * (the shape is illustrative, the end points are real).
+ */
+interface Props {
+  label: string;
+  caption: string;
+  start: number;
+  end: number;
+  cap: number;
+  distance: string;
+  min?: number;
+  max?: number;
+  stats: { value: string; label: string }[];
+}
+const { label, caption, start, end, cap, distance, min = 140, max = 190, stats } = Astro.props;
+
+// Plot area inside the 520 x 260 viewBox.
+const L = 52, R = 504, T = 24, B = 222;
+const y = (bpm: number) => B - ((bpm - min) / (max - min)) * (B - T);
+const ys = y(start), ye = y(end), yc = y(cap);
+const ticks = [max, Math.round((max + cap) / 2 / 5) * 5, cap, min];
+const w = R - L;
+const run = `M${L} ${ys} C ${L + w * 0.14} ${ys - 14}, ${L + w * 0.25} ${ys - 32}, ${L + w * 0.39} ${ys - 55} S ${L + w * 0.66} ${ye + 26}, ${L + w * 0.78} ${ye + 10} S ${L + w * 0.93} ${ye + 2}, ${R} ${ye}`;
+---
+
+<div class="wrap">
+  <div class="drift">
+    <figure class="chart">
+      <div role="img" aria-label={label}>
+      <svg viewBox="0 0 520 262" aria-hidden="true" focusable="false">
+        <rect class="zone" x={L} y={yc} width={w} height={B - yc} />
+        <line class="ax" x1={L} y1={B} x2={R} y2={B} />
+        <line class="ax" x1={L} y1={T - 6} x2={L} y2={B} />
+        {ticks.map((t) => (
+          <text x={L - 8} y={y(t) + 5} text-anchor="end">{t}</text>
+        ))}
+        <line class="cap" x1={L} y1={yc} x2={R} y2={yc} />
+        <text class="lbl-ok" x={R - 8} y={yc + (B - yc) / 2 + 6} text-anchor="end">Easy zone: under {cap} bpm</text>
+        <path class="run" d={run} />
+        <circle class="dot" cx={L} cy={ys} r="5.5" />
+        <circle class="dot" cx={R} cy={ye} r="5.5" />
+        <text class="lbl-w" x={L + 12} y={ys - 10}>{start}</text>
+        <text class="lbl-w" x={R - 10} y={ye - 10} text-anchor="end">{end}</text>
+        <text x={L} y={B + 30}>0 km</text>
+        <text x={R} y={B + 30} text-anchor="end">{distance}</text>
+        <text x={(L + R) / 2} y={B + 30} text-anchor="middle">bpm over distance</text>
+      </svg>
+      </div>
+      <figcaption>{caption}</figcaption>
+    </figure>
+    <ul class="side" role="list">
+      {stats.map((s) => (
+        <li>
+          <b>{s.value}</b>
+          <span>{s.label}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .drift {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  @container (min-width: 640px) {
+    .drift {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    }
+  }
+  .chart {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+    padding: 18px 18px 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--raise);
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  text {
+    font-family: inherit;
+    font-size: 15px;
+    fill: var(--muted);
+  }
+  /* The chart scales down with its column: larger labels keep them readable on phones. */
+  @container (max-width: 520px) {
+    text {
+      font-size: 22px;
+    }
+  }
+  .zone {
+    fill: var(--ok-tint);
+  }
+  .ax {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .cap {
+    stroke: var(--ok);
+    stroke-width: 2;
+    stroke-dasharray: 5 5;
+  }
+  .run {
+    fill: none;
+    stroke: var(--warn);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .dot {
+    fill: var(--warn);
+  }
+  .lbl-ok {
+    fill: var(--ok);
+    font-weight: 600;
+  }
+  .lbl-w {
+    fill: var(--warn);
+    font-weight: 600;
+  }
+  figcaption {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .side {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .side li {
+    display: grid;
+    gap: 8px;
+    align-content: center;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+  }
+  .side b {
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-strong);
+  }
+  .side span {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+</style>

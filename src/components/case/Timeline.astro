@@ -1,0 +1,52 @@
+---
+/**
+ * A short dated timeline: a date pill next to one line, as an ordered list. The `now` entry
+ * gets the accent tint, and its pill already says "Now", so color is not the only cue.
+ */
+interface Props {
+  items: { when: string; text: string; now?: boolean }[];
+}
+const { items } = Astro.props;
+---
+
+<ol class="timeline" role="list">
+  {items.map((item) => (
+    <li>
+      <span class:list={['d', item.now && 'd--now']}>{item.when}</span>
+      <span>{item.text}</span>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  li {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+  }
+  .d {
+    justify-self: start;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .d--now {
+    border-color: transparent;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+  }
+</style>

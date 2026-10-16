@@ -11,6 +11,9 @@
  *
  * Without `media` the screen shows the default slot instead, on a neutral surface (e.g. a
  * "Case study coming soon" screen).
+ *
+ * `native`: for recordings captured in the iOS Simulator, which already carry the phone's own
+ * status bar and Dynamic Island. No drawn camera cutout, and the screen is 590:1282.
  */
 import StageVideo from './StageVideo.astro';
 import type { FlowMedia } from '../lib/stage-media';
@@ -20,11 +23,12 @@ interface Props {
   /** Text alternative: what the recording shows, start to end. */
   label: string;
   class?: string;
+  native?: boolean;
 }
-const { media, label, class: className } = Astro.props;
+const { media, label, class: className, native = false } = Astro.props;
 ---
 
-<div class:list={['phone', className]} role="img" aria-label={label}>
+<div class:list={['phone', native && 'phone--native', className]} role="img" aria-label={label}>
   <div class="body">
     <div class="screen">
       {media ? <StageVideo sources={media.videos} poster={media.poster} /> : <slot />}
@@ -66,5 +70,16 @@ const { media, label, class: className } = Astro.props;
     overflow: hidden;
     border-radius: 12cqi;
     background: var(--surface);
+  }
+  .phone--native .body {
+    padding: 3.2cqi;
+    border-radius: 16.4cqi;
+  }
+  .phone--native .body::before {
+    content: none;
+  }
+  .phone--native .screen {
+    aspect-ratio: 590 / 1282;
+    border-radius: 13.4cqi;
   }
 </style>

@@ -1,0 +1,79 @@
+---
+/**
+ * A real comparison <table> in words: a caption (visually hidden), a header row, and one row
+ * per situation whose first cell is the row header. The last column is ours: its header names
+ * it and it gets the accent tint, so the emphasis never rests on color alone. On narrow
+ * screens the table scrolls inside its own frame (the frame is focusable so keyboard users can
+ * scroll it).
+ */
+interface Props {
+  caption: string;
+  columns: string[];
+  rows: string[][];
+}
+const { caption, columns, rows } = Astro.props;
+const last = columns.length - 1;
+---
+
+<div class="frame" tabindex="0" role="region" aria-label={caption}>
+  <table>
+    <caption class="sr-only-text">{caption}</caption>
+    <thead>
+      <tr>
+        {columns.map((c, i) => (
+          <th scope="col" class:list={[i === last && 'us']}>{c}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          {row.map((cell, i) =>
+            i === 0 ? <th scope="row">{cell}</th> : <td class:list={[i === last && 'us']}>{cell}</td>,
+          )}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .frame {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+  th,
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  thead th {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  tbody th {
+    width: 28%;
+    font-weight: 600;
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .us {
+    background: var(--accent-tint);
+  }
+  thead .us {
+    color: var(--accent-strong);
+  }
+</style>

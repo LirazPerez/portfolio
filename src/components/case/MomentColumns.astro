@@ -1,0 +1,208 @@
+---
+/**
+ * Small product details grouped by the moment they help (before, during, after): one column
+ * per moment, its name as a #### heading (it sits under a SubIntro), then detail cards. Each card has a title and one
+ * line, and at most one visual:
+ *   - `image`: an app still cropped to one card (src/assets/work/<project>/), with its alt;
+ *   - `photo`: a real photo, wide crop, with its alt;
+ *   - `notification`: a drawn notification (for one the Simulator can't capture), read as one
+ *     image through its `label`;
+ *   - `lines`: a few drawn label · value lines (e.g. a treadmill program), read through `label`.
+ * Three across from 760px of its own width, stacked below.
+ */
+import { Image } from 'astro:assets';
+import Photo from '../Photo.astro';
+import { workScreen } from '../../lib/work-media';
+
+interface Detail {
+  title: string;
+  text: string;
+  image?: { name: string; alt: string };
+  photo?: { name: string; alt: string };
+  notification?: { app: string; title: string; body: string; time: string; label: string };
+  lines?: { items: { label: string; value: string; rest?: string }[]; label: string };
+}
+interface Props {
+  project: string;
+  columns: { title: string; items: Detail[] }[];
+}
+const { project, columns } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="moments">
+    {columns.map((col) => (
+      <div class="moment">
+        <h4>{col.title}</h4>
+        <ul role="list">
+          {col.items.map((d) => {
+            const still = d.image ? workScreen(project, d.image.name) : undefined;
+            return (
+              <li class="det">
+                <h5>{d.title}</h5>
+                <p>{d.text}</p>
+                {d.notification && (
+                  <div class="notif" role="img" aria-label={d.notification.label}>
+                    <span class="ic" aria-hidden="true">{d.notification.app.charAt(0)}</span>
+                    <span class="nt" aria-hidden="true">
+                      <b>{d.notification.title}</b>
+                      <span>{d.notification.body}</span>
+                      <small>
+                        {d.notification.app} · {d.notification.time}
+                      </small>
+                    </span>
+                  </div>
+                )}
+                {d.lines && (
+                  <div class="mini" role="img" aria-label={d.lines.label}>
+                    {d.lines.items.map((l) => (
+                      <span aria-hidden="true">
+                        {l.label} <em>{l.value}</em>
+                        {l.rest && ` · ${l.rest}`}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {d.image &&
+                  (still ? (
+                    <div class="scrn">
+                      <Image src={still} alt={d.image.alt} widths={[400, 640, 900]} sizes="(min-width: 1024px) 260px, (min-width: 760px) 30vw, 90vw" loading="lazy" />
+                    </div>
+                  ) : (
+                    <p class="missing">Screenshot to add: {d.image.name}</p>
+                  ))}
+                {d.photo && <Photo project={project} name={d.photo.name} alt={d.photo.alt} flat ratio="wide" sizes="(min-width: 760px) 260px, 90vw" />}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .moments {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px 16px;
+    align-items: start;
+  }
+  @container (min-width: 760px) {
+    .moments {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .moment {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  h4 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+  h4::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+  .det {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--raise);
+  }
+  h5 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .scrn {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+  .scrn :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .notif {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--surface);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  .ic {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 7px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .nt {
+    display: grid;
+    gap: 2px;
+  }
+  .nt small {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .mini {
+    display: grid;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .mini em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+  .missing {
+    padding: 16px;
+    border: 1px dashed var(--muted);
+    border-radius: 10px;
+    font-size: 13px;
+  }
+</style>

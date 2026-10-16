@@ -154,6 +154,9 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   lede?: string;            // case-study lede when it should differ from the card's tagline
   phones?: { clip, title, caption, alt }[];  // mobile: up to three recordings, each in a <Phone>; the hero shows all, middle one larger
   cardPhones?: string[];    // which `phones` (by clip) the home card shows, up to two
+  nativeScreen?: boolean;   // recordings from the iOS Simulator (own status bar and island): native phone, 590:1282
+  cardPhoto?: { image, alt };                    // a real photo beside the card's phone, tilted
+  heroPhoto?: { image, title, caption, alt };    // a real photo closing the hero's phone row
   comingSoon?: boolean;     // the page shows "Case study coming soon" instead of the outline and TOC
   draft?: boolean;          // hidden everywhere: no card, no page, no "Next project" link (src/lib/work.ts)
 }
@@ -165,11 +168,11 @@ The home card shows the product on top (the laptop with the flow recording for a
 
 **Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), the product (laptop plus `heroScreens` floating beside it, drifting only when motion is allowed; or the stage), then `origin`.
 
-Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, mobile, coming soon: card and hero show `ComingSoonPhone`), `recall` (4, mobile, phones). `classpass` is a draft: its file is kept, nothing links to it.
+Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, mobile, native phones plus real Watch photos), `recall` (4, mobile, phones). `ComingSoonPhone` is kept for the next `comingSoon` project. `classpass` is a draft: its file is kept, nothing links to it.
 
 Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCollection('work')` directly, so drafts stay hidden.
 
-**Phone mockup** (`Phone.astro`): a generic dark frame (`--bezel`, `--bezel-edge`), a pill camera cutout, no logo, a 390:844 screen with the recording filling it (cover, from the top). Everything scales with its own width (container units). One image to assistive tech (`label`). A mobile project's recordings live in its media folder as `<clip>.mp4`, `<clip>.webm`, `<clip>-poster.*` (`workClip` in `stage-media.ts`); Recall's are recorded by `scripts/record-recall-flows.mjs` (see the README in its media folder).
+**Phone mockup** (`Phone.astro`): a generic dark frame (`--bezel`, `--bezel-edge`), a pill camera cutout, no logo, a 390:844 screen with the recording filling it (cover, from the top). `native` drops the cutout and uses a 590:1282 screen, for Simulator recordings that carry their own status bar and Dynamic Island (Neta). Everything scales with its own width (container units). One image to assistive tech (`label`). A mobile project's recordings live in its media folder as `<clip>.mp4`, `<clip>.webm`, `<clip>-poster.*` (`workClip` in `stage-media.ts`); Recall's are recorded by `scripts/record-recall-flows.mjs` (see the README in its media folder).
 
 **Case-study sections.** Every case study has these sections, in this order, with these ids (single source: `SECTIONS` in `src/lib/case-study.ts`):
 
@@ -220,6 +223,13 @@ Available in every case-study MDX without importing (the template passes them as
 | `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. The shipped component's loop sits beside a short caption. |
 | `<ScopeSplit proven unproven quote next>` | Proven vs not proven (icon + word), then one quoted line. |
 | `<EdgeCards project items>` | Edge-case cards with a still or a recording in a small phone. |
+| `<HrDrift label caption start end cap distance stats>` | Heart rate over one run against a cap: SVG from tokens, the easy zone labelled in words, big stats beside it. |
+| `<CompareTable caption columns rows>` | A comparison in words as a real `<table>`; the last column is ours (named in its header, tinted). |
+| `<RuleCards rules loop>` | Rules written before the build (`firm` ones tinted, "Firm rule" for screen readers), then the work loop as pills. |
+| `<DeviceFigures project items>` | The product off the phone in real photos (a Watch pair, a widget), with status pills that say their state in words. |
+| `<MomentColumns project columns>` | Small details by moment (before, during, after): cards with a cropped still, a photo, a drawn notification or drawn lines. |
+| `<TwoUp>` + `<Shot project name alt photo>` | Two visuals side by side inside a decision; `Shot` is a still cropped to one card (or a real photo). |
+| `<Timeline items>` / `<PromptSample label lead sections end>` | A dated timeline (`now` entry tinted and named) / a sample of generated text, in Geist. |
 
 `Decision` takes any visual as children, and its `summary` and "Considered" line are optional.
 
@@ -249,7 +259,8 @@ src/
     Footer.astro             #contact: email (selectable, copy, mailto), LinkedIn, CV download
     WorkCard.astro           home cards: product on top (laptop, phones or stage), title, tagline, tags
     Laptop.astro             generic laptop mockup playing a flow recording
-    Phone.astro              generic phone mockup playing a recording (or any slot content)
+    Phone.astro              generic phone mockup playing a recording (or any slot content); `native` variant
+    Photo.astro              a real photo in a rounded frame (square, wide or its own shape)
     ComingSoonPhone.astro    the phone with a neutral "Case study coming soon" screen (comingSoon projects)
     Stage.astro              project hero stage (the only place for project colors)
     StageVideo.astro         muted looping recording (stage or laptop); plays only when motion is allowed and on screen

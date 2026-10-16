@@ -1,0 +1,59 @@
+---
+/**
+ * One app still cropped to a single card, in a plain hairline frame (no window bar: it is a
+ * piece of a phone screen, not a whole one). Found by name in src/assets/work/<project>/;
+ * a missing file renders a tagged placeholder. `photo` uses the rounded photo treatment
+ * instead, for a real photo.
+ */
+import { Image } from 'astro:assets';
+import Photo from '../Photo.astro';
+import { workScreen } from '../../lib/work-media';
+
+interface Props {
+  project: string;
+  name: string;
+  alt: string;
+  photo?: boolean;
+}
+const { project, name, alt, photo = false } = Astro.props;
+const image = workScreen(project, name);
+---
+
+{
+  photo ? (
+    <Photo project={project} name={name} alt={alt} flat ratio="auto" class="shot-photo" sizes="(min-width: 760px) 360px, 90vw" />
+  ) : (
+    <div class="shot">
+      {image ? (
+        <Image src={image} alt={alt} widths={[420, 640, 900]} sizes="(min-width: 760px) 420px, 90vw" loading="lazy" />
+      ) : (
+        <p class="missing">Screenshot to add: {name}</p>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .shot {
+    max-width: 420px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--raise);
+  }
+  .shot :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  :global(.shot-photo) {
+    max-width: 360px;
+    border: 1px solid var(--line);
+  }
+  .missing {
+    margin: 0;
+    padding: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+</style>

@@ -5,7 +5,7 @@
  *
  * A desktop project with a flow recording (src/assets/work/<slug>/flow.mp4) shows it in
  * the laptop mockup, large. A mobile project with `cardPhones` shows those recordings in two
- * phones. A `comingSoon` project shows a calm coming-soon phone. Every other project shows
+ * phones, and a `cardPhoto` (a real photo, tilted) beside them. A `comingSoon` project shows a calm coming-soon phone. Every other project shows
  * its hero stage.
  * Role, duration, status and tools are not shown here; they live on the case-study page.
  */
@@ -14,13 +14,14 @@ import Stage from './Stage.astro';
 import Laptop from './Laptop.astro';
 import Phone from './Phone.astro';
 import ComingSoonPhone from './ComingSoonPhone.astro';
+import Photo from './Photo.astro';
 import { flowMedia, workClip } from '../lib/stage-media';
 
 interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { title, tagline, platform, tags, stageAlt, phones, cardPhones, comingSoon } = entry.data;
+const { title, tagline, platform, tags, stageAlt, phones, cardPhones, comingSoon, nativeScreen, cardPhoto } = entry.data;
 const titleId = `card-${entry.id}`;
 const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
 const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
@@ -49,10 +50,11 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
         <ComingSoonPhone title={title} />
       </div>
     ) : cardPhoneMedia.length > 0 ? (
-      <div class="phones-stage">
+      <div class:list={['phones-stage', cardPhoto && 'phones-stage--photo']}>
         {cardPhoneMedia.map((p) => (
-          <Phone media={p.media} label={p.alt} />
+          <Phone media={p.media} label={p.alt} native={nativeScreen} />
         ))}
+        {cardPhoto && <Photo project={entry.id} name={cardPhoto.image} alt={cardPhoto.alt} class="card-photo" sizes="(min-width: 760px) 260px, 42vw" />}
       </div>
     ) : (
       <Stage slug={entry.id} title={title} platform={platform} alt={stageAlt} />
@@ -101,6 +103,15 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   /* The second phone sits a little higher, as in the concept. */
   .phones-stage > :global(.phone:last-child) {
     transform: translateY(-28px);
+  }
+  /* A phone next to a real photo: the photo a little higher and tilted, as in the concept. */
+  .phones-stage--photo {
+    max-width: 620px;
+    gap: clamp(16px, 4vw, 48px);
+    align-items: center;
+  }
+  .phones-stage--photo > :global(.card-photo) {
+    transform: translateY(-20px) rotate(2deg);
   }
   .soon-stage {
     display: grid;

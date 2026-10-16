@@ -11,6 +11,8 @@
  * A mobile project with `phones` shows its recordings in up to three phones instead, the
  * middle one larger, each with a short caption. Below 760px the third one is left out
  * (the flows section further down shows all three).
+ * A `heroPhoto` (a real photo, e.g. the Watch on my wrist) closes that row; then below 760px
+ * the first phone is the one left out, so the photo stays.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -19,6 +21,7 @@ import Laptop from '../Laptop.astro';
 import Stage from '../Stage.astro';
 import Phone from '../Phone.astro';
 import ComingSoonPhone from '../ComingSoonPhone.astro';
+import Photo from '../Photo.astro';
 import { flowMedia, workClip } from '../../lib/stage-media';
 import { workScreen } from '../../lib/work-media';
 import { STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
@@ -27,7 +30,7 @@ interface Props {
   entry: CollectionEntry<'work'>;
 }
 const { entry } = Astro.props;
-const { comingSoon, title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens, phones } =
+const { comingSoon, title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, heroScreens, phones, nativeScreen, heroPhoto } =
   entry.data;
 const phoneMedia = (phones ?? []).flatMap((p) => {
   const media = workClip(entry.id, p.clip);
@@ -58,15 +61,23 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
         <ComingSoonPhone title={title} />
       </div>
     ) : phoneMedia.length > 0 ? (
-      <ul class="trio" role="list">
+      <ul class:list={['trio', heroPhoto && 'trio--photo']} role="list">
         {phoneMedia.map((p) => (
           <li>
-            <Phone media={p.media} label={p.alt} />
+            <Phone media={p.media} label={p.alt} native={nativeScreen} />
             <p class="trio-cap">
               <b>{p.title}</b> · {p.caption}
             </p>
           </li>
         ))}
+        {heroPhoto && (
+          <li>
+            <Photo project={entry.id} name={heroPhoto.image} alt={heroPhoto.alt} class="trio-photo" loading="eager" sizes="(min-width: 760px) 260px, 45vw" />
+            <p class="trio-cap">
+              <b>{heroPhoto.title}</b> · {heroPhoto.caption}
+            </p>
+          </li>
+        )}
       </ul>
     ) : flow ? (
       <div class="showcase">
@@ -207,6 +218,17 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
     .trio-cap {
       font-size: 13px;
     }
+    /* With a photo last, keep it and leave out the first phone instead. */
+    .trio--photo li:nth-child(3) {
+      display: grid;
+      transform: none;
+    }
+    .trio--photo li:nth-child(1) {
+      display: none;
+    }
+  }
+  .trio :global(.trio-photo) {
+    max-width: 260px;
   }
   .stage-wrap {
     width: 100%;
