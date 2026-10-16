@@ -29,6 +29,8 @@ phones:
 cardPhones: [capture, ask]
 ---
 
+import mayaPhoto from '../../assets/work/recall/maya-persona.webp';
+
 ## What I noticed
 
 <Intro headline="Saving a place costs one tap. Organizing it costs a decision, at the worst possible moment." />
@@ -65,6 +67,7 @@ cardPhones: [capture, ask]
 
 <Persona
   name="Maya, 29"
+  photo={{ src: mayaPhoto, alt: 'Maya, the persona: a smiling woman in her late twenties.' }}
   role="Brand marketing manager, Brooklyn"
   quote="When I discover a place I might want to return to, I want to capture it with zero friction."
   stats={[
@@ -76,6 +79,8 @@ cardPhones: [capture, ask]
 ## Process
 
 <Intro headline="Inside Google Maps' existing shell. Only the new parts are new." />
+
+<SubIntro eyebrow="Three flows" headline="Capture, browse, ask." />
 
 <FlowRow
   project="recall"
@@ -96,11 +101,6 @@ cardPhones: [capture, ask]
   title="Filter by any tag, AI or your own."
   steps={['Saved tab', 'Pick a tag', 'Grid narrows live']}
   decision="Filters are built only from what you saved, so they never return empty."
-  component={{
-    clip: 'comp-saved-grid',
-    name: 'Saved grid',
-    alt: 'The Saved Places grid narrowing as Vibe, Cuisine and Location filters are added, down to one place, then Clear filters brings every place back.',
-  }}
 />
 
 <FlowRow

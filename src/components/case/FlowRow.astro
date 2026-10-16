@@ -1,10 +1,12 @@
 ---
 /**
  * One product flow: its recording in a phone on one side; on the other, an eyebrow
- * ("1 · Capture"), the flow's line as a ### heading, the steps as small pills joined by
+ * ("1 · Capture"), the flow's line as a #### heading (it sits under a SubIntro's ###), the steps as small pills joined by
  * arrows (an ordered list), and the key decision. `flip` puts the phone on the right.
  * An optional component loop (`component`) sits under the decision.
- * Two columns from 600px of its own width; below that the phone comes first.
+ * Two columns from 600px of its own width; below that the phone comes first. The text
+ * starts near the phone's top third rather than its middle. Consecutive flows are set
+ * apart by extra space and a hairline, so each reads as its own stop.
  */
 import Phone from '../Phone.astro';
 import ClipFrame from './ClipFrame.astro';
@@ -32,7 +34,7 @@ const media = workClip(project, clip);
     </div>
     <div class="txt">
       <p class="eyebrow">{eyebrow}</p>
-      <h3>{title}</h3>
+      <h4>{title}</h4>
       <ol class="steps" role="list" aria-label="Steps">
         {steps.map((s, i) => (
           <li>
@@ -58,6 +60,11 @@ const media = workClip(project, clip);
   .wrap {
     container-type: inline-size;
   }
+  .wrap + .wrap {
+    margin-top: 12px;
+    padding-top: clamp(32px, 5vw, 48px);
+    border-top: 1px solid var(--line);
+  }
   .row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -65,21 +72,26 @@ const media = workClip(project, clip);
     align-items: center;
   }
   .phone-col :global(.phone) {
-    max-width: 240px;
+    max-width: 210px;
   }
   @container (min-width: 600px) {
     .row {
-      grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
-      gap: clamp(24px, 5cqi, 56px);
+      grid-template-columns: minmax(0, 245px) minmax(0, 1fr);
+      gap: clamp(24px, 6cqi, 64px);
+      align-items: start;
     }
     .row--flip {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 245px);
     }
     .row--flip .phone-col {
       order: 2;
     }
     .phone-col :global(.phone) {
-      max-width: 280px;
+      max-width: 245px;
+    }
+    /* Start the text near the phone's top third, not its exact middle. */
+    .txt {
+      padding-top: clamp(24px, 9cqi, 72px);
     }
   }
   p {
@@ -95,7 +107,7 @@ const media = workClip(project, clip);
     font-weight: 600;
     color: var(--accent-strong);
   }
-  h3 {
+  h4 {
     margin: 0;
     font-size: 24px;
     line-height: 1.2;

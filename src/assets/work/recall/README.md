@@ -50,7 +50,7 @@ with no jump (the list scrolls down, then back up).
 | `comp-custom-tag` | 02 Demo Custom Tag Picker | 1.55 to 4.25 s, the category list scrolling; 5.4 s loop | 742:1114:80:96 | New components strip |
 | `comp-log-input` | 03 Demo Minimal Log Input | whole clip | 832:1200:66:0 | New components strip |
 | `comp-photo-row` | 04 Demo Photo Attach Row | whole clip | 738:1212:96:12 | New components strip |
-| `comp-saved-grid` | 05 Demo saved-grid | whole clip | 740:1350:30:50 (filters and two rows) | Next to the Browse flow |
+| `comp-saved-grid` | 05 Demo saved-grid | whole clip | 740:1350:30:50 (filters and two rows) | Not shown (the Browse phone already shows the grid) |
 
 ## Edge cases (from `05 Edge case`)
 
@@ -59,3 +59,10 @@ with no jump (the list scrolls down, then back up).
 | `edge-zero-saved.webp` | `edge_zero_saved.png`, top 794x1060 |
 | `edge-empty-query.webp` | `edge_empty_query.png`, cropped to the tabs and the empty card |
 | `edge-note.*` | `note.MP4` (a phone screen recording), 600 px wide, 30 fps. The phone's own status bar and camera cutout (top 180 px) are covered with the app's top-band color, so only the app shows inside the frame; poster at 12.5 s, the note back after reopening |
+
+## Persona
+
+| File | Source |
+|---|---|
+| `maya-persona.png` | `V01/Google Maps Recall/recall-app/docs/assets/maya-persona.png` (512x512; not the .jpg, a different image) |
+| `maya-persona.webp` | the .png at 192x192, WebP quality 82; shown in the 48px circle of the persona card |

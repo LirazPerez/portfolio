@@ -1,21 +1,31 @@
 ---
 /**
- * Who it's for: a small persona card (initial, name, role, the quote) next to the numbers
- * that explain the design. Stacks below 560px of its own width.
+ * Who it's for: a small persona card (photo or initial, name, role, the quote) next to the
+ * numbers that explain the design. Stacks below 560px of its own width.
+ * `photo` replaces the initial in the same 48px circle (export it small, e.g. 192px WebP).
  */
+import type { ImageMetadata } from 'astro';
+
 interface Props {
   name: string;
   role: string;
   quote: string;
   stats: { value: string; label: string; spoken?: string }[];
+  photo?: { src: ImageMetadata; alt: string };
 }
-const { name, role, quote, stats } = Astro.props;
+const { name, role, quote, stats, photo } = Astro.props;
 ---
 
 <div class="wrap">
   <div class="persona">
     <div class="who">
-      <span class="av" aria-hidden="true">{name.charAt(0)}</span>
+      {
+        photo ? (
+          <img class="av" src={photo.src.src} alt={photo.alt} width="48" height="48" loading="lazy" decoding="async" />
+        ) : (
+          <span class="av" aria-hidden="true">{name.charAt(0)}</span>
+        )
+      }
       <div>
         <p class="name">{name}</p>
         <p class="role">{role}</p>
@@ -77,6 +87,9 @@ const { name, role, quote, stats } = Astro.props;
     background: var(--accent-tint);
     color: var(--accent-strong);
     font-weight: 700;
+  }
+  img.av {
+    object-fit: cover;
   }
   .name {
     font-weight: 600;
