@@ -37,17 +37,20 @@ over it, which would make the demo answer "This demo answers one example questio
 ## Component loops (from `V01/Google Maps Recall/Case Study Media/02 Component Clips`)
 
 Re-encoded from the edited clips at 30 fps, muted, each cropped tight to the component (the
-card and the dropdowns it opens), so the UI fills its frame and reads at full size. The crop
-is fixed for the whole clip, so frames where a dropdown is closed show some white below the
-card. Poster = a representative frame.
+card and the dropdown it opens), so the UI fills its frame and reads at full size. Poster = a
+representative frame.
 
-| File | Source | Crop (w:h:x:y) | Used in |
-|---|---|---|---|
-| `comp-tag-group` | 01 Demo AI Organized Tag Group | 744:1040:136:122 | Decision 1, next to its caption |
-| `comp-custom-tag` | 02 Demo Custom Tag Picker | 742:1224:80:22 | New components strip |
-| `comp-log-input` | 03 Demo Minimal Log Input | 832:1200:66:0 | New components strip |
-| `comp-photo-row` | 04 Demo Photo Attach Row | 738:1212:96:12 | New components strip |
-| `comp-saved-grid` | 05 Demo saved-grid | 740:1350:30:50 (filters and two rows) | Next to the Browse flow |
+The two dropdown clips are trimmed to one take with the dropdown open the whole time, so there
+is never empty space below the card: that take plays forward, then backward, so the loop joins
+with no jump (the list scrolls down, then back up).
+
+| File | Source | Take | Crop (w:h:x:y) | Used in |
+|---|---|---|---|---|
+| `comp-tag-group` | 01 Demo AI Organized Tag Group | 7.95 to 10.25 s, the Location list scrolling; 4.6 s loop | 744:1040:136:122 | Decision 1, next to its caption |
+| `comp-custom-tag` | 02 Demo Custom Tag Picker | 1.55 to 4.25 s, the category list scrolling; 5.4 s loop | 742:1114:80:96 | New components strip |
+| `comp-log-input` | 03 Demo Minimal Log Input | whole clip | 832:1200:66:0 | New components strip |
+| `comp-photo-row` | 04 Demo Photo Attach Row | whole clip | 738:1212:96:12 | New components strip |
+| `comp-saved-grid` | 05 Demo saved-grid | whole clip | 740:1350:30:50 (filters and two rows) | Next to the Browse flow |
 
 ## Edge cases (from `05 Edge case`)
 
