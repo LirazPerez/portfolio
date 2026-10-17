@@ -6,6 +6,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PathTimeline from '../components/about/PathTimeline.astro';
 import ClayFrame from '../components/about/ClayFrame.astro';
+import PathObjects from '../components/about/PathObjects.astro';
 import { aboutPhoto } from '../lib/about-media';
 import { CV_HREF, CV_SIZE_LABEL } from '../lib/cv';
 import { ABOUT_TITLE, OPENING, PATH, CERTIFICATES, BEFORE_DESIGN, DESIGN_BUILD_RUN, OFF_THE_CLOCK, CLOSING } from '../data/about';
@@ -25,25 +26,29 @@ const splitLink = (line: string, link?: { text: string }) => {
 <BaseLayout title={ABOUT_TITLE} description={OPENING.lede}>
   <!-- 1. Opening -->
   <div class={container}>
-    <!-- Text only: the home page has my cutout and "Off the clock" has real photos of me.
-         (The portrait stays in src/assets/about/ in case it comes back.) -->
-    <header class="grid gap-[18px] pt-[clamp(32px,7vw,84px)]">
-      <p class="m-0 text-[14px] font-medium text-muted">{OPENING.eyebrow}</p>
-      <h1 class="m-0 max-w-[18ch] text-[clamp(32px,4.6vw,52px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
-        {OPENING.headline.lead} <em class="not-italic text-accent">{OPENING.headline.accent}</em>
-      </h1>
-      <p class="m-0 text-[18px] leading-[1.6] text-muted max-w-[60ch]">{OPENING.lede}</p>
-      <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
-        {OPENING.pills.map((pill) => <li class="text-[13px] border border-line rounded-pill px-[12px] py-[5px] bg-raise">{pill}</li>)}
-      </ul>
+    <!-- Text, and beside it (under it on phones) four clay objects from the home page, one per
+         row of "My path". (The portrait stays in src/assets/about/ in case it comes back.) -->
+    <header class="grid gap-3 pt-[clamp(24px,4vw,56px)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4 lg:gap-6">
+      <div class="grid gap-[18px] min-w-0">
+        <p class="m-0 text-[14px] font-medium text-muted">{OPENING.eyebrow}</p>
+        <h1 class="m-0 max-w-[18ch] text-[clamp(32px,4.6vw,52px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
+          {OPENING.headline.lead} <em class="not-italic text-accent">{OPENING.headline.accent}</em>
+        </h1>
+        <p class="m-0 text-[18px] leading-[1.6] text-muted max-w-[60ch]">{OPENING.lede}</p>
+        <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
+          {OPENING.pills.map((pill) => <li class="text-[13px] border border-line rounded-pill px-[12px] py-[5px] bg-raise">{pill}</li>)}
+        </ul>
+      </div>
+      <PathObjects />
     </header>
   </div>
 
   <div class={container}>
     <!-- 2. My path: the full content width, wider than the reading column -->
-    <section class={section} aria-labelledby="path-h">
+    <!-- Closer to the opening than the other sections, so the timeline starts on the first screen. -->
+    <section class="grid gap-3 pt-[clamp(40px,5vw,64px)]" aria-labelledby="path-h">
       <div class="grid gap-1">
-        <h2 id="path-h" class={h2}>{PATH.heading}</h2>
+        <h2 id="path-h" tabindex="-1" class={h2}>{PATH.heading}</h2>
         <!-- Which line shows depends on the device: a mouse, or a touch screen. -->
         <p class="path-hint m-0 text-[15px] text-muted">
           <span class="hint-pointer">{PATH.hint.pointer}</span><span class="hint-touch">{PATH.hint.touch}</span>
@@ -162,7 +167,6 @@ const splitLink = (line: string, link?: { text: string }) => {
         <a class="inline-flex items-center min-h-[44px] px-[18px] rounded-pill bg-accent text-on-accent text-[15px] font-medium no-underline hover:bg-accent-strong transition-colors" href={CV_HREF} download>
           {CLOSING.cv}<span class="sr-only-text">, {CV_SIZE_LABEL}</span>
         </a>
-        <a class="inline-flex items-center min-h-[44px] px-[18px] rounded-pill border border-line text-ink text-[15px] font-medium no-underline hover:bg-surface transition-colors" href="#contact">{CLOSING.contact}</a>
       </div>
     </section>
   </div>

@@ -1,0 +1,139 @@
+---
+/**
+ * The About opening's clay objects (from the home hero), one per row of "My path".
+ * A still composition beside the headline from 760px (no physics, nothing moves on load),
+ * a row of small objects under the pills on phones. Each object is a link to "My path" (so it
+ * still jumps there without JS): hover or focus shows its label, and with JS a click asks the
+ * timeline to select its entry instead (the `path:select` event, handled in
+ * PathTimeline.astro), which scrolls there and opens the details.
+ * Placement and wording live in OPENING.objects in src/data/about.ts.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { OPENING } from '../../data/about';
+
+const files = import.meta.glob<ImageMetadata>('../../assets/hero/obj-*.webp', { eager: true, import: 'default' });
+const imageOf = (id: string) => Object.entries(files).find(([path]) => path.endsWith(`/${id}.webp`))?.[1];
+const BOX = { w: 360, h: 300 };
+---
+
+<ul class="objects" role="list">
+  {
+    OPENING.objects.map((o) => {
+      const img = imageOf(o.id);
+      return (
+        <li
+          class="slot"
+          style={`--x: ${(o.x / BOX.w) * 100}%; --y: ${(o.y / BOX.h) * 100}%; --w: ${(o.w / BOX.w) * 100}%; --r: ${o.r}deg; z-index: ${o.z};`}
+        >
+          <a class="obj" href="#path-h" data-select={o.entry} aria-label={o.ariaLabel}>
+            <span class="obj-img">{img && <Image src={img} alt="" widths={[120, 180, 360].filter((w) => w <= img.width)} sizes="(min-width: 1024px) 172px, (min-width: 760px) 120px, 72px" loading="eager" />}</span>
+            <span class="tag" aria-hidden="true">{o.label}</span>
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<script>
+  document.addEventListener('click', (e) => {
+    const b = (e.target as Element | null)?.closest<HTMLElement>('[data-select]');
+    if (!b?.dataset.select) return;
+    e.preventDefault();
+    document.dispatchEvent(new CustomEvent('path:select', { detail: b.dataset.select }));
+  });
+</script>
+
+<style>
+  .objects {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 12px;
+  }
+  .slot { position: relative; }
+  .obj {
+    position: relative;
+    display: block;
+    width: 72px;
+    height: 72px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .obj-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    rotate: var(--r);
+  }
+  .obj-img :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgb(40 20 60 / 0.18));
+  }
+
+  /* From 760px: a small resting heap in a 360:300 box, scaled as one piece. */
+  @media (min-width: 760px) {
+    .objects {
+      position: relative;
+      display: block;
+      width: 240px;
+      aspect-ratio: 360 / 300;
+    }
+    .slot {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+    }
+    .obj { width: 100%; height: auto; }
+    .obj-img { height: auto; }
+    .obj-img :global(img) { height: auto; }
+  }
+  @media (min-width: 1024px) {
+    .objects { width: 360px; }
+  }
+
+  /* The label: the same raised chip as the home page's hover labels. */
+  .tag {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    translate: -50% 0;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--ink);
+    background: var(--raise);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow);
+    padding: 8px 12px;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 5;
+  }
+  .obj:hover .tag,
+  .obj:focus-visible .tag {
+    opacity: 1;
+    visibility: visible;
+  }
+  .slot:has(.obj:hover),
+  .slot:has(.obj:focus-visible) { z-index: 10 !important; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .obj-img { transition: translate 0.2s ease; }
+    .obj:hover .obj-img { translate: 0 -5px; }
+  }
+</style>

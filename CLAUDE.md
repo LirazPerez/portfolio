@@ -258,7 +258,8 @@ src/
     Nav.astro                signature wordmark + capsule
     ThemeToggle.astro
     Footer.astro             #contact panel: "Let's talk", email (selectable, copy, mailto), LinkedIn; CV and Accessibility below
-    about/                   PathTimeline.astro ("My path"), ClayFrame.astro (certificate frame)
+    about/                   PathTimeline.astro ("My path"), PathObjects.astro (opening clay objects that
+                             select a timeline row), ClayFrame.astro (certificate frame)
     WorkCard.astro           home cards: product on top (laptop, phones or stage), title, tagline, tags
     Laptop.astro             generic laptop mockup playing a flow recording
     Phone.astro              generic phone mockup playing a recording (or any slot content); `native` variant

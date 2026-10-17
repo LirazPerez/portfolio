@@ -18,6 +18,20 @@ export const OPENING = {
   lede: 'For six years I worked full time on international defense programs and studied design full time at FIT. Now I design products and build them.',
   pills: ['Tel Aviv, Israel', 'Hebrew and English', 'Design and code'],
   portraitAlt: 'Liraz Hazala Perez',
+  /**
+   * Clay objects from the home hero, resting beside the headline. Each one opens a row of
+   * "My path": `entry` is the timeline entry it selects (an `id` in PATH_ROWS).
+   * `label` shows on hover or focus; `ariaLabel` must contain the label's words.
+   * `x`, `y`, `w` place it in a 360 x 300 box (px at full size, top-left of the image),
+   * `r` tilts it in degrees, `z` stacks it (higher is in front). Listed in timeline order,
+   * which is also the order on phones and for the keyboard.
+   */
+  objects: [
+    { id: 'obj-beret', entry: 'army', label: 'Army', ariaLabel: 'Clay beret, see my army years in the timeline', x: 30, y: 74, w: 132, r: -12, z: 3 },
+    { id: 'obj-statue-of-liberty', entry: 'ministry', label: 'Ministry of Defense, New York', ariaLabel: 'Clay Statue of Liberty, see my Ministry of Defense, New York years in the timeline', x: 150, y: 6, w: 96, r: 4, z: 1 },
+    { id: 'obj-grad-cap', entry: 'bfa', label: 'Design school', ariaLabel: 'Clay graduation cap, see my design school years in the timeline', x: 206, y: 176, w: 140, r: 9, z: 3 },
+    { id: 'obj-laptop', entry: 'internship', label: 'Product design', ariaLabel: 'Clay laptop, see my product design work in the timeline', x: 6, y: 140, w: 172, r: -6, z: 2 },
+  ],
 };
 
 /* ---------- 2. My path (the timeline) ---------- */
@@ -414,5 +428,4 @@ export const OFF_THE_CLOCK = {
 export const CLOSING = {
   heading: 'Want the short version?',
   cv: 'Download CV (PDF)',
-  contact: 'Get in touch',
 };

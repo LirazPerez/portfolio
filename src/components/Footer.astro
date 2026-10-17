@@ -9,7 +9,7 @@ const year = new Date().getFullYear();
 <!-- The site's main call to action, on every page: one soft panel, then a quiet footer line. -->
 <footer id="contact" tabindex="-1" class="mt-8" aria-labelledby="contact-h">
   <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)]">
-    <div class="grid gap-1.5 rounded-card bg-accent-tint px-[clamp(24px,5vw,56px)] py-[clamp(32px,5vw,56px)]">
+    <div class="grid gap-1.5 rounded-card bg-accent-tint px-[clamp(24px,5vw,48px)] py-[clamp(28px,4vw,40px)]">
       <!-- Set in Caveat like the signature: a personal note, not a section label. -->
       <h2 id="contact-h" class="m-0 font-signature font-semibold text-[clamp(44px,5vw,52px)] leading-[1.05] text-accent-strong">
         Let's talk
@@ -59,8 +59,9 @@ const year = new Date().getFullYear();
           target="_blank"
           rel="noopener noreferrer">LinkedIn<span class="sr-only-text"> (opens in a new tab)</span></a
         >
+        <!-- Copy feedback sits in the row, so it takes no room until there is something to say. -->
+        <span class="text-[13px] text-ink" role="status" aria-live="polite" data-copy-status></span>
       </div>
-      <p class="m-0 min-h-[1.2em] text-[13px] text-muted" role="status" aria-live="polite" data-copy-status></p>
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 py-2 text-[13px] text-muted">
