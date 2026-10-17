@@ -26,3 +26,6 @@ V01/
 reference/*.jpg
 reference/*.png
 reference/*.pdf
+
+# Working concept for Neta; kept locally, never committed.
+reference/neta-concept.html
