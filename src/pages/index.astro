@@ -1,14 +1,26 @@
 ---
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
 import AiLab from '../components/AiLab.astro';
-import FallingFacts from '../components/FallingFacts';
-import { FACTS } from '../data/facts';
-import portrait from '../assets/liraz-portrait.jpg';
+import Matter from 'matter-js';
+import ClayHeap from '../components/ClayHeap';
+import { HERO_OBJECTS, ME_ALT } from '../data/hero-objects';
+import shapes from '../assets/hero/shapes.json';
+import meImage from '../assets/hero/liraz-cutout-portrait.webp';
+import { mePose, settle, type Shape } from '../lib/clay-heap';
 import { publishedWork } from '../lib/work';
 
 const work = await publishedWork();
+
+// The clay heap: each object's image, label, size and outline, and the resting heap,
+// simulated here at build time with the same physics the browser runs (seeded, so the
+// static heap is the same on every build). That heap is what no-JS and reduced motion show.
+const HEAP_SEED = 4;
+const outlines = shapes as unknown as Record<string, Shape>;
+const meShape = outlines['liraz-cutout-portrait'] as Shape;
+const objects = HERO_OBJECTS.map((o) => ({ id: o.id, src: o.image.src, label: o.label, size: o.size, ...(outlines[o.id] as Shape) }));
+const rest = settle(Matter, objects, meShape, HEAP_SEED);
+const me = { ...meShape, src: meImage.src, alt: ME_ALT, pose: mePose(meShape) };
 ---
 
 <BaseLayout title="Home">
@@ -31,20 +43,8 @@ const work = await publishedWork();
         </div>
       </div>
 
-      <div class="drop-zone relative mb-[36px]">
-        <figure class="m-0 relative overflow-hidden rounded-card border border-line bg-surface aspect-[4/5] md:aspect-[4/4.6]">
-          <Image
-            src={portrait}
-            alt="Portrait of Liraz Hazala Perez: long wavy brown hair, a grey sweatshirt with a rust-red stripe, looking at the camera."
-            widths={[360, 530]}
-            sizes="(min-width: 760px) 440px, 100vw"
-            loading="eager"
-            class="block w-full h-full object-cover object-[50%_8%] md:object-[50%_18%]"
-          />
-        </figure>
-        <!-- Server-rendered as the static resting layout; hydrates when scrolled into view, then drops once. -->
-        <FallingFacts client:visible facts={FACTS} />
-      </div>
+      <!-- Server-rendered as the resting heap; hydrates when scrolled into view, then drops once. -->
+      <ClayHeap client:visible me={me} objects={objects} rest={rest} />
     </section>
 
     <section id="work" class="grid gap-2.5 pt-3 pb-6" aria-labelledby="work-h">

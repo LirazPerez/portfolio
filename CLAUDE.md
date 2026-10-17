@@ -2,7 +2,7 @@
 
 The personal portfolio of **Liraz Hazala Perez, product designer**. The site is itself proof of the work: it is designed and built by Liraz, so craft, accessibility and restraint in the code matter as much as the case studies.
 
-The approved visual direction is `reference/specimen.html`. When in doubt about a visual decision, open it in a browser and match it. (The portrait, CV and persona-photo originals in `reference/` are gitignored; the copies the site uses live in `src/assets/` and `public/cv/`.)
+The approved visual direction is `reference/specimen.html`. When in doubt about a visual decision, open it in a browser and match it. (The portrait, CV and persona-photo originals in `reference/` are gitignored; the copies the site uses live in `src/assets/` and `public/cv/`. The hero's clay objects and cutout come from `V01/Hero Objects/` through `scripts/export-hero-objects.mjs`, into `src/assets/hero/`.)
 
 `V00/` and `V01/` are archived material from earlier versions (several GB, nested git repos). They are gitignored and excluded from Vite, Tailwind and TypeScript. Never import from them.
 
@@ -10,7 +10,7 @@ The approved visual direction is `reference/specimen.html`. When in doubt about 
 
 - **Astro 7** (static output), **TypeScript** (strict; pinned to TS 6 because `astro check` does not support TS 7 yet).
 - **Tailwind CSS v4** via `@tailwindcss/vite`. All config lives in CSS (`src/styles/global.css`), there is no `tailwind.config`.
-- **React** only for interactive islands. Today there is one: the falling facts in the home hero (`FallingFacts.tsx`, `client:visible`, physics by **matter-js** from npm, loaded lazily at the moment of the drop). Everything else ships as zero-JS static HTML. Small progressive enhancements (theme toggle, signature stroke, TOC scroll-spy) are plain `<script>` tags inside `.astro` components.
+- **React** only for interactive islands. Today there is one: the clay heap in the home hero (`ClayHeap.tsx`, `client:visible`, physics by **matter-js** from npm, loaded lazily in the browser at the moment of the drop; the server also runs it at build time to precompute the static heap). Everything else ships as zero-JS static HTML. Small progressive enhancements (theme toggle, signature stroke, TOC scroll-spy) are plain `<script>` tags inside `.astro` components.
 - **MDX** for case studies, through the `work` content collection.
 - Markdown runs through `unified()` from `@astrojs/markdown-remark`, because Astro 7's default processor skips rehype plugins and we need one (see Content).
 
@@ -241,11 +241,11 @@ The template also renders a "Next project" link to the entry with the next `orde
 
 ## Home page content you edit without touching code
 
-- `src/data/facts.ts`: the falling facts (text and `ops` purple / `build` neutral kind).
+- `src/data/hero-objects.ts`: the clay heap's objects: label (shown on hover or grab, and read in the screen-reader list), size in stage units, drop order. Images and outlines live in `src/assets/hero/` (see its README).
 - `src/data/lab.ts`: the "AI that works for me" heading, intro line and the cards (two today: the job search agent and the money app) (status is `active` / `paused` / `planned`; the pill differs by shape and word, never color alone).
 - Contact (footer): email, LinkedIn URL and the CV link are constants at the top of `src/components/Footer.astro`.
 
-**Falling facts behavior.** Server-rendered as the static resting layout (this is also what no-JS and `prefers-reduced-motion` show, and it is exposed as a list labelled "What I bring"). With motion allowed, once the portrait is 40% in view the facts drop once under matter-js at a fixed 1/60 s step, rest just below the photo's bottom edge, and the loop stops when every body sleeps. Pills start over their row slots (bottom rows first) and the settle is simulated off-screen first, so the pile stays below the face and hair line (`KEEP_CLEAR_FRACTION` in `FallingFacts.tsx`). Change the portrait and that constant needs a re-check.
+**Clay heap behavior** (`ClayHeap.tsx`, physics in `src/lib/clay-heap.ts`). A 600 x 500 unit stage (`--u` = one unit, from container units, so the heap scales as one piece and the physics is the same at every width). My cutout is a static body pinned to the right, cut by the bottom edge, leaning a little; the eight objects drop one after another into one heap to my left (spawn at 56% of the free width, small random spread and tilt; the snowboard drops lying down). Bodies are the convex outlines from `shapes.json`, with extra rotational inertia so things land calmly. Fixed 1/60 s step; the loop stops when everything sleeps and wakes on a grab. Objects can be picked up and thrown (pointer events); only the objects' outlines take touches (`touch-action: none` on them alone), so the page still scrolls on a phone. Labels appear on hover or grab; a "Pick me up" bubble shows once the heap settles, until the first grab (`sessionStorage` key `lh-heap-picked`). The server runs the same simulation at build time with a fixed seed (`HEAP_SEED` in `index.astro`) and renders that resting heap: it is what no-JS and `prefers-reduced-motion` show (no animation, no bubble, no grabbing). The objects layer is `aria-hidden`; screen readers get the list "A few things about me" and the cutout's alt "Liraz Hazala Perez". Objects are not keyboard focusable; the list covers them.
 
 ## Files at a glance
 
@@ -265,7 +265,7 @@ src/
     Stage.astro              project hero stage (the only place for project colors)
     StageVideo.astro         muted looping recording (stage or laptop); plays only when motion is allowed and on screen
     WaypointScene.astro      Waypoint's CSS scene
-    FallingFacts.tsx/.css    the React island
+    ClayHeap.tsx/.css        the React island (clay heap in the home hero)
     AiLab.astro              "AI that works for me"
     Screen.astro             case-study screenshot: floating frame, one pin, placeholder when missing
     ExternalLink.astro       external link with icon and "opens in a new tab" name
@@ -273,7 +273,8 @@ src/
     case/                    case-study hero and section components (see above)
   content.config.ts          `work` schema
   content/work/*.mdx
-  data/facts.ts, data/lab.ts home-page content
+  data/hero-objects.ts, data/lab.ts home-page content
+  assets/hero/               the clay heap's WebPs and generated outlines (see its README)
   assets/stages/             stage photos and recordings, picked up by file name (see its README)
   assets/work/<slug>/        case-study stills, flow recording and poster (see each README)
   lib/work-media.ts          finds a case-study still by project and file name
@@ -281,9 +282,11 @@ src/
   lib/work.ts                publishedWork(): entries in order, drafts left out
   lib/case-study.ts          SECTIONS, status and platform labels
   lib/rehype-case-study-sections.mjs
+  lib/clay-heap.ts           the clay heap's physics (shared by the build and the browser)
   lib/cv.ts                  CV path + size label
   pages/  index, about, accessibility, 404, work/[slug]
 public/cv/liraz-hazala-perez-cv.pdf
 scripts/record-aeropulse-flow.mjs   re-records AeroPulse's flow video (Playwright, not a dependency)
 scripts/record-recall-flows.mjs     re-records Recall's three phone flows (same approach)
+scripts/export-hero-objects.mjs     exports the clay heap's WebPs and outlines from V01/Hero Objects/
 ```

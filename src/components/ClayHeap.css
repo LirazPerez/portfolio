@@ -1,0 +1,170 @@
+/*
+ * The clay heap stage. Everything inside is placed in stage units: the stage is 600 x 500
+ * units and --u is one unit at the stage's real width, so the heap scales as one piece.
+ * Positions come from --x / --y (center, units) and --a (angle): rendered by the server
+ * as the resting heap, then updated by the island while the physics runs.
+ * Colors are tokens only (see CLAUDE.md).
+ */
+.clay {
+  position: relative;
+  container-type: inline-size;
+  --u: calc(100cqi / 600);
+  aspect-ratio: 600 / 500;
+  width: 100%;
+  /* Phones and short screens: never taller than about 70% of the viewport. */
+  max-width: calc(70svh * 1.2);
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(90% 70% at 30% 100%, var(--accent-tint) 0%, transparent 70%),
+    var(--surface);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.clay-me,
+.clay-obj {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--h) * var(--u));
+  transform: translate(calc(var(--x) * var(--u)), calc(var(--y) * var(--u))) translate(-50%, -50%) rotate(var(--a));
+}
+
+.clay-me {
+  display: block;
+  max-width: none;
+  pointer-events: none;
+}
+
+.clay-heap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.clay-obj {
+  will-change: transform;
+}
+.clay-obj img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* The grab and hover area follows the object's outline, not its image box. Only it takes
+   touches, so a touch anywhere else on the stage scrolls the page. */
+.clay-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+.is-live .clay-hit {
+  cursor: grab;
+  touch-action: none;
+}
+.is-grabbing,
+.is-grabbing .clay-hit {
+  cursor: grabbing;
+}
+
+/* The label next to a hovered or grabbed object, and the "Pick me up" bubble. */
+.clay-tag,
+.clay-bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  transform: translate(calc(var(--x, 0) * var(--u)), calc(var(--y, 0) * var(--u))) translate(-50%, -100%);
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--raise);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow);
+  padding: 8px 12px;
+  pointer-events: none;
+  z-index: 2;
+}
+.clay-tag[data-on='false'],
+.clay-bubble[data-on='false'],
+.clay-bubble.is-muted {
+  opacity: 0;
+  visibility: hidden;
+}
+.clay-bubble {
+  font-weight: 600;
+  color: var(--accent-strong);
+  margin-top: -10px;
+}
+/* The bubble's tail, pointing down at the heap. */
+.clay-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  background: var(--raise);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@media (max-width: 47.49rem) {
+  .clay-tag,
+  .clay-bubble {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+}
+
+/*
+ * Motion. The server-rendered heap is the final state. With JS and motion allowed, me and
+ * the objects are hidden until the island takes over (it drops them in); if it never does,
+ * the heap fades back in after 3 s, so nothing is lost.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .clay:not(.is-live):not(.is-static) .clay-me,
+  html.js .clay:not(.is-live):not(.is-static) .clay-obj {
+    opacity: 0;
+    animation: clay-failsafe 0.3s 3s forwards;
+  }
+
+  .clay.is-live .clay-me {
+    opacity: 0;
+    transform: translate(calc(var(--x) * var(--u)), calc((var(--y) + 24) * var(--u))) translate(-50%, -50%) rotate(var(--a));
+    transition:
+      opacity 0.4s ease-out,
+      transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .clay.is-live.me-in .clay-me {
+    opacity: 1;
+    transform: translate(calc(var(--x) * var(--u)), calc(var(--y) * var(--u))) translate(-50%, -50%) rotate(var(--a));
+  }
+  .clay.is-live .clay-obj[data-on='false'] {
+    visibility: hidden;
+  }
+
+  .clay-tag,
+  .clay-bubble {
+    transition:
+      opacity 0.2s,
+      visibility 0.2s;
+  }
+}
+
+@keyframes clay-failsafe {
+  to {
+    opacity: 1;
+  }
+}
