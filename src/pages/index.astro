@@ -7,35 +7,35 @@ import ClayHeap from '../components/ClayHeap';
 import { HERO_OBJECTS, ME_ALT } from '../data/hero-objects';
 import shapes from '../assets/hero/shapes.json';
 import meImage from '../assets/hero/liraz-cutout-portrait.webp';
-import { WORLDS, mePose, settle, type Shape } from '../lib/clay-heap';
+import { WORLDS, mePose, settle, type Pose, type Shape, type WorldName } from '../lib/clay-heap';
 import { publishedWork } from '../lib/work';
 
 const work = await publishedWork();
 
 // The clay heap: each object's image, label, size and outline, and the resting heap of
-// each world (wide band from 760px, narrow stage on phones), simulated here at build time
+// each world (beside the headline from 1024px, a band under it from 760px, a small stage on
+// phones), simulated here at build time
 // with the same physics the browser runs. Seeded, so the static heaps are the same on every
 // build; the seeds were picked by eye. That heap is what no-JS and reduced motion show.
-const HEAP_SEEDS = { wide: 4, narrow: 1 };
+const HEAP_SEEDS: Record<WorldName, number> = { desk: 27, band: 38, phone: 24 };
+const NAMES = Object.keys(WORLDS) as WorldName[];
 const outlines = shapes as unknown as Record<string, Shape>;
 const meShape = outlines['liraz-cutout-portrait'] as Shape;
 const objects = HERO_OBJECTS.map((o) => ({ id: o.id, src: o.image.src, label: o.label, size: o.size, ...(outlines[o.id] as Shape) }));
-const rest = {
-  wide: settle(Matter, WORLDS.wide, objects, meShape, HEAP_SEEDS.wide),
-  narrow: settle(Matter, WORLDS.narrow, objects, meShape, HEAP_SEEDS.narrow),
-};
-const me = { ...meShape, src: meImage.src, alt: ME_ALT, poses: { wide: mePose(meShape, WORLDS.wide), narrow: mePose(meShape, WORLDS.narrow) } };
+const rest = Object.fromEntries(NAMES.map((n) => [n, settle(Matter, WORLDS[n], objects, meShape, HEAP_SEEDS[n])])) as Record<WorldName, Pose[]>;
+const poses = Object.fromEntries(NAMES.map((n) => [n, mePose(meShape, WORLDS[n])])) as Record<WorldName, ReturnType<typeof mePose>>;
+const me = { ...meShape, src: meImage.src, alt: ME_ALT, poses };
 ---
 
 <BaseLayout title="Home">
   <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)]">
     <section
-      class="hero grid gap-y-[clamp(28px,4vw,48px)] pt-[clamp(40px,8vw,84px)] pb-[clamp(28px,5vw,48px)]"
+      class="hero grid gap-y-[clamp(24px,4vw,32px)] pt-[clamp(32px,6vw,48px)] pb-[clamp(24px,4vw,40px)] lg:grid-cols-2 lg:items-end lg:gap-x-6 lg:pt-[clamp(32px,4vw,56px)]"
       aria-labelledby="hero-h"
     >
       <div class="grid gap-[18px] min-w-0 max-w-[760px]">
         <p class="m-0 text-[14px] font-medium text-muted">Liraz Hazala Perez · Product Designer</p>
-        <h1 id="hero-h" class="m-0 text-[clamp(30px,4.6vw,52px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
+        <h1 id="hero-h" class="m-0 text-[clamp(30px,4.6vw,52px)] lg:text-[clamp(36px,3.4vw,46px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
           For nine years, I ran complex operations by <em class="not-italic text-accent">watching them closely</em>. Now I design and build products.
         </h1>
         <p class="m-0 text-[18px] leading-[1.6] text-muted max-w-[60ch]">
@@ -47,8 +47,9 @@ const me = { ...meShape, src: meImage.src, alt: ME_ALT, poses: { wide: mePose(me
         </div>
       </div>
 
-      <!-- Under the text, never beside it, so the heap can't cover the headline. Server-rendered
-           as the resting heap; hydrates when scrolled into view, then drops once. -->
+      <!-- Beside the text from 1024px (its floor level with the buttons), under it below that.
+           No box: the objects sit on the page. Server-rendered as the resting heap; hydrates
+           when scrolled into view, then drops once. -->
       <ClayHeap client:visible me={me} objects={objects} rest={rest} />
     </section>
 

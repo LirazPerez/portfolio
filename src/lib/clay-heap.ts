@@ -3,8 +3,11 @@
  *
  * Everything is in stage units: the stage is a world of W x H units and CSS scales one
  * unit to the stage's real width (`--u`), so a simulation gives the same heap at any width.
- * There are two worlds: a wide band under the headline from 760px, and a narrower,
- * taller stage on phones (WORLDS). Each has its own resting heap. matter-js is passed in rather than imported, so the browser can load it
+ * The stage has no box: its bottom edge is an invisible floor and its sides are invisible
+ * walls. There are three worlds (WORLDS), one per layout: the column beside the headline
+ * from 1024px (floor level with the buttons, objects falling in from above the hero), a low
+ * band under the text from 760px, and a small stage under the text on phones. Each has its
+ * own resting heap. matter-js is passed in rather than imported, so the browser can load it
  * lazily while the server (index.astro) uses it at build time to precompute the static,
  * resting heap that no-JS and reduced-motion visitors see.
  *
@@ -22,21 +25,32 @@ export const STEP_MS = 1000 / 60;
 export interface World {
   W: number;
   H: number;
-  /** My cutout: its height, how far it runs past the bottom edge and the right edge, its lean. */
-  me: { height: number; belowFloor: number; offRight: number; angle: number };
+  /** My cutout: its height, how far it runs past the floor and the right edge, its lean, and
+   * how much of my width (from the left) the heap may rest in front of. */
+  me: { height: number; belowFloor: number; offRight: number; angle: number; front: number };
   /** Spawn x is SPAWN_AT of the free width, plus or minus this many units. */
   spread: number;
-  /** Objects' sizes (from hero-objects.ts) are multiplied by this; the wide band needs a bigger heap. */
+  /** Objects' sizes (from hero-objects.ts) are multiplied by this. It follows my height, so
+   * the objects keep their size next to me in every world. */
   objectScale: number;
+  /** Where an object's image box starts when it drops in, relative to the stage top
+   * (negative: above it), and the ceiling a thrown object can't pass. Beside the headline
+   * both sit high above the hero; under the text they stay inside the stage, so nothing
+   * ever passes over the text. */
+  spawnTop: number;
+  ceiling: number;
 }
 
-export type WorldName = 'wide' | 'narrow';
+export type WorldName = 'desk' | 'band' | 'phone';
 
-/** About 1 unit per px on a full desktop page (wide), 0.57 at 375px (narrow): a spread of
- * plus or minus 30 units is about 60px across on desktop, 22 units about 40px on a phone. */
+/** Objects per unit of my height: the ratio of the earlier wide stage (1.45 at 540 tall). */
+const OBJECTS_PER_ME = 1.45 / 540;
+
+/** About 1 unit per px at 1440 (desk) and 920px (band), 0.6 at 390px (phone). */
 export const WORLDS: Record<WorldName, World> = {
-  wide: { W: 1000, H: 540, me: { height: 540, belowFloor: 30, offRight: 18, angle: -0.045 }, spread: 30, objectScale: 1.45 },
-  narrow: { W: 600, H: 500, me: { height: 500, belowFloor: 40, offRight: 18, angle: -0.045 }, spread: 36, objectScale: 1 },
+  desk: { W: 480, H: 440, me: { height: 400, belowFloor: 0, offRight: 34, angle: -0.04, front: 0.3 }, spread: 16, objectScale: 400 * OBJECTS_PER_ME, spawnTop: -420, ceiling: -720 },
+  band: { W: 800, H: 300, me: { height: 300, belowFloor: 0, offRight: 10, angle: -0.04, front: 0.3 }, spread: 36, objectScale: 300 * OBJECTS_PER_ME, spawnTop: 2, ceiling: 0 },
+  phone: { W: 600, H: 420, me: { height: 400, belowFloor: 0, offRight: 14, angle: -0.04, front: 0.38 }, spread: 40, objectScale: 400 * OBJECTS_PER_ME, spawnTop: 2, ceiling: 0 },
 };
 
 /** Objects drop one after another, this many steps apart. */
@@ -68,7 +82,7 @@ export function box(o: HeapObject, world: World) {
   return o.aspect >= 1 ? { w: size, h: size / o.aspect } : { w: size * o.aspect, h: size };
 }
 
-/** Where my cutout stands: pinned to the right edge, cut by the bottom edge, leaning a little. */
+/** Where my cutout stands: on the floor at the right edge, leaning a little (CSS fades its bottom). */
 export function mePose(me: Shape, world: World) {
   const { height: h, belowFloor, offRight, angle } = world.me;
   const w = h * me.aspect;
@@ -118,15 +132,25 @@ export function createSim(M: Matter, world: World, objects: HeapObject[], me: Sh
   const wall = { isStatic: true, friction: 0.9 };
   M.Composite.add(engine.world, [
     M.Bodies.rectangle(W / 2, H + t / 2, W * 3, t, wall),
-    M.Bodies.rectangle(-t / 2, 0, t, H * 6, wall),
-    M.Bodies.rectangle(W + t / 2, 0, t, H * 6, wall),
+    // The walls run from the floor to far above the ceiling.
+    M.Bodies.rectangle(-t / 2, (world.ceiling + H) / 2, t, H * 3 - world.ceiling, wall),
+    M.Bodies.rectangle(W + t / 2, (world.ceiling + H) / 2, t, H * 3 - world.ceiling, wall),
   ]);
 
-  // Me, as a static body the heap can lean on.
+  // Me, as a static body the heap can lean on. Only my back part is solid: the heap may
+  // rest in front of the rest of me (the objects are drawn over me). A steep roof from my
+  // shoulder to far above the ceiling keeps anything from landing on my head: it slides
+  // back down to the heap.
   const mp = mePose(me, world);
   const cos = Math.cos(mp.a);
   const sin = Math.sin(mp.a);
-  const meVerts = outline(me, mp.w, mp.h).map(({ x, y }) => ({ x: mp.x + x * cos - y * sin, y: mp.y + x * sin + y * cos }));
+  const solidFrom = mp.w * (world.me.front - 0.5);
+  const meVerts = M.Vertices.hull([
+    ...outline(me, mp.w, mp.h)
+      .map(({ x, y }) => ({ x: Math.max(x, solidFrom), y }))
+      .map(({ x, y }) => ({ x: mp.x + x * cos - y * sin, y: mp.y + x * sin + y * cos })),
+    { x: W + 200, y: world.ceiling - H },
+  ] as Vertex[]);
   const meCentre = M.Vertices.centre(meVerts);
   M.Composite.add(engine.world, M.Bodies.fromVertices(meCentre.x, meCentre.y, [meVerts], { isStatic: true, friction: 0.9 }));
 
@@ -155,7 +179,7 @@ export function createSim(M: Matter, world: World, objects: HeapObject[], me: Sh
 }
 
 function spawn(M: Matter, sim: Sim, item: Item) {
-  const y = -Math.max(item.w, item.h) * 0.6;
+  const y = sim.world.spawnTop + Math.max(item.w, item.h) / 2;
   // Slightly rounded corners, kept convex (rounding very short edges can dent the outline).
   const verts = M.Vertices.hull(
     M.Vertices.chamfer(
@@ -200,18 +224,18 @@ export function step(M: Matter, sim: Sim): boolean {
       asleep = false;
       continue;
     }
-    // Keep everything inside the stage: an object that has dropped in cannot leave by the
-    // top, and nothing may move faster than a wall is thick.
+    // Keep everything inside the walls: an object that has dropped in cannot rise past the
+    // ceiling, and nothing may move faster than a wall is thick.
     const v = b.velocity;
     const speed = Math.hypot(v.x, v.y);
     if (speed > MAX_SPEED) M.Body.setVelocity(b, { x: (v.x / speed) * MAX_SPEED, y: (v.y / speed) * MAX_SPEED });
-    if (b.position.y > 0 && b.bounds.min.y < 0) {
-      M.Body.translate(b, { x: 0, y: -b.bounds.min.y });
+    const { W, H, ceiling, spawnTop } = sim.world;
+    if (b.position.y > ceiling && b.bounds.min.y < ceiling) {
+      M.Body.translate(b, { x: 0, y: ceiling - b.bounds.min.y });
       if (b.velocity.y < 0) M.Body.setVelocity(b, { x: b.velocity.x, y: 0 });
     }
-    const { W, H } = sim.world;
     if (b.position.x < 0 || b.position.x > W || b.position.y > H + 50) {
-      M.Body.setPosition(b, { x: W * 0.3, y: 0 });
+      M.Body.setPosition(b, { x: W * 0.3, y: spawnTop + 100 });
       M.Body.setVelocity(b, { x: 0, y: 0 });
     }
     if (sim.sinceWake >= FREEZE_AFTER) M.Sleeping.set(b, true);

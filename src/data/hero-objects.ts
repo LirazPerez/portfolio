@@ -4,8 +4,9 @@
  *
  * - `label`: shown next to the object on hover or grab, and read by screen readers in the
  *   list "A few things about me".
- * - `size`: the object's longest side, in stage units (the stage is 600 units wide, so on a
- *   1120px page one unit is about 0.72px).
+ * - `size`: the object's longest side, before each world's `objectScale` (src/lib/clay-heap.ts),
+ *   which keeps the objects the same size next to me everywhere: about 1.07 CSS px per unit
+ *   beside the headline on a full desktop page.
  * - Order is drop order: the first object falls first and ends up lowest in the heap;
  *   Bobby goes last, so he sits on top.
  *

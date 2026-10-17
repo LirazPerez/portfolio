@@ -1,52 +1,66 @@
 /*
- * The clay heap stage. Everything inside is placed in stage units and --u is one unit at
- * the stage's real width, so the heap scales as one piece. Two worlds (src/lib/clay-heap.ts):
- * narrow (600 x 500) on phones, wide (1000 x 540, a band under the headline) from 760px.
- * The server renders both resting heaps as --n-* and --w-* properties (center x / y in
- * units, angle, and the image box w / h); the rules below pick the one that fits. While
- * the physics runs, the island sets --x / --y / --a inline, which wins.
+ * The clay heap stage. It has no box: no fill, border or radius, and nothing is clipped.
+ * Its bottom edge is the invisible floor and its sides the invisible walls (the physics
+ * keeps everything between them). Everything inside is placed in stage units and --u is
+ * one unit at the stage's real width, so the heap scales as one piece. Three worlds
+ * (src/lib/clay-heap.ts): phone (600 x 420) under the text, band (800 x 300) under the
+ * text from 760px, desk (480 x 440) beside the headline from 1024px, its floor level with
+ * the buttons (the hero grid aligns it to the bottom).
+ * The server renders every resting heap as --p-*, --b-* and --d-* properties (center
+ * x / y in units, angle, and the image box w / h); the rules below pick the one that fits.
+ * While the physics runs, the island sets --x / --y / --a inline, which wins.
  * Colors are tokens only (see CLAUDE.md).
  */
 .clay {
   position: relative;
   container-type: inline-size;
   --u: calc(100cqi / 600);
-  aspect-ratio: 600 / 500;
+  aspect-ratio: 600 / 420;
   width: 100%;
-  /* Never taller than about 70% of the viewport. */
-  max-width: calc(70svh * 600 / 500);
-  margin-inline: auto;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--line);
-  background:
-    radial-gradient(90% 70% at 30% 100%, var(--accent-tint) 0%, transparent 70%),
-    var(--surface);
+  /* At most about 30% of the screen's height; stays on the right, under the text. */
+  max-width: calc(30svh * 600 / 420);
+  margin-inline-start: auto;
+  pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
 }
 
 .clay-me,
 .clay-obj {
-  --x: var(--n-x);
-  --y: var(--n-y);
-  --a: var(--n-a);
-  --w: var(--n-w);
-  --h: var(--n-h);
+  --x: var(--p-x);
+  --y: var(--p-y);
+  --a: var(--p-a);
+  --w: var(--p-w);
+  --h: var(--p-h);
 }
 @media (min-width: 47.5rem) {
   .clay {
-    --u: calc(100cqi / 1000);
-    aspect-ratio: 1000 / 540;
-    max-width: calc(70svh * 1000 / 540);
+    --u: calc(100cqi / 800);
+    aspect-ratio: 800 / 300;
+    max-width: calc(280px * 800 / 300);
   }
   .clay-me,
   .clay-obj {
-    --x: var(--w-x);
-    --y: var(--w-y);
-    --a: var(--w-a);
-    --w: var(--w-w);
-    --h: var(--w-h);
+    --x: var(--b-x);
+    --y: var(--b-y);
+    --a: var(--b-a);
+    --w: var(--b-w);
+    --h: var(--b-h);
+  }
+}
+@media (min-width: 64rem) {
+  .clay {
+    --u: calc(100cqi / 480);
+    aspect-ratio: 480 / 440;
+    max-width: none;
+  }
+  .clay-me,
+  .clay-obj {
+    --x: var(--d-x);
+    --y: var(--d-y);
+    --a: var(--d-a);
+    --w: var(--d-w);
+    --h: var(--d-h);
   }
 }
 
@@ -60,10 +74,13 @@
   transform: translate(calc(var(--x) * var(--u)), calc(var(--y) * var(--u))) translate(-50%, -50%) rotate(var(--a));
 }
 
+/* No box edge to cut me off: my lowest 13% fades out into the page instead. */
 .clay-me {
   display: block;
   max-width: none;
   pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 87%, transparent);
+  mask-image: linear-gradient(to bottom, #000 87%, transparent);
 }
 
 .clay-heap {
@@ -85,7 +102,8 @@
 }
 
 /* The grab and hover area follows the object's outline, not its image box. Only it takes
-   touches, so a touch anywhere else on the stage scrolls the page. */
+   touches, so a touch anywhere else on the stage scrolls the page. The stage itself takes
+   no pointer events either: its box (and the objects above it) never block the text. */
 .clay-hit {
   position: absolute;
   inset: 0;
