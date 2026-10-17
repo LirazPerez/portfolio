@@ -1,21 +1,24 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { STAGE, STEP_MS, createSim, step, wake, pose, type HeapObject, type Pose, type Shape, type Sim } from '../lib/clay-heap';
+import { STEP_MS, WORLDS, box, createSim, runToRest, step, wake, pose, type HeapObject, type Pose, type Shape, type Sim, type WorldName } from '../lib/clay-heap';
 import './ClayHeap.css';
 
 /**
  * The home hero's clay heap, as a React island (client:visible): my cutout pinned to the
  * right of the stage, and my personal objects in a heap beside me.
  *
- * The server renders the resting heap (positions precomputed at build time by the same
- * simulation, see index.astro). That is what shows with no JS and with
- * prefers-reduced-motion, and it is also what hydrates.
+ * The stage is one of two worlds (src/lib/clay-heap.ts): a wide band under the headline
+ * from 760px, a narrower, taller stage on phones. The server renders the resting heap of
+ * both (precomputed at build time by the same simulation, see index.astro) and CSS shows
+ * the one that fits. That is what shows with no JS and with prefers-reduced-motion, and
+ * it is also what hydrates.
  *
  * With motion allowed, once the stage is mostly in view: I rise in (400 ms), then the
  * objects drop one after another and settle under matter-js at a fixed 1/60 s step, and
  * the loop stops when everything sleeps. An object can then be picked up and thrown
  * (pointer events, so mouse and touch); a touch that starts anywhere else scrolls the
  * page as usual, because only the objects' outlines take touches. A "Pick me up" bubble
- * appears once the heap settles, until the first grab (remembered for the session).
+ * appears once the heap settles, until the first grab (remembered for the session). If
+ * the width crosses 760px afterwards, the heap re-settles instantly in the other world.
  *
  * The objects layer is aria-hidden; screen readers get the list "A few things about me".
  */
@@ -23,9 +26,11 @@ import './ClayHeap.css';
 const MAX_FRAME_MS = 250; // a backgrounded tab must not trigger a burst of catch-up steps
 const RISE_MS = 400;
 const BUBBLE_KEY = 'lh-heap-picked';
+const WIDE_QUERY = '(min-width: 47.5rem)'; // md, 760px: matches the stage CSS
 
 type Matter = typeof import('matter-js');
 type Constraint = import('matter-js').Constraint;
+type MePose = Pose & { w: number; h: number };
 
 export interface ClayObject extends HeapObject {
   id: string;
@@ -34,13 +39,17 @@ export interface ClayObject extends HeapObject {
 }
 
 interface Props {
-  me: Shape & { src: string; alt: string; pose: Pose & { w: number; h: number } };
+  me: Shape & { src: string; alt: string; poses: Record<WorldName, MePose> };
   objects: ClayObject[];
-  rest: Pose[];
+  rest: Record<WorldName, Pose[]>;
 }
 
-function poseVars(p: Pose): Record<string, string> {
-  return { '--x': String(p.x), '--y': String(p.y), '--a': `${p.a}rad` };
+/** One world's pose as prefixed custom properties (--n-x for narrow, --w-x for wide). */
+function vars(prefix: 'n' | 'w', p: Pose & { w?: number; h?: number }): Record<string, string> {
+  const v: Record<string, string> = { [`--${prefix}-x`]: String(p.x), [`--${prefix}-y`]: String(p.y), [`--${prefix}-a`]: `${p.a}rad` };
+  if (p.w !== undefined) v[`--${prefix}-w`] = String(p.w);
+  if (p.h !== undefined) v[`--${prefix}-h`] = String(p.h);
+  return v;
 }
 
 function readFlag() {
@@ -71,6 +80,8 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     if (!stage || !tag || !bubble) return;
     const els = objRefs.current;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wideMq = window.matchMedia(WIDE_QUERY);
+    const worldName = (): WorldName => (wideMq.matches ? 'wide' : 'narrow');
 
     let cancelled = false;
     let raf = 0;
@@ -79,14 +90,17 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     let running = false;
     let settledOnce = false;
     let hovered = -1;
-    let grab: { i: number; id: number; c: Constraint; el: Element } | null = null;
+    let grab: { i: number; id: number; c: Constraint } | null = null;
     let picked = readFlag();
 
+    const world = () => sim?.world ?? WORLDS[worldName()];
+
     const toWorld = (e: PointerEvent) => {
+      const { W, H } = world();
       const r = stage.getBoundingClientRect();
       return {
-        x: Math.min(STAGE.W, Math.max(0, ((e.clientX - r.left) / r.width) * STAGE.W)),
-        y: Math.min(STAGE.H, Math.max(0, ((e.clientY - r.top) / r.width) * STAGE.W)),
+        x: Math.min(W, Math.max(0, ((e.clientX - r.left) / r.width) * W)),
+        y: Math.min(H, Math.max(0, ((e.clientY - r.top) / r.width) * W)),
       };
     };
 
@@ -94,11 +108,11 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     const topOf = (i: number) => {
       const b = sim?.items[i]?.body;
       if (b) return { x: (b.bounds.min.x + b.bounds.max.x) / 2, y: b.bounds.min.y };
-      const p = rest[i];
+      const p = rest[worldName()][i];
       const o = objects[i];
       if (!p || !o) return { x: 0, y: 0 };
-      const size = o.size;
-      return { x: p.x, y: p.y - size * 0.45 };
+      const { w, h } = box(o, WORLDS[worldName()]);
+      return { x: p.x, y: p.y - Math.max(w, h) * 0.45 };
     };
 
     // A small label above the object, kept inside the stage.
@@ -112,11 +126,12 @@ export default function ClayHeap({ me, objects, rest }: Props) {
         return;
       }
       if (tag.textContent !== label) tag.textContent = label;
-      const u = stage.clientWidth / STAGE.W;
+      const { W } = world();
+      const u = stage.clientWidth / W;
       const halfW = tag.offsetWidth / u / 2;
       const h = tag.offsetHeight / u;
       const { x, y } = topOf(i);
-      const tx = Math.min(STAGE.W - halfW - 8, Math.max(halfW + 8, x));
+      const tx = Math.min(W - halfW - 8, Math.max(halfW + 8, x));
       const ty = y - 10 - h < 8 ? y + 16 + h : y - 10;
       tag.style.setProperty('--x', String(tx));
       tag.style.setProperty('--y', String(ty));
@@ -126,12 +141,13 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     const showBubble = () => {
       if (picked || !sim) return;
       // Above the highest object in the heap.
-      let top: { x: number; y: number } = { x: STAGE.W / 2, y: STAGE.H };
+      const { W } = sim.world;
+      let top: { x: number; y: number } = { x: W / 2, y: sim.world.H };
       sim.items.forEach((_, i) => {
         const t = topOf(i);
         if (t.y < top.y) top = t;
       });
-      bubble.style.setProperty('--x', String(Math.min(STAGE.W - 70, Math.max(70, top.x))));
+      bubble.style.setProperty('--x', String(Math.min(W - 70, Math.max(70, top.x))));
       bubble.style.setProperty('--y', String(Math.max(40, top.y - 12)));
       bubble.dataset.on = 'true';
     };
@@ -218,7 +234,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       M.Composite.add(sim.engine.world, c);
       M.Sleeping.set(body, false);
       wake(sim);
-      grab = { i, id: e.pointerId, c, el };
+      grab = { i, id: e.pointerId, c };
       stage.classList.add('is-grabbing');
       hideBubble();
       placeTag();
@@ -231,15 +247,32 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       if (body) M.Sleeping.set(body, false);
       wake(sim);
     };
-    const onUp = (e: PointerEvent) => {
-      if (!grab || e.pointerId !== grab.id || !sim || !M) return;
+    const release = () => {
+      if (!grab || !sim || !M) return;
       M.Composite.remove(sim.engine.world, grab.c);
       grab = null;
       stage.classList.remove('is-grabbing');
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!grab || e.pointerId !== grab.id || !sim) return;
+      release();
       if (e.pointerType !== 'mouse') hovered = -1;
       placeTag();
       wake(sim);
       loop();
+    };
+
+    // Crossing 760px after the drop: re-settle instantly in the other world.
+    const onWorldChange = () => {
+      if (!M || !sim) return;
+      release();
+      cancelAnimationFrame(raf);
+      running = false;
+      sim = createSim(M, WORLDS[worldName()], objects, me, Math.random);
+      runToRest(M, sim);
+      paint();
+      settledOnce = true;
+      showBubble();
     };
 
     const hits = Array.from(stage.querySelectorAll<HTMLElement>('.clay-hit'));
@@ -262,7 +295,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       const mod = await import('matter-js');
       if (cancelled) return;
       M = ('default' in mod ? mod.default : mod) as Matter;
-      sim = createSim(M, objects, me, Math.random);
+      sim = createSim(M, WORLDS[worldName()], objects, me, Math.random);
 
       for (const el of els) if (el) el.dataset.on = 'false';
       stage.classList.add('is-live');
@@ -273,6 +306,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
         h.addEventListener('pointerup', onUp);
         h.addEventListener('pointercancel', onUp);
       }
+      wideMq.addEventListener('change', onWorldChange);
       window.setTimeout(() => {
         if (!cancelled) loop();
       }, RISE_MS);
@@ -294,6 +328,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       cancelled = true;
       cancelAnimationFrame(raf);
       io.disconnect();
+      wideMq.removeEventListener('change', onWorldChange);
       for (const h of hits) {
         h.removeEventListener('pointerenter', onEnter);
         h.removeEventListener('pointerleave', onLeave);
@@ -305,25 +340,25 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     };
   }, [me, objects, rest]);
 
-  const mp = me.pose;
   return (
     <div ref={stageRef} className="clay">
       <img
         className="clay-me"
         src={me.src}
         alt={me.alt}
-        width={Math.round(mp.w * 2)}
-        height={Math.round(mp.h * 2)}
+        width={Math.round(me.poses.wide.w * 2)}
+        height={Math.round(me.poses.wide.h * 2)}
         loading="eager"
         decoding="async"
         draggable={false}
-        style={{ ...poseVars(mp), '--w': String(mp.w), '--h': String(mp.h) } as CSSProperties}
+        style={{ ...vars('n', me.poses.narrow), ...vars('w', me.poses.wide) } as CSSProperties}
       />
       <div className="clay-heap" aria-hidden="true">
         {objects.map((o, i) => {
-          const w = o.aspect >= 1 ? o.size : o.size * o.aspect;
-          const h = o.aspect >= 1 ? o.size / o.aspect : o.size;
-          const p = rest[i] ?? { x: 0, y: 0, a: 0 };
+          const n = box(o, WORLDS.narrow);
+          const w = box(o, WORLDS.wide);
+          const pn = rest.narrow[i] ?? { x: 0, y: 0, a: 0 };
+          const pw = rest.wide[i] ?? { x: 0, y: 0, a: 0 };
           return (
             <div
               key={o.id}
@@ -331,9 +366,9 @@ export default function ClayHeap({ me, objects, rest }: Props) {
                 objRefs.current[i] = el;
               }}
               className="clay-obj"
-              style={{ ...poseVars(p), '--w': String(w), '--h': String(h) } as CSSProperties}
+              style={{ ...vars('n', { ...pn, ...n }), ...vars('w', { ...pw, ...w }) } as CSSProperties}
             >
-              <img src={o.src} alt="" width={Math.round(w * 2)} height={Math.round(h * 2)} loading="eager" decoding="async" draggable={false} />
+              <img src={o.src} alt="" width={Math.round(w.w * 2)} height={Math.round(w.h * 2)} loading="eager" decoding="async" draggable={false} />
               <span
                 className="clay-hit"
                 data-i={i}
@@ -355,4 +390,3 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     </div>
   );
 }
-

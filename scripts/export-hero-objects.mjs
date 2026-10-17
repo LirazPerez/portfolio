@@ -19,17 +19,20 @@ import { writeFile, mkdir } from 'node:fs/promises';
 const SRC = 'V01/Hero Objects';
 const OUT = 'src/assets/hero';
 
-// Longest side in px. Objects display at up to ~150 CSS px, the cutout at up to ~420.
+// Longest side in px: about 2x the largest display. On a full desktop page the wide stage
+// shows one unit as about 1px and objects at 1.45x their size in hero-objects.ts, so an
+// object shows at up to size x 1.47 px (the snowboard, 176, at about 259px); the cutout at
+// about 545px tall (and up to about 570 on the phone stage just under 760px wide).
 const FILES = [
-  { name: 'liraz-cutout-portrait', longest: 900, quality: 82 },
-  { name: 'obj-bobby', longest: 320 },
-  { name: 'obj-statue-of-liberty', longest: 320 },
-  { name: 'obj-beret', longest: 320 },
-  { name: 'obj-grad-cap', longest: 320 },
-  { name: 'obj-laptop', longest: 320 },
-  { name: 'obj-running-shoe', longest: 320 },
-  { name: 'obj-snowboard', longest: 320 },
-  { name: 'obj-passport', longest: 260 },
+  { name: 'liraz-cutout-portrait', longest: 1140, quality: 80 },
+  { name: 'obj-bobby', longest: 508 },
+  { name: 'obj-statue-of-liberty', longest: 442 },
+  { name: 'obj-beret', longest: 330 },
+  { name: 'obj-grad-cap', longest: 324 },
+  { name: 'obj-laptop', longest: 406 },
+  { name: 'obj-running-shoe', longest: 360 },
+  { name: 'obj-snowboard', longest: 518 },
+  { name: 'obj-passport', longest: 272 },
 ];
 const CLEAR_BELOW = 24;
 const HULL_ALPHA = 96; // hull hugs the solid object, not its softest edge

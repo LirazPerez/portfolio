@@ -1,9 +1,10 @@
 /**
  * The physics of the home hero's clay heap, shared by the server and the browser.
  *
- * Everything is in stage units: the stage is STAGE.W x STAGE.H units and CSS scales one
- * unit to the stage's real width (`--u`), so the same simulation gives the same heap on
- * every screen. matter-js is passed in rather than imported, so the browser can load it
+ * Everything is in stage units: the stage is a world of W x H units and CSS scales one
+ * unit to the stage's real width (`--u`), so a simulation gives the same heap at any width.
+ * There are two worlds: a wide band under the headline from 760px, and a narrower,
+ * taller stage on phones (WORLDS). Each has its own resting heap. matter-js is passed in rather than imported, so the browser can load it
  * lazily while the server (index.astro) uses it at build time to precompute the static,
  * resting heap that no-JS and reduced-motion visitors see.
  *
@@ -16,16 +17,32 @@ type Body = import('matter-js').Body;
 type Engine = import('matter-js').Engine;
 type Vertex = import('matter-js').Vertex;
 
-export const STAGE = { W: 600, H: 500 } as const;
 export const STEP_MS = 1000 / 60;
 
-/** My cutout: its visible height, how far it runs past the stage's bottom edge, its lean. */
-const ME = { height: 500, belowFloor: 40, offRight: 18, angle: -0.045 };
-/** Objects drop one after another, this many steps apart, after this many steps. */
+export interface World {
+  W: number;
+  H: number;
+  /** My cutout: its height, how far it runs past the bottom edge and the right edge, its lean. */
+  me: { height: number; belowFloor: number; offRight: number; angle: number };
+  /** Spawn x is SPAWN_AT of the free width, plus or minus this many units. */
+  spread: number;
+  /** Objects' sizes (from hero-objects.ts) are multiplied by this; the wide band needs a bigger heap. */
+  objectScale: number;
+}
+
+export type WorldName = 'wide' | 'narrow';
+
+/** About 1 unit per px on a full desktop page (wide), 0.57 at 375px (narrow): a spread of
+ * plus or minus 30 units is about 60px across on desktop, 22 units about 40px on a phone. */
+export const WORLDS: Record<WorldName, World> = {
+  wide: { W: 1000, H: 540, me: { height: 540, belowFloor: 30, offRight: 18, angle: -0.045 }, spread: 30, objectScale: 1.45 },
+  narrow: { W: 600, H: 500, me: { height: 500, belowFloor: 40, offRight: 18, angle: -0.045 }, spread: 36, objectScale: 1 },
+};
+
+/** Objects drop one after another, this many steps apart. */
 const DROP_EVERY = 13;
-/** Spawn point: this fraction of the free width (left of me), plus or minus SPREAD units. */
+/** Spawn point: this fraction of the free width (left of me). */
 const SPAWN_AT = 0.56;
-const SPREAD = 36;
 const TILT = 0.3; // radians, either way
 const INERTIA = 3;
 const MAX_SPEED = 26; // units per step; keeps a hard throw from tunnelling through a wall
@@ -45,15 +62,17 @@ export interface Pose {
   a: number; // radians
 }
 
-export function box(o: HeapObject) {
-  return o.aspect >= 1 ? { w: o.size, h: o.size / o.aspect } : { w: o.size * o.aspect, h: o.size };
+/** An object's image box in a world, in units. */
+export function box(o: HeapObject, world: World) {
+  const size = o.size * world.objectScale;
+  return o.aspect >= 1 ? { w: size, h: size / o.aspect } : { w: size * o.aspect, h: size };
 }
 
 /** Where my cutout stands: pinned to the right edge, cut by the bottom edge, leaning a little. */
-export function mePose(me: Shape) {
-  const h = ME.height;
+export function mePose(me: Shape, world: World) {
+  const { height: h, belowFloor, offRight, angle } = world.me;
   const w = h * me.aspect;
-  return { x: STAGE.W - w / 2 + ME.offRight, y: STAGE.H + ME.belowFloor - h / 2, a: ME.angle, w, h };
+  return { x: world.W - w / 2 + offRight, y: world.H + belowFloor - h / 2, a: angle, w, h };
 }
 
 /** Deterministic random numbers in [0, 1) for the server's heap. */
@@ -79,6 +98,7 @@ interface Item {
 }
 
 export interface Sim {
+  world: World;
   engine: Engine;
   items: Item[];
   steps: number;
@@ -89,8 +109,8 @@ function outline(shape: Shape, w: number, h: number) {
   return shape.hull.map(([x, y]) => ({ x: (x - 0.5) * w, y: (y - 0.5) * h }));
 }
 
-export function createSim(M: Matter, objects: HeapObject[], me: Shape, rand: () => number): Sim {
-  const { W, H } = STAGE;
+export function createSim(M: Matter, world: World, objects: HeapObject[], me: Shape, rand: () => number): Sim {
+  const { W, H } = world;
   const engine = M.Engine.create({ enableSleeping: true, positionIterations: 10, velocityIterations: 8 });
   engine.gravity.y = 1;
 
@@ -103,7 +123,7 @@ export function createSim(M: Matter, objects: HeapObject[], me: Shape, rand: () 
   ]);
 
   // Me, as a static body the heap can lean on.
-  const mp = mePose(me);
+  const mp = mePose(me, world);
   const cos = Math.cos(mp.a);
   const sin = Math.sin(mp.a);
   const meVerts = outline(me, mp.w, mp.h).map(({ x, y }) => ({ x: mp.x + x * cos - y * sin, y: mp.y + x * sin + y * cos }));
@@ -114,10 +134,10 @@ export function createSim(M: Matter, objects: HeapObject[], me: Shape, rand: () 
   const freeRight = Math.min(...meVerts.filter((v) => v.y > H / 2).map((v) => v.x), W);
 
   const items = objects.map((o, i): Item => {
-    const { w, h } = box(o);
+    const { w, h } = box(o, world);
     const local = outline(o, w, h);
     const half = Math.max(w, h) / 2;
-    const x = freeRight * SPAWN_AT + (rand() * 2 - 1) * SPREAD;
+    const x = freeRight * SPAWN_AT + (rand() * 2 - 1) * world.spread;
     return {
       w,
       h,
@@ -131,7 +151,7 @@ export function createSim(M: Matter, objects: HeapObject[], me: Shape, rand: () 
     };
   });
 
-  return { engine, items, steps: 0, sinceWake: 0 };
+  return { world, engine, items, steps: 0, sinceWake: 0 };
 }
 
 function spawn(M: Matter, sim: Sim, item: Item) {
@@ -189,8 +209,9 @@ export function step(M: Matter, sim: Sim): boolean {
       M.Body.translate(b, { x: 0, y: -b.bounds.min.y });
       if (b.velocity.y < 0) M.Body.setVelocity(b, { x: b.velocity.x, y: 0 });
     }
-    if (b.position.x < 0 || b.position.x > STAGE.W || b.position.y > STAGE.H + 50) {
-      M.Body.setPosition(b, { x: STAGE.W * 0.3, y: 0 });
+    const { W, H } = sim.world;
+    if (b.position.x < 0 || b.position.x > W || b.position.y > H + 50) {
+      M.Body.setPosition(b, { x: W * 0.3, y: 0 });
       M.Body.setVelocity(b, { x: 0, y: 0 });
     }
     if (sim.sinceWake >= FREEZE_AFTER) M.Sleeping.set(b, true);
@@ -213,13 +234,18 @@ export function pose(item: Item): Pose | null {
   return { x: b.position.x - (cx * cos - cy * sin), y: b.position.y - (cx * sin + cy * cos), a: b.angle };
 }
 
+/** Runs a sim to rest instantly (all objects dropped, everything asleep). */
+export function runToRest(M: Matter, sim: Sim) {
+  while (!step(M, sim) && sim.steps < 60 * 30);
+}
+
 /** Runs a whole drop instantly and returns where everything comes to rest. */
-export function settle(M: Matter, objects: HeapObject[], me: Shape, seed: number): Pose[] {
+export function settle(M: Matter, world: World, objects: HeapObject[], me: Shape, seed: number): Pose[] {
   // Body ids come from a process-wide counter and decide the order collisions are solved
   // in, so start it from zero: the same seed then gives the same heap on every render.
   (M.Common as unknown as { _nextId: number })._nextId = 0;
-  const sim = createSim(M, objects, me, seeded(seed));
-  while (!step(M, sim) && sim.steps < 60 * 30);
+  const sim = createSim(M, world, objects, me, seeded(seed));
+  runToRest(M, sim);
   return sim.items.map((item) => {
     const p = pose(item) ?? { x: 0, y: 0, a: 0 };
     return { x: +p.x.toFixed(2), y: +p.y.toFixed(2), a: +p.a.toFixed(4) };

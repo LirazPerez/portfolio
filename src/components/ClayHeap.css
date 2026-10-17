@@ -1,8 +1,10 @@
 /*
- * The clay heap stage. Everything inside is placed in stage units: the stage is 600 x 500
- * units and --u is one unit at the stage's real width, so the heap scales as one piece.
- * Positions come from --x / --y (center, units) and --a (angle): rendered by the server
- * as the resting heap, then updated by the island while the physics runs.
+ * The clay heap stage. Everything inside is placed in stage units and --u is one unit at
+ * the stage's real width, so the heap scales as one piece. Two worlds (src/lib/clay-heap.ts):
+ * narrow (600 x 500) on phones, wide (1000 x 540, a band under the headline) from 760px.
+ * The server renders both resting heaps as --n-* and --w-* properties (center x / y in
+ * units, angle, and the image box w / h); the rules below pick the one that fits. While
+ * the physics runs, the island sets --x / --y / --a inline, which wins.
  * Colors are tokens only (see CLAUDE.md).
  */
 .clay {
@@ -11,8 +13,8 @@
   --u: calc(100cqi / 600);
   aspect-ratio: 600 / 500;
   width: 100%;
-  /* Phones and short screens: never taller than about 70% of the viewport. */
-  max-width: calc(70svh * 1.2);
+  /* Never taller than about 70% of the viewport. */
+  max-width: calc(70svh * 600 / 500);
   margin-inline: auto;
   overflow: hidden;
   border-radius: var(--radius-card);
@@ -22,6 +24,30 @@
     var(--surface);
   user-select: none;
   -webkit-user-select: none;
+}
+
+.clay-me,
+.clay-obj {
+  --x: var(--n-x);
+  --y: var(--n-y);
+  --a: var(--n-a);
+  --w: var(--n-w);
+  --h: var(--n-h);
+}
+@media (min-width: 47.5rem) {
+  .clay {
+    --u: calc(100cqi / 1000);
+    aspect-ratio: 1000 / 540;
+    max-width: calc(70svh * 1000 / 540);
+  }
+  .clay-me,
+  .clay-obj {
+    --x: var(--w-x);
+    --y: var(--w-y);
+    --a: var(--w-a);
+    --w: var(--w-w);
+    --h: var(--w-h);
+  }
 }
 
 .clay-me,
