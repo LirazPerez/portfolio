@@ -385,7 +385,7 @@ export const OFF_THE_CLOCK = {
     },
     {
       photo: 'running',
-      alt: 'Me running, training for a half marathon',
+      alt: 'Liraz walking with Bobby on a sunny city street, in workout clothes',
       title: 'Half marathon',
       line: 'Training with Neta, the coach app I built for it',
       link: { text: 'Neta', href: '/work/neta' },
