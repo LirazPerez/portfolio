@@ -379,7 +379,7 @@ export const OFF_THE_CLOCK = {
   items: [
     {
       photo: 'bobby',
-      alt: 'Bobby, my Goldendoodle',
+      alt: 'Liraz crouching with Bobby, her Goldendoodle puppy, on a riverside walk with the Manhattan skyline behind them',
       title: 'Bobby',
       line: 'My Goldendoodle, and the real manager of the house',
     },
@@ -392,13 +392,13 @@ export const OFF_THE_CLOCK = {
     },
     {
       photo: 'snowboarding',
-      alt: 'Me snowboarding',
+      alt: 'Liraz smiling on a snowy mountain slope, standing by her snowboard',
       title: 'Snowboarding',
       line: "Whenever there's snow within a flight",
     },
     {
       photo: 'trails',
-      alt: 'Me on a mountain trail',
+      alt: 'Liraz crossing a glacial stream on a fallen log, holding a rope line, with trekking poles',
       title: 'Trails around the world',
       line: 'Always planning the next trek',
     },
