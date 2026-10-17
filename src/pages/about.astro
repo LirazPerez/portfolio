@@ -1,44 +1,179 @@
 ---
+/**
+ * About. All copy and numbers live in src/data/about.ts; this file is layout only.
+ */
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PathTimeline from '../components/about/PathTimeline.astro';
+import ClayFrame from '../components/about/ClayFrame.astro';
+import portrait from '../assets/about/liraz-portrait.webp';
+import { aboutPhoto } from '../lib/about-media';
+import { CV_HREF, CV_SIZE_LABEL } from '../lib/cv';
+import { ABOUT_TITLE, OPENING, PATH, CERTIFICATES, BEFORE_DESIGN, DESIGN_BUILD_RUN, OFF_THE_CLOCK, CLOSING } from '../data/about';
 
-const sections = [
-  {
-    id: 'how-i-got-here',
-    title: 'How I got here',
-    body: 'Placeholder: the short version of nine years in operations, from commanding a war room to running international defense programs, and the moment I realized the work I loved most was designing how people see and act on information.',
-  },
-  {
-    id: 'what-operations-taught-me',
-    title: 'What operations taught me',
-    body: 'Placeholder: three habits I carried over, such as watching the system before changing it, designing for the worst hour instead of the average one, and keeping many people aligned around one clear picture.',
-  },
-  {
-    id: 'how-i-work-now',
-    title: 'How I work now',
-    body: 'Placeholder: how I take a product from research to working code, and where AI tools like Claude Code fit into that process.',
-  },
-];
+const container = 'mx-auto max-w-content px-[clamp(16px,5vw,56px)]';
+const section = 'grid gap-3 pt-[clamp(64px,10vw,112px)]';
+const h2 = 'm-0 text-[clamp(24px,3vw,32px)] leading-[1.2] font-semibold tracking-[-0.02em] text-balance';
+const sub = 'm-0 text-[17px] leading-[1.6] text-muted max-w-[60ch]';
+
+// Split a line around its link words ("Training with Neta, the coach app...").
+const splitLink = (line: string, link?: { text: string }) => {
+  const i = link ? line.indexOf(link.text) : -1;
+  return i < 0 || !link ? null : [line.slice(0, i), line.slice(i + link.text.length)];
+};
 ---
 
-<BaseLayout title="About" description="How Liraz Hazala Perez went from running complex operations to designing and building products.">
-  <div class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] pt-[clamp(40px,8vw,84px)] pb-8">
-    <header class="grid gap-2 max-w-[60ch] pb-6">
-      <h1 class="m-0 text-[clamp(34px,5vw,56px)] leading-[1.08] tracking-[-0.03em] font-semibold">About</h1>
-      <p class="m-0 text-[18px] leading-[1.6] text-muted">
-        I spent nine years making sure complex operations didn't fail. Now I design and build the products people use to run them.
-      </p>
+<BaseLayout title={ABOUT_TITLE} description={OPENING.lede}>
+  <!-- 1. Opening -->
+  <div class={container}>
+    <header class="grid gap-3 pt-[clamp(32px,7vw,84px)] md:grid-cols-[minmax(0,1fr)_220px] md:items-center md:gap-6">
+      <div class="grid gap-[18px] min-w-0">
+        <p class="m-0 text-[14px] font-medium text-muted">{OPENING.eyebrow}</p>
+        <h1 class="m-0 text-[clamp(32px,4.6vw,52px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
+          {OPENING.headline.lead} <em class="not-italic text-accent">{OPENING.headline.accent}</em>
+        </h1>
+        <p class="m-0 text-[18px] leading-[1.6] text-muted max-w-[60ch]">{OPENING.lede}</p>
+        <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
+          {OPENING.pills.map((pill) => <li class="text-[13px] border border-line rounded-pill px-[12px] py-[5px] bg-raise">{pill}</li>)}
+        </ul>
+      </div>
+      <div class="order-first md:order-none w-[120px] md:w-[220px]">
+        <Image
+          src={portrait}
+          alt={OPENING.portraitAlt}
+          widths={[120, 220, 360, 440, 660]}
+          sizes="(min-width: 760px) 220px, 120px"
+          loading="eager"
+          class="block w-full h-auto rounded-card bg-surface"
+        />
+      </div>
     </header>
-    <div class="grid gap-6 max-w-[68ch]">
-      {
-        sections.map((s) => (
-          <section class="grid gap-1.5" aria-labelledby={s.id}>
-            <h2 id={s.id} class="m-0 text-[clamp(22px,2.6vw,28px)] font-semibold tracking-[-0.015em]">
-              {s.title}
-            </h2>
-            <p class="m-0 text-[17px] leading-[1.7]">{s.body}</p>
-          </section>
-        ))
-      }
-    </div>
+  </div>
+
+  <div class={container}>
+    <!-- 2. My path: the full content width, wider than the reading column -->
+    <section class={section} aria-labelledby="path-h">
+      <h2 id="path-h" class={h2}>{PATH.heading}</h2>
+      <PathTimeline />
+    </section>
+
+    <!-- 3. Certificates -->
+    <section class={section} aria-labelledby="certs-h">
+      <h2 id="certs-h" class={h2}>{CERTIFICATES.heading}</h2>
+      <ul role="list" class="m-0 p-0 list-none grid gap-3 pt-1 md:grid-cols-2 lg:grid-cols-3">
+        {
+          CERTIFICATES.items.map((c, i) => (
+            // A wide certificate spans two columns from 1024px. With two columns only the first
+            // one does, so the two-column grid has no holes.
+            <li class:list={['cert', c.wide && 'lg:col-span-2', c.wide && i === 0 && 'md:col-span-2']}>
+              <ClayFrame>
+                <div class="flex flex-col gap-1 h-full min-h-[200px] p-[22px]">
+                  <p class="m-0 text-[13px] leading-[1.4] text-[var(--paper-muted)]">{c.issuer}</p>
+                  <h3 class="m-0 text-[19px] leading-[1.3] font-semibold tracking-[-0.01em] text-balance">{c.title}</h3>
+                  <p class="m-0 text-[15px] leading-[1.5]">{c.line}</p>
+                  <p class="m-0 mt-auto pt-2 flex items-center justify-between gap-2 text-[14px] font-medium">
+                    <span class="text-[var(--paper-muted)]">{c.years}</span>
+                    {c.deansList && <span class="font-semibold text-[var(--paper-accent)]">{CERTIFICATES.deansListLabel}</span>}
+                  </p>
+                </div>
+              </ClayFrame>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- 4. Before design -->
+    <section class={section} aria-labelledby="before-h">
+      <div class="grid gap-1">
+        <h2 id="before-h" class={h2}>{BEFORE_DESIGN.heading}</h2>
+        <p class={sub}>{BEFORE_DESIGN.subtitle}</p>
+      </div>
+      <ul role="list" class="m-0 p-0 list-none grid gap-px bg-line border border-line rounded-card overflow-hidden mt-1 md:grid-cols-2 lg:grid-cols-3">
+        {
+          BEFORE_DESIGN.stats.map((s) => (
+            <li class="bg-bg flex flex-col gap-1 p-3">
+              <p class="m-0 text-[clamp(36px,4vw,46px)] leading-none font-semibold tracking-[-0.03em]">
+                {s.spoken ? (<><span aria-hidden="true">{s.value}</span><span class="sr-only-text">{s.spoken}</span></>) : s.value}
+              </p>
+              <p class="m-0 text-[16px] leading-[1.5]">{s.text}</p>
+              <p class="m-0 mt-auto pt-1 flex items-center gap-1 text-[13px] text-muted">
+                <span class="w-[8px] h-[8px] rounded-pill shrink-0" style={`background: var(--path-${s.family})`} aria-hidden="true" />
+                {s.source}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- 5. Design, build, run -->
+    <section class={section} aria-labelledby="dbr-h">
+      <h2 id="dbr-h" class={h2}>{DESIGN_BUILD_RUN.heading}</h2>
+      <ul role="list" class="m-0 p-0 list-none grid gap-2.5 pt-1 md:grid-cols-2">
+        {
+          DESIGN_BUILD_RUN.cards.map((card) => (
+            <li class="grid content-start gap-1.5 border border-line rounded-card p-3">
+              <h3 class="m-0 text-[19px] font-semibold tracking-[-0.01em]">{card.title}</h3>
+              <ul role="list" class="m-0 p-0 list-none grid gap-1">
+                {card.points.map((point) => (
+                  <li class="grid grid-cols-[6px_minmax(0,1fr)] gap-1.5 items-baseline text-[16px] leading-[1.5]">
+                    <span class="w-[6px] h-[6px] rounded-pill bg-accent -translate-y-[2px]" aria-hidden="true" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- 6. Off the clock -->
+    <section class={section} aria-labelledby="clock-h">
+      <div class="grid gap-1">
+        <h2 id="clock-h" class={h2}>{OFF_THE_CLOCK.heading}</h2>
+        <p class={sub}>{OFF_THE_CLOCK.subtitle}</p>
+      </div>
+      <ul role="list" class="m-0 p-0 list-none grid grid-cols-2 gap-x-2 gap-y-3 pt-1 md:grid-cols-4 md:gap-x-2.5">
+        {
+          OFF_THE_CLOCK.items.map((item) => {
+            const photo = aboutPhoto(item.photo);
+            const parts = splitLink(item.line, item.link);
+            return (
+              <li class="grid content-start gap-1 min-w-0">
+                <div class="aspect-[4/5] rounded-card overflow-hidden bg-surface">
+                  {photo && (
+                    <Image src={photo} alt={item.alt} widths={[240, 360, 520, 720].filter((w) => w <= photo.width)} sizes="(min-width: 760px) 260px, 45vw" class="block w-full h-full object-cover" />
+                  )}
+                </div>
+                <h3 class="m-0 pt-0.5 text-[16px] font-semibold">{item.title}</h3>
+                <p class="m-0 text-[14.5px] leading-[1.5] text-muted">
+                  {parts && item.link ? (<>{parts[0]}<a class="prose-link" href={item.link.href}>{item.link.text}</a>{parts[1]}</>) : item.line}
+                </p>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </section>
+
+    <!-- 7. Closing -->
+    <section class="mt-[clamp(64px,10vw,112px)] pt-4 border-t border-line flex flex-wrap items-center justify-between gap-2" aria-labelledby="short-h">
+      <h2 id="short-h" class="m-0 text-[22px] font-semibold tracking-[-0.012em] text-balance">{CLOSING.heading}</h2>
+      <div class="flex flex-wrap gap-[10px]">
+        <a class="inline-flex items-center min-h-[44px] px-[18px] rounded-pill bg-accent text-on-accent text-[15px] font-medium no-underline hover:bg-accent-strong transition-colors" href={CV_HREF} download>
+          {CLOSING.cv}<span class="sr-only-text">, {CV_SIZE_LABEL}</span>
+        </a>
+        <a class="inline-flex items-center min-h-[44px] px-[18px] rounded-pill border border-line text-ink text-[15px] font-medium no-underline hover:bg-surface transition-colors" href="#contact">{CLOSING.contact}</a>
+      </div>
+    </section>
   </div>
 </BaseLayout>
+
+<style>
+  .cert { transition: transform 0.25s ease; }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .cert:hover { transform: translateY(-4px); }
+  }
+</style>

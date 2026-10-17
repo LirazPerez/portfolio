@@ -37,6 +37,25 @@
   --deck: #CFCBD6;
   --deck-edge: #9F9AA8;
   --deck-shadow: rgb(40 20 60 / 0.18);
+  /* About page: one muted color family per timeline row ("My path"), always next to words. */
+  --path-army: #56622F;
+  --path-army-fill: #E7EBD6;
+  --path-ministry: #3A5B82;
+  --path-ministry-fill: #E0E9F4;
+  --path-school: #6E4482;
+  --path-school-fill: #E9DCF0;
+  --path-product: #2D6B4A;
+  --path-product-fill: #DCEFE3;
+  --path-awards: #625C6B;
+  --path-awards-fill: #ECE9F0;
+  /* About page certificates: a soft clay frame around an off-white paper card. */
+  --clay: #D3BFE0;
+  --clay-hi: #EEE4F5;
+  --clay-lo: #AE93C1;
+  --paper: #FBF8F2;
+  --paper-ink: #2A2631;
+  --paper-muted: #655E6C;
+  --paper-accent: #6E4482;
   color-scheme: light;
 }
 
@@ -64,6 +83,23 @@
     --deck: #3A3640;
     --deck-edge: #26232A;
     --deck-shadow: rgb(0 0 0 / 0.5);
+    --path-army: #BAC58C;
+    --path-army-fill: #272B1B;
+    --path-ministry: #9CB9DD;
+    --path-ministry-fill: #1D2632;
+    --path-school: #D7B8E4;
+    --path-school-fill: #3A2B45;
+    --path-product: #92CFA9;
+    --path-product-fill: #1B2C22;
+    --path-awards: #A7A1B0;
+    --path-awards-fill: #2A2730;
+    --clay: #A28AB4;
+    --clay-hi: #C3B0D3;
+    --clay-lo: #6F5A82;
+    --paper: #DDD7CC;
+    --paper-ink: #2A2631;
+    --paper-muted: #57505F;
+    --paper-accent: #5F3A71;
     color-scheme: dark;
   }
 }
@@ -91,6 +127,23 @@
   --deck: #3A3640;
   --deck-edge: #26232A;
   --deck-shadow: rgb(0 0 0 / 0.5);
+  --path-army: #BAC58C;
+  --path-army-fill: #272B1B;
+  --path-ministry: #9CB9DD;
+  --path-ministry-fill: #1D2632;
+  --path-school: #D7B8E4;
+  --path-school-fill: #3A2B45;
+  --path-product: #92CFA9;
+  --path-product-fill: #1B2C22;
+  --path-awards: #A7A1B0;
+  --path-awards-fill: #2A2730;
+  --clay: #A28AB4;
+  --clay-hi: #C3B0D3;
+  --clay-lo: #6F5A82;
+  --paper: #DDD7CC;
+  --paper-ink: #2A2631;
+  --paper-muted: #57505F;
+  --paper-accent: #5F3A71;
   color-scheme: dark;
 }
 

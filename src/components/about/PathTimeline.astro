@@ -1,0 +1,512 @@
+---
+/**
+ * "My path": a horizontal timeline from PATH.startYear to today, one row per part of my life
+ * (src/data/about.ts). Every bar and diamond is a button; hovering, focusing or clicking one
+ * shows its details in the one panel under the timeline (aria-live polite). Today is the build
+ * date, so the "Today" line and the ongoing bar move on every build.
+ *
+ * Under 760px (where the bars would get too short for their words) the same entries are a vertical list instead (years down the left, each entry a
+ * native <details> that opens in place), so nobody scrolls sideways. Without JS the buttons do
+ * nothing, so the panel is hidden and that list shows at every width.
+ */
+import { PATH, PATH_ROWS, type PathEntry, type PathFamily } from '../../data/about';
+
+const today = new Date();
+const todayY = today.getFullYear() + today.getMonth() / 12 + (today.getDate() - 1) / 365;
+const years = (ym: string) => {
+  const [y, m] = ym.split('-').map(Number);
+  return y + (m - 1) / 12;
+};
+const axisStart = PATH.startYear;
+// A little room after today, so the ongoing bar has somewhere to fade.
+const axisEnd = todayY + 0.4;
+const pct = (y: number) => ((y - axisStart) / (axisEnd - axisStart)) * 100;
+const endOf = (e: PathEntry) => (e.end === 'today' || !e.end ? todayY : years(e.end));
+
+const ticks: number[] = [];
+for (let y = axisStart; y <= today.getFullYear(); y++) ticks.push(y);
+const nyLeft = pct(years(PATH.newYork.from));
+const todayPct = pct(todayY);
+
+// "2021-2026" reads as "2021 minus 2026" on some screen readers; say "to".
+const spoken = (s: string) => s.replace(/(\w)-(\w)/g, '$1 to $2');
+const nameOf = (e: PathEntry) => {
+  const lead = e.barLabel && !e.title.toLowerCase().includes(e.barLabel.toLowerCase()) ? `${e.barLabel}: ` : '';
+  return `${lead}${e.title}, ${spoken(e.dates)}`;
+};
+
+// Diamonds that are close in time are spread out around their shared moment, a fixed number
+// of pixels apart (MARKER_GAP), so they never overlap at any width.
+const MARKER_GAP = 26;
+function markerOffsets(entries: PathEntry[]) {
+  const sorted = [...entries].sort((a, b) => years(a.start) - years(b.start));
+  const groups: PathEntry[][] = [];
+  for (const e of sorted) {
+    const last = groups.at(-1);
+    if (last && years(e.start) - years(last.at(-1)!.start) < 1) last.push(e);
+    else groups.push([e]);
+  }
+  const out = new Map<string, { x: number; dx: number }>();
+  for (const g of groups) {
+    const center = g.reduce((s, e) => s + pct(years(e.start)), 0) / g.length;
+    g.forEach((e, i) => out.set(e.id, { x: center, dx: (i - (g.length - 1) / 2) * MARKER_GAP }));
+  }
+  return out;
+}
+
+const familyOf = new Map<string, PathFamily>();
+const markerIds = new Set<string>();
+for (const row of PATH_ROWS)
+  for (const e of row.entries) {
+    familyOf.set(e.id, row.family);
+    if (row.kind === 'markers') markerIds.add(e.id);
+  }
+const all = PATH_ROWS.flatMap((r) => r.entries);
+const details = Object.fromEntries(all.map((e) => [e.id, { when: e.when, title: e.title, text: e.text, family: familyOf.get(e.id) }]));
+const initial = all.find((e) => e.id === PATH.initial) ?? all[0];
+
+// Phone list: every entry by the year it started, oldest first.
+const byYear = new Map<number, PathEntry[]>();
+for (const e of [...all].sort((a, b) => years(a.start) - years(b.start))) {
+  const y = Math.floor(years(e.start));
+  byYear.set(y, [...(byYear.get(y) ?? []), e]);
+}
+const nyYear = Math.floor(years(PATH.newYork.from));
+---
+
+<div class="path" data-path>
+  <!-- Wide: the horizontal timeline -->
+  <div class="wide" style={`--ny: ${nyLeft}%; --today: ${todayPct}%;`}>
+    <div class="chart">
+    <div class="grid-lines" aria-hidden="true">
+      {ticks.map((y) => <span class="tick" style={`left: ${pct(y)}%`}><span class="year">{y}</span></span>)}
+      <span class="today-line" style={`left: ${todayPct}%`}></span>
+    </div>
+
+    <ul class="rows" role="list">
+      {
+        PATH_ROWS.map((row) => {
+          const markers = row.kind === 'markers' ? markerOffsets(row.entries) : null;
+          return (
+            <li class:list={['row', `row--${row.kind}`, row.entries.some((e) => e.lane) && 'row--lanes']} data-family={row.family}>
+              <p class="row-label">
+                <span class="row-name">{row.label}</span>
+                {row.sub && <span class="row-sub">{row.sub}</span>}
+              </p>
+              <div class="track">
+                <span class="band" aria-hidden="true" />
+                {row.entries.map((e) => {
+                  if (markers) {
+                    const m = markers.get(e.id)!;
+                    return (
+                      <button
+                        type="button"
+                        class:list={['marker', e.id === initial.id && 'is-active']}
+                        style={`left: calc(${m.x}% + ${m.dx}px)`}
+                        data-entry={e.id}
+                        aria-label={nameOf(e)}
+                        aria-controls="path-panel"
+                      >
+                        <span class="diamond" aria-hidden="true" />
+                      </button>
+                    );
+                  }
+                  const left = pct(years(e.start));
+                  const solid = pct(endOf(e)) - left;
+                  const width = e.ongoing ? 100 - left : solid;
+                  return (
+                    <button
+                      type="button"
+                      class:list={['bar', e.lane === 2 && 'bar--lane2', row.entries.some((x) => x.lane) && !e.lane && 'bar--lane1', e.ongoing && 'bar--ongoing', e.id === initial.id && 'is-active']}
+                      style={`left: ${left}%; width: ${width}%; --solid: ${e.ongoing ? (solid / width) * 100 : 100}%;`}
+                      data-entry={e.id}
+                      aria-label={nameOf(e)}
+                      aria-controls="path-panel"
+                    >
+                      <span class="fill" aria-hidden="true" />
+                      {e.barLabel && <span class="bar-text" aria-hidden="true">{e.barLabel}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    </div>
+
+    <div class="foot" aria-hidden="true">
+      <span class="legend"><span class="swatch"></span>{PATH.newYork.legend}</span>
+      <span class="today-label" style={`left: ${todayPct}%`}>{PATH.todayLabel}</span>
+    </div>
+    <p class="sr-only-text">The tinted band marks the years in {PATH.newYork.legend}, from {nyYear} to today.</p>
+
+    <div id="path-panel" class="panel" aria-live="polite" data-family={familyOf.get(initial.id)}>
+      <p class="panel-when" data-when>{initial.when}</p>
+      <p class="panel-title" data-title>{initial.title}</p>
+      <p class="panel-text" data-text>{initial.text}</p>
+    </div>
+  </div>
+
+  <!-- Narrow (and no JS): the same entries as a vertical list -->
+  <ol class="list" role="list">
+    {
+      [...byYear].map(([year, entries]) => (
+        <li class:list={['year-group', year >= nyYear && 'year-group--ny']}>
+          <p class="list-year">{year}</p>
+          <ul role="list" class="list-entries">
+            {entries.map((e) => (
+              <li data-family={familyOf.get(e.id)}>
+                <details>
+                  <summary>
+                    <span class:list={['dot', markerIds.has(e.id) && 'dot--diamond']} aria-hidden="true" />
+                    <span class="sum-text">
+                      <span class="sum-title">{e.title}</span>
+                      <span class="sum-dates">{e.dates}</span>
+                    </span>
+                    <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+                  </summary>
+                  <div class="list-detail">
+                    <p class="panel-when">{e.when}</p>
+                    <p class="panel-text">{e.text}</p>
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ol>
+  <p class="list-legend" aria-hidden="true"><span class="swatch"></span>{PATH.newYork.legend}</p>
+
+  <script type="application/json" data-path-json set:html={JSON.stringify(details)} />
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-path]')) {
+    const data = JSON.parse(root.querySelector('[data-path-json]')?.textContent ?? '{}') as Record<string, { when: string; title: string; text: string; family: string }>;
+    const panel = root.querySelector<HTMLElement>('#path-panel');
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-entry]')];
+    if (!panel) continue;
+    let current = buttons.find((b) => b.classList.contains('is-active'))?.dataset.entry;
+    const show = (id: string | undefined) => {
+      const d = id ? data[id] : undefined;
+      if (!d || id === current) return;
+      current = id;
+      for (const b of buttons) b.classList.toggle('is-active', b.dataset.entry === id);
+      panel.dataset.family = d.family;
+      panel.querySelector('[data-when]')!.textContent = d.when;
+      panel.querySelector('[data-title]')!.textContent = d.title;
+      panel.querySelector('[data-text]')!.textContent = d.text;
+    };
+    for (const b of buttons) {
+      b.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && show(b.dataset.entry));
+      b.addEventListener('focus', () => show(b.dataset.entry));
+      b.addEventListener('click', () => show(b.dataset.entry));
+    }
+  }
+</script>
+
+<style>
+  .path {
+    --label: 150px;
+    --label-gap: 16px;
+  }
+  [data-family='army'] { --c: var(--path-army); --c-fill: var(--path-army-fill); }
+  [data-family='ministry'] { --c: var(--path-ministry); --c-fill: var(--path-ministry-fill); }
+  [data-family='school'] { --c: var(--path-school); --c-fill: var(--path-school-fill); }
+  [data-family='product'] { --c: var(--path-product); --c-fill: var(--path-product-fill); }
+  [data-family='awards'] { --c: var(--path-awards); --c-fill: var(--path-awards-fill); }
+
+  p { margin: 0; }
+
+  /* ---------- Wide timeline ---------- */
+  .wide { display: none; }
+  .chart {
+    position: relative;
+    isolation: isolate;
+    padding-top: 32px; /* room for the year labels */
+  }
+
+  /* Year ticks and the today line run behind every row, in the track column. */
+  .grid-lines {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--label) + var(--label-gap));
+    right: 0;
+    pointer-events: none;
+  }
+  .tick {
+    position: absolute;
+    top: 22px;
+    bottom: 0;
+    border-left: 1px dashed var(--line);
+  }
+  .year {
+    position: absolute;
+    top: -22px;
+    left: 0;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .today-line {
+    position: absolute;
+    top: 22px;
+    bottom: -10px;
+    border-left: 2px solid var(--accent);
+    transform: translateX(-1px);
+  }
+
+  .rows {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: var(--label) minmax(0, 1fr);
+    gap: var(--label-gap);
+    align-items: center;
+    min-height: 56px;
+  }
+  .row--markers { min-height: 36px; }
+  .row-label {
+    display: grid;
+    gap: 2px;
+    line-height: 1.25;
+  }
+  .row-name { font-size: 14.5px; font-weight: 600; }
+  .row-sub { font-size: 13px; color: var(--muted); }
+
+  .track {
+    position: relative;
+    align-self: stretch;
+    min-height: inherit;
+  }
+  /* The New York years: a soft tinted band from 2021 to today on every row. */
+  .band {
+    position: absolute;
+    inset: 0 auto 0 var(--ny);
+    width: calc(var(--today) - var(--ny));
+    background: var(--accent-tint);
+    border-radius: 6px;
+  }
+
+  .bar,
+  .marker {
+    position: absolute;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--c);
+    font: inherit;
+    cursor: pointer;
+  }
+  .bar {
+    top: 8px;
+    bottom: 8px;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-control);
+  }
+  .bar--lane1 { top: 2px; bottom: auto; height: 24px; }
+  .bar--lane2 { top: auto; bottom: 2px; height: 24px; }
+  .fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--c-fill);
+    border: 1.5px solid var(--c);
+  }
+  /* Still going: solid up to today, then it fades out. */
+  .bar--ongoing .fill {
+    -webkit-mask-image: linear-gradient(to right, #000 var(--solid), transparent);
+    mask-image: linear-gradient(to right, #000 var(--solid), transparent);
+  }
+  .bar-text {
+    position: relative;
+    min-width: 0;
+    padding: 0 10px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 13px;
+    line-height: 1.15;
+    font-weight: 600;
+  }
+  .bar:hover .fill { background: color-mix(in srgb, var(--c) 18%, var(--c-fill)); }
+  .bar.is-active { color: var(--bg); }
+  .bar.is-active .fill { background: var(--c); }
+
+  .marker {
+    top: 50%;
+    width: 24px;
+    height: 32px;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-control-sm);
+  }
+  .diamond {
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    border-radius: 2px;
+    background: var(--c-fill);
+    border: 1.5px solid var(--c);
+  }
+  .marker:hover .diamond { background: color-mix(in srgb, var(--c) 30%, var(--c-fill)); }
+  .marker.is-active .diamond {
+    background: var(--ink);
+    border-color: var(--ink);
+    width: 14px;
+    height: 14px;
+  }
+
+  .foot {
+    position: relative;
+    display: flex;
+    margin: 12px 0 0 calc(var(--label) + var(--label-gap));
+    min-height: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .legend,
+  .list-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .swatch {
+    width: 18px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--accent-tint);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .today-label {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+
+  .panel {
+    display: grid;
+    gap: 6px;
+    margin-top: 20px;
+    padding: 20px 24px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--c);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    max-width: 760px;
+    min-height: 172px; /* the longest entry, so the page doesn't jump while browsing */
+    align-content: start;
+  }
+  .panel-when { font-size: 14px; color: var(--muted); }
+  .panel-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+  .panel-text { font-size: 16px; line-height: 1.6; max-width: 68ch; }
+
+  /* ---------- Narrow list ---------- */
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  .year-group {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .list-year {
+    padding: 12px 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    border-radius: 6px;
+  }
+  .year-group--ny .list-year { background: var(--accent-tint); color: var(--ink); }
+  .list-entries {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  details {
+    border-radius: var(--radius-control);
+  }
+  summary {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) 16px;
+    gap: 12px;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 8px;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: var(--surface); }
+  details[open] summary { background: var(--surface); border-radius: var(--radius-control) var(--radius-control) 0 0; }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+  .dot--diamond {
+    width: 10px;
+    height: 10px;
+    margin: 1px;
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+  .sum-text { display: grid; gap: 2px; min-width: 0; }
+  .sum-title { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .sum-dates { font-size: 13.5px; color: var(--muted); }
+  .chev { color: var(--muted); }
+  details[open] .chev { transform: rotate(180deg); }
+  .list-detail {
+    display: grid;
+    gap: 6px;
+    padding: 4px 12px 14px 32px;
+    background: var(--surface);
+    border-radius: 0 0 var(--radius-control) var(--radius-control);
+  }
+  .list-detail .panel-text { font-size: 15px; }
+  .list-legend { margin: 12px 0 0 0; }
+
+  @media (min-width: 760px) {
+    .wide { display: block; }
+    .list, .list-legend { display: none; }
+  }
+
+  /* No JS: the buttons can't show anything, so the list carries the details at every width. */
+  :global(html:not(.js)) .panel { display: none; }
+  :global(html:not(.js)) .list { display: grid; margin-top: 32px; }
+  :global(html:not(.js)) .list-legend { display: inline-flex; }
+</style>
