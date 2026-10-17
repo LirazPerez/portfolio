@@ -13,6 +13,9 @@
  * (the flows section further down shows all three).
  * A `heroPhoto` (a real photo, e.g. the Watch on my wrist) closes that row; then below 760px
  * the first phone is the one left out, so the photo stays.
+ *
+ * A `comingSoon` project shows only the title, tagline and its stage (a mobile one: the
+ * coming-soon phone); the meta row and origin wait for the real case study.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -48,15 +51,17 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
   <p class="eyebrow">Case study · {category ?? PLATFORM_LABEL[platform]}</p>
   <h1 id="cs-title">{title}</h1>
   <p class="lede">{lede ?? tagline}</p>
+  {!comingSoon && (
   <dl class="meta">
     <div><dt>Role</dt><dd>{role}</dd></div>
     <div><dt>Time</dt><dd>{duration}</dd></div>
     <div><dt>Tools</dt><dd>{tools.join(' · ')}</dd></div>
     <div><dt>Status</dt><dd>{statusLabel ?? STATUS_LABEL[status]}</dd></div>
   </dl>
+  )}
 
   {
-    comingSoon ? (
+    comingSoon && platform === 'mobile' ? (
       <div class="soon-wrap">
         <ComingSoonPhone title={title} />
       </div>
@@ -102,7 +107,7 @@ const floats = (heroScreens ?? []).map((name) => workScreen(entry.id, name)).fil
     )
   }
 
-  {origin && <p class="origin">{origin}</p>}
+  {origin && !comingSoon && <p class="origin">{origin}</p>}
 </header>
 
 <style>

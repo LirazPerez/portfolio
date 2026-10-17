@@ -42,9 +42,10 @@ import { publishedWork } from '../../lib/work';
 
 export async function getStaticPaths() {
   const work = await publishedWork();
+  // "Next project" only ever points at a written case study, never a coming-soon one.
   return work.map((entry, i) => ({
     params: { slug: entry.id },
-    props: { entry, next: work[i + 1] ?? null },
+    props: { entry, next: work.slice(i + 1).find((e) => !e.data.comingSoon) ?? null },
   }));
 }
 

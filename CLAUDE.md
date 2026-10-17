@@ -168,7 +168,7 @@ The home card shows the product on top (the laptop with the flow recording for a
 
 **Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), the product (laptop plus `heroScreens` floating beside it, drifting only when motion is allowed; or the stage), then `origin`.
 
-Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, mobile, native phones plus real Watch photos), `recall` (4, mobile, phones). `ComingSoonPhone` is kept for the next `comingSoon` project. `classpass` is a draft: its file is kept, nothing links to it.
+Current entries: `aeropulse` (1, desktop), `neta` (2, mobile, native phones plus real Watch photos), `recall` (3, mobile, phones), `waypoint` (4, desktop, `comingSoon`). A `comingSoon` card links nowhere and says "Case study coming soon"; a desktop one is a slim full-width row (stage beside text), a mobile one shows `ComingSoonPhone`. Its page shows only the hero (title, tagline, stage, no meta row or origin) and "Case study coming soon", and "Next project" skips it. `classpass` is a draft: its file is kept, nothing links to it.
 
 Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCollection('work')` directly, so drafts stay hidden.
 
