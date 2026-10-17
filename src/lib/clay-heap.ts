@@ -258,6 +258,28 @@ export function pose(item: Item): Pose | null {
   return { x: b.position.x - (cx * cos - cy * sin), y: b.position.y - (cx * sin + cy * cos), a: b.angle };
 }
 
+/** A sim with every object already lying where it rests in `poses` (the static heap), asleep.
+ * With reduced motion the heap starts here, so picking an object up needs no drop. */
+export function restingSim(M: Matter, world: World, objects: HeapObject[], me: Shape, poses: Pose[]): Sim {
+  const sim = createSim(M, world, objects, me, () => 0.5);
+  sim.items.forEach((item, i) => {
+    spawn(M, sim, item);
+    const p = poses[i];
+    const b = item.body;
+    if (!p || !b) return;
+    const cos = Math.cos(p.a);
+    const sin = Math.sin(p.a);
+    const { x: cx, y: cy } = item.centroid;
+    M.Body.setAngle(b, p.a);
+    M.Body.setPosition(b, { x: p.x + cx * cos - cy * sin, y: p.y + cx * sin + cy * cos });
+    M.Body.setVelocity(b, { x: 0, y: 0 });
+    M.Sleeping.set(b, true);
+  });
+  sim.steps = sim.items.length * DROP_EVERY;
+  sim.sinceWake = FREEZE_AFTER;
+  return sim;
+}
+
 /** Runs a sim to rest instantly (all objects dropped, everything asleep). */
 export function runToRest(M: Matter, sim: Sim) {
   while (!step(M, sim) && sim.steps < 60 * 30);

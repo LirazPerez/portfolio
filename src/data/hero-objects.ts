@@ -25,7 +25,7 @@ import passport from '../assets/hero/obj-passport.webp';
 export const HERO_OBJECTS = [
   { id: 'obj-snowboard', image: snowboard, label: 'Snowboarding', size: 176 },
   { id: 'obj-laptop', image: laptop, label: 'I build what I design', size: 138 },
-  { id: 'obj-statue-of-liberty', image: statue, label: '5.5 years in New York', size: 150 },
+  { id: 'obj-statue-of-liberty', image: statue, label: '6 years in New York', size: 150 },
   { id: 'obj-running-shoe', image: shoe, label: 'Training for a half marathon', size: 122 },
   { id: 'obj-beret', image: beret, label: 'IDF observation officer', size: 112 },
   { id: 'obj-grad-cap', image: gradCap, label: 'FIT', size: 110 },

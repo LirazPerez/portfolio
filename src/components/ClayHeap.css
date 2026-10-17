@@ -109,7 +109,7 @@
   inset: 0;
   pointer-events: auto;
 }
-.is-live .clay-hit {
+.can-grab .clay-hit {
   cursor: grab;
   touch-action: none;
 }
@@ -118,7 +118,8 @@
   cursor: grabbing;
 }
 
-/* The label next to a hovered or grabbed object, and the "Pick me up" bubble. */
+/* The label next to a hovered or grabbed object, and the "Pick me up" bubble. Both are
+   solid (no transparency): the label a raised chip, the bubble the accent fill. */
 .clay-tag,
 .clay-bubble {
   position: absolute;
@@ -139,34 +140,40 @@
   pointer-events: none;
   z-index: 2;
 }
+.clay-tag {
+  z-index: 3;
+}
 .clay-tag[data-on='false'],
-.clay-bubble[data-on='false'],
-.clay-bubble.is-muted {
+.clay-bubble[data-on='false'] {
   opacity: 0;
   visibility: hidden;
 }
+/* --y is the tip of the tail (just above the object); the body sits 9px higher. --tail
+   moves the tail sideways when the body has to step aside (a wall, my face). on-accent on
+   accent: 5.27 light, 7.95 dark. */
 .clay-bubble {
+  margin-top: -9px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--accent-strong);
-  margin-top: -10px;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  padding: 9px 14px;
 }
-/* The bubble's tail, pointing down at the heap. */
 .clay-bubble::after {
   content: '';
   position: absolute;
-  left: 50%;
-  bottom: -6px;
-  width: 10px;
-  height: 10px;
-  background: var(--raise);
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  left: calc(50% + var(--tail, 0px));
+  bottom: -5px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 2px;
   transform: translateX(-50%) rotate(45deg);
 }
 
 @media (max-width: 47.49rem) {
-  .clay-tag,
-  .clay-bubble {
+  .clay-tag {
     font-size: 12px;
     padding: 7px 10px;
   }
@@ -204,6 +211,23 @@
     transition:
       opacity 0.2s,
       visibility 0.2s;
+  }
+
+  /* The bubble's object hops once when the bubble appears. */
+  .clay-obj.is-nudged img {
+    animation: clay-nudge 0.45s cubic-bezier(0.3, 0.7, 0.4, 1);
+  }
+}
+
+@keyframes clay-nudge {
+  30% {
+    transform: translateY(-9%) rotate(-4deg);
+  }
+  60% {
+    transform: translateY(0) rotate(3deg);
+  }
+  80% {
+    transform: rotate(-1deg);
   }
 }
 

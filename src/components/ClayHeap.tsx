@@ -1,5 +1,5 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { STEP_MS, WORLDS, box, createSim, runToRest, step, wake, pose, type HeapObject, type Pose, type Shape, type Sim, type WorldName } from '../lib/clay-heap';
+import { STEP_MS, WORLDS, box, createSim, restingSim, runToRest, step, wake, pose, type HeapObject, type Pose, type Shape, type Sim, type WorldName } from '../lib/clay-heap';
 import './ClayHeap.css';
 
 /**
@@ -16,18 +16,29 @@ import './ClayHeap.css';
  * With motion allowed, once the stage is mostly in view: I rise in (400 ms), then the
  * objects drop one after another (from above the hero beside the headline, from the top of
  * the stage under the text) and settle under matter-js at a fixed 1/60 s step, and
- * the loop stops when everything sleeps. An object can then be picked up and thrown
- * (pointer events, so mouse and touch); a touch that starts anywhere else scrolls the
- * page as usual, because only the objects' outlines take touches. A "Pick me up" bubble
- * appears once the heap settles, until the first grab (remembered for the session). If
- * the layout changes afterwards (760px, 1024px), the heap re-settles instantly in its world.
+ * the loop stops when everything sleeps. An object can be picked up and thrown (pointer
+ * events, so mouse and touch); a touch that starts anywhere else scrolls the page as
+ * usual, because only the objects' outlines take touches. If the layout changes
+ * afterwards (760px, 1024px), the heap re-settles instantly in its world.
+ *
+ * The hint: a "Pick me up" bubble ("Drag me" on touch screens) shows 600 ms after Bobby
+ * lands, or 5 s after the drop starts at the latest, pointing at Bobby (or the highest
+ * object it fits over) and following it while the heap settles, and that object does one
+ * small hop. It stays until the first grab, which is remembered for the session.
+ *
+ * With prefers-reduced-motion nothing drops: the static heap stays, the bubble shows at
+ * once, and objects can still be picked up; one let go of lands at once, without a fall.
  *
  * The objects layer is aria-hidden; screen readers get the list "A few things about me".
  */
 
 const MAX_FRAME_MS = 250; // a backgrounded tab must not trigger a burst of catch-up steps
 const RISE_MS = 400;
-const BUBBLE_KEY = 'lh-heap-picked';
+const BUBBLE_KEY = 'lh-heap-picked'; // set on the first grab, never just for showing the bubble
+const BUBBLE_AFTER_LANDING_MS = 600;
+const BUBBLE_LATEST_MS = 5000; // after the drop starts
+/** My face and hair in the cutout's image box (fractions): the bubble never covers them. */
+const FACE = { x0: 0.2, x1: 0.64, y0: 0.02, y1: 0.42 };
 const DESK_QUERY = '(min-width: 64rem)'; // lg, 1024px: matches the stage CSS
 const BAND_QUERY = '(min-width: 47.5rem)'; // md, 760px
 
@@ -87,21 +98,30 @@ export default function ClayHeap({ me, objects, rest }: Props) {
     if (!stage || !tag || !bubble) return;
     const els = objRefs.current;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     const deskMq = window.matchMedia(DESK_QUERY);
     const bandMq = window.matchMedia(BAND_QUERY);
     const worldName = (): WorldName => (deskMq.matches ? 'desk' : bandMq.matches ? 'band' : 'phone');
+    const last = objects.length - 1; // Bobby: drops last, sits on top, drawn over everything
 
     let cancelled = false;
     let raf = 0;
     let M: Matter | null = null;
     let sim: Sim | null = null;
+    let current = worldName();
     let running = false;
-    let settledOnce = false;
     let hovered = -1;
     let grab: { i: number; id: number; c: Constraint } | null = null;
     let picked = readFlag();
+    let target = -1; // the object the bubble points at, once shown
+    let bubbleTop = 0; // its top edge, units
+    let stillSteps = 0;
+    let landed = false;
+    const timers: number[] = [];
 
-    const world = () => sim?.world ?? WORLDS[worldName()];
+    bubble.textContent = touch ? 'Drag me' : 'Pick me up';
+
+    const world = () => WORLDS[current];
 
     const toWorld = (e: PointerEvent) => {
       const { W, H, ceiling } = world();
@@ -112,23 +132,31 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       };
     };
 
-    // The top of an object's outline and its horizontal middle, in units.
-    const topOf = (i: number) => {
+    // An object's outline box, in units: from its body, or from the resting heap before the
+    // physics has loaded.
+    const boundsOf = (i: number) => {
       const b = sim?.items[i]?.body;
-      if (b) return { x: (b.bounds.min.x + b.bounds.max.x) / 2, y: b.bounds.min.y };
-      const p = rest[worldName()][i];
+      if (b) return b.bounds;
+      const p = rest[current][i] ?? { x: 0, y: 0, a: 0 };
       const o = objects[i];
-      if (!p || !o) return { x: 0, y: 0 };
-      const { w, h } = box(o, WORLDS[worldName()]);
-      return { x: p.x, y: p.y - Math.max(w, h) * 0.45 };
+      if (!o) return { min: { x: 0, y: 0 }, max: { x: 0, y: 0 } };
+      const { w, h } = box(o, world());
+      const cos = Math.cos(p.a);
+      const sin = Math.sin(p.a);
+      const pts = o.hull.map(([hx, hy]) => {
+        const x = (hx - 0.5) * w;
+        const y = (hy - 0.5) * h;
+        return { x: p.x + x * cos - y * sin, y: p.y + x * sin + y * cos };
+      });
+      const xs = pts.map((q) => q.x);
+      const ys = pts.map((q) => q.y);
+      return { min: { x: Math.min(...xs), y: Math.min(...ys) }, max: { x: Math.max(...xs), y: Math.max(...ys) } };
     };
 
     // A small label above the object, kept between the walls and under the ceiling.
     const placeTag = () => {
       const i = grab?.i ?? hovered;
       const label = objects[i]?.label;
-      // The bubble steps aside while a label shows: both sit above the heap.
-      bubble.classList.toggle('is-muted', Boolean(label));
       if (!label) {
         tag.dataset.on = 'false';
         return;
@@ -138,7 +166,10 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       const u = stage.clientWidth / W;
       const halfW = tag.offsetWidth / u / 2;
       const h = tag.offsetHeight / u;
-      const { x, y } = topOf(i);
+      const b = boundsOf(i);
+      const x = (b.min.x + b.max.x) / 2;
+      // Over the object the bubble points at, the label sits above the bubble.
+      const y = bubble.dataset.on === 'true' && i === target ? bubbleTop : b.min.y;
       const tx = Math.min(W - halfW - 8, Math.max(halfW + 8, x));
       const ty = y - 10 - h < ceiling + 8 ? y + 16 + h : y - 10;
       tag.style.setProperty('--x', String(tx));
@@ -146,20 +177,78 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       tag.dataset.on = 'true';
     };
 
+    // Where the bubble goes for object i: centered over its top, its tail touching it. It
+    // stays between the walls (never over the text), inside the window and below the nav,
+    // and steps left off my face.
+    const bubbleAt = (i: number) => {
+      const { W } = world();
+      const r = stage.getBoundingClientRect();
+      const u = r.width / W;
+      const hw = bubble.offsetWidth / u / 2;
+      const h = bubble.offsetHeight / u;
+      const tail = 9 / u;
+      // Its top stays inside the window, below the nav when the nav floats at the top, and
+      // below the text when the stage is under it.
+      let minPx = 8;
+      const nav = document.querySelector('.capsule')?.getBoundingClientRect();
+      if (nav && nav.top < window.innerHeight / 2) minPx = Math.max(minPx, nav.bottom + 8);
+      const text = stage.closest('.hero')?.firstElementChild?.getBoundingClientRect();
+      if (text && text.bottom <= r.top + 1) minPx = Math.max(minPx, text.bottom + 8);
+      const minY = (minPx - r.top) / u;
+      const b = boundsOf(i);
+      const ax = (b.min.x + b.max.x) / 2;
+      const tipY = b.min.y - 2 / u;
+      const top = tipY - tail - h;
+      let cx = Math.min(W - hw, Math.max(hw, ax));
+      const mp = me.poses[current];
+      const fx0 = mp.x - mp.w / 2 + mp.w * FACE.x0;
+      const fx1 = mp.x - mp.w / 2 + mp.w * FACE.x1;
+      const fy0 = mp.y - mp.h / 2 + mp.h * FACE.y0;
+      const fy1 = mp.y - mp.h / 2 + mp.h * FACE.y1;
+      const margin = 12 / u; // my lean moves the face a little; keep well clear of it
+      if (cx + hw > fx0 - margin && cx - hw < fx1 + margin && top < fy1 && tipY > fy0) cx = fx0 - margin - hw;
+      const reach = hw - 16 / u; // the tail stays on the bubble's body
+      const fits = top >= minY && cx >= hw && Math.abs(ax - cx) <= reach;
+      return { cx, tipY, top, tail: Math.max(-reach, Math.min(reach, ax - cx)) * u, fits };
+    };
+
+    // Bobby if the bubble fits over him, otherwise the highest object it fits over.
+    const pickTarget = () => {
+      const order = objects.map((_, i) => i).filter((i) => i !== last);
+      order.sort((a, b) => boundsOf(a).min.y - boundsOf(b).min.y);
+      return [last, ...order].find((i) => bubbleAt(i).fits) ?? last;
+    };
+
+    const placeBubble = () => {
+      if (target < 0) return;
+      const p = bubbleAt(target);
+      bubbleTop = p.top;
+      bubble.style.setProperty('--x', String(p.cx));
+      bubble.style.setProperty('--y', String(p.tipY));
+      bubble.style.setProperty('--tail', `${p.tail.toFixed(1)}px`);
+    };
+
+    const clearTimers = () => {
+      for (const t of timers) window.clearTimeout(t);
+      timers.length = 0;
+    };
+
+    // Shown once, and only until the first grab (which is what the session remembers).
     const showBubble = () => {
-      if (picked || !sim) return;
-      // Above the highest object in the heap.
-      const { W } = sim.world;
-      let top: { x: number; y: number } = { x: W / 2, y: sim.world.H };
-      sim.items.forEach((_, i) => {
-        const t = topOf(i);
-        if (t.y < top.y) top = t;
-      });
-      bubble.style.setProperty('--x', String(Math.min(W - 70, Math.max(70, top.x))));
-      bubble.style.setProperty('--y', String(Math.max(sim.world.ceiling + 40, top.y - 12)));
+      clearTimers();
+      if (picked || target >= 0 || cancelled) return;
+      target = pickTarget();
+      placeBubble();
       bubble.dataset.on = 'true';
+      // One small hop of the object it points at (CSS skips it under reduced motion).
+      const el = els[target];
+      if (el && !still) {
+        el.classList.add('is-nudged');
+        el.addEventListener('animationend', () => el.classList.remove('is-nudged'), { once: true });
+      }
     };
     const hideBubble = () => {
+      clearTimers();
       bubble.dataset.on = 'false';
       if (!picked) {
         picked = true;
@@ -178,7 +267,22 @@ export default function ClayHeap({ me, objects, rest }: Props) {
         el.style.setProperty('--a', `${p.a.toFixed(4)}rad`);
         el.dataset.on = 'true';
       });
+      if (bubble.dataset.on === 'true') placeBubble();
       if (grab || hovered >= 0) placeTag();
+    };
+
+    // While the heap is dropping: 600 ms after Bobby (the last object) lands, the bubble
+    // shows. He has landed once he has been falling a while and has barely moved for 6 steps.
+    const watchBobby = () => {
+      if (!sim || picked || target >= 0 || landed) return;
+      const item = sim.items[last];
+      const b = item?.body;
+      if (!item || !b) return;
+      const calm = sim.steps - item.spawnStep > 20 && Math.hypot(b.velocity.x, b.velocity.y) < 0.3 && Math.abs(b.angularVelocity) < 0.01;
+      stillSteps = calm ? stillSteps + 1 : 0;
+      if (stillSteps < 6) return;
+      landed = true;
+      timers.push(window.setTimeout(showBubble, BUBBLE_AFTER_LANDING_MS));
     };
 
     const loop = () => {
@@ -193,6 +297,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
         let asleep = false;
         while (acc >= STEP_MS) {
           asleep = step(M, sim);
+          watchBobby();
           acc -= STEP_MS;
           if (asleep && !grab) break;
         }
@@ -200,10 +305,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
         if (asleep && !grab) {
           // Everything sleeps: stop the loop until the next grab.
           running = false;
-          if (!settledOnce) {
-            settledOnce = true;
-            showBubble();
-          }
+          showBubble();
           return;
         }
         raf = requestAnimationFrame(frame);
@@ -211,7 +313,7 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       raf = requestAnimationFrame(frame);
     };
 
-    // Hover labels work in every mode once hydrated; grabbing only with motion allowed.
+    // Hover labels work in every mode once hydrated.
     const onEnter = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return;
       hovered = Number((e.currentTarget as HTMLElement).dataset.i);
@@ -262,81 +364,119 @@ export default function ClayHeap({ me, objects, rest }: Props) {
       stage.classList.remove('is-grabbing');
     };
     const onUp = (e: PointerEvent) => {
-      if (!grab || e.pointerId !== grab.id || !sim) return;
+      if (!grab || e.pointerId !== grab.id || !sim || !M) return;
       release();
       if (e.pointerType !== 'mouse') hovered = -1;
+      if (still) {
+        // Reduced motion: whatever was let go of lands at once, with no fall to watch.
+        cancelAnimationFrame(raf);
+        running = false;
+        runToRest(M, sim);
+        paint();
+        placeTag();
+        return;
+      }
       placeTag();
       wake(sim);
       loop();
     };
 
-    // Crossing 760px or 1024px after the drop: re-settle instantly in the new world.
+    // Crossing 760px or 1024px: re-settle instantly in the new world.
     const onWorldChange = () => {
-      if (!M || !sim) return;
-      release();
-      cancelAnimationFrame(raf);
-      running = false;
-      sim = createSim(M, WORLDS[worldName()], objects, me, Math.random);
-      runToRest(M, sim);
-      paint();
-      settledOnce = true;
-      showBubble();
+      current = worldName();
+      if (M && sim) {
+        release();
+        cancelAnimationFrame(raf);
+        running = false;
+        if (still) {
+          sim = restingSim(M, world(), objects, me, rest[current]);
+        } else {
+          sim = createSim(M, world(), objects, me, Math.random);
+          runToRest(M, sim);
+        }
+        paint();
+      }
+      if (bubble.dataset.on === 'true') {
+        target = pickTarget();
+        placeBubble();
+      } else if (sim) {
+        showBubble();
+      }
     };
 
     const hits = Array.from(stage.querySelectorAll<HTMLElement>('.clay-hit'));
-    for (const h of hits) {
-      h.addEventListener('pointerenter', onEnter);
-      h.addEventListener('pointerleave', onLeave);
-    }
-
-    if (still) {
-      stage.classList.add('is-static');
-      return () => {
-        for (const h of hits) {
-          h.removeEventListener('pointerenter', onEnter);
-          h.removeEventListener('pointerleave', onLeave);
-        }
-      };
-    }
-
-    const drop = async () => {
-      const mod = await import('matter-js');
-      if (cancelled) return;
-      M = ('default' in mod ? mod.default : mod) as Matter;
-      sim = createSim(M, WORLDS[worldName()], objects, me, Math.random);
-
-      for (const el of els) if (el) el.dataset.on = 'false';
-      stage.classList.add('is-live');
-      requestAnimationFrame(() => stage.classList.add('me-in'));
+    const grabbable = () => {
+      stage.classList.add('can-grab');
       for (const h of hits) {
         h.addEventListener('pointerdown', onDown);
         h.addEventListener('pointermove', onMove);
         h.addEventListener('pointerup', onUp);
         h.addEventListener('pointercancel', onUp);
       }
-      deskMq.addEventListener('change', onWorldChange);
-      bandMq.addEventListener('change', onWorldChange);
-      window.setTimeout(() => {
-        if (!cancelled) loop();
-      }, RISE_MS);
+    };
+    for (const h of hits) {
+      h.addEventListener('pointerenter', onEnter);
+      h.addEventListener('pointerleave', onLeave);
+    }
+    deskMq.addEventListener('change', onWorldChange);
+    bandMq.addEventListener('change', onWorldChange);
+
+    const loadMatter = async () => {
+      const mod = await import('matter-js');
+      return ('default' in mod ? mod.default : mod) as Matter;
     };
 
-    // Observe the stage itself: the island's own wrapper is display:contents and has no box.
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          io.disconnect();
-          void drop();
-        }
-      },
-      { threshold: 0.4 },
-    );
-    io.observe(stage);
+    let io: IntersectionObserver | null = null;
+    if (still) {
+      // Reduced motion: the static heap stays as it is, the bubble shows right away, and
+      // the physics loads in the background so the objects can still be picked up.
+      stage.classList.add('is-static');
+      showBubble();
+      void loadMatter().then((m) => {
+        if (cancelled) return;
+        M = m;
+        sim = restingSim(M, world(), objects, me, rest[current]);
+        grabbable();
+      });
+    } else {
+      const drop = async () => {
+        const m = await loadMatter();
+        if (cancelled) return;
+        M = m;
+        sim = createSim(M, world(), objects, me, Math.random);
+
+        for (const el of els) if (el) el.dataset.on = 'false';
+        stage.classList.add('is-live');
+        requestAnimationFrame(() => stage.classList.add('me-in'));
+        grabbable();
+        timers.push(
+          window.setTimeout(() => {
+            if (cancelled) return;
+            loop();
+            // At most this long after the drop starts, whatever Bobby is doing.
+            timers.push(window.setTimeout(showBubble, BUBBLE_LATEST_MS));
+          }, RISE_MS),
+        );
+      };
+
+      // Observe the stage itself: the island's own wrapper is display:contents and has no box.
+      io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            io?.disconnect();
+            void drop();
+          }
+        },
+        { threshold: 0.4 },
+      );
+      io.observe(stage);
+    }
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
-      io.disconnect();
+      clearTimers();
+      io?.disconnect();
       deskMq.removeEventListener('change', onWorldChange);
       bandMq.removeEventListener('change', onWorldChange);
       for (const h of hits) {
