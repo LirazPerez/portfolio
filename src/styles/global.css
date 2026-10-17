@@ -48,14 +48,10 @@
   --path-product-fill: #DCEFE3;
   --path-awards: #625C6B;
   --path-awards-fill: #ECE9F0;
-  /* About page certificates: a soft clay frame around an off-white paper card. */
-  --clay: #D3BFE0;
-  --clay-hi: #EEE4F5;
-  --clay-lo: #AE93C1;
-  --paper: #FBF8F2;
-  --paper-ink: #2A2631;
-  --paper-muted: #655E6C;
-  --paper-accent: #6E4482;
+  /* About page certificates: a soft clay frame, mixed from the accent family (never beige). */
+  --clay: color-mix(in srgb, var(--accent) 30%, var(--accent-tint));
+  --clay-hi: color-mix(in srgb, var(--accent) 8%, var(--accent-tint));
+  --clay-lo: color-mix(in srgb, var(--accent) 62%, var(--accent-tint));
   color-scheme: light;
 }
 
@@ -93,13 +89,9 @@
     --path-product-fill: #1B2C22;
     --path-awards: #A7A1B0;
     --path-awards-fill: #2A2730;
-    --clay: #A28AB4;
-    --clay-hi: #C3B0D3;
-    --clay-lo: #6F5A82;
-    --paper: #DDD7CC;
-    --paper-ink: #2A2631;
-    --paper-muted: #57505F;
-    --paper-accent: #5F3A71;
+    --clay: color-mix(in srgb, var(--accent) 42%, var(--accent-tint));
+    --clay-hi: color-mix(in srgb, var(--accent) 70%, var(--accent-tint));
+    --clay-lo: color-mix(in srgb, var(--accent) 12%, var(--accent-tint));
     color-scheme: dark;
   }
 }
@@ -137,13 +129,9 @@
   --path-product-fill: #1B2C22;
   --path-awards: #A7A1B0;
   --path-awards-fill: #2A2730;
-  --clay: #A28AB4;
-  --clay-hi: #C3B0D3;
-  --clay-lo: #6F5A82;
-  --paper: #DDD7CC;
-  --paper-ink: #2A2631;
-  --paper-muted: #57505F;
-  --paper-accent: #5F3A71;
+  --clay: color-mix(in srgb, var(--accent) 42%, var(--accent-tint));
+  --clay-hi: color-mix(in srgb, var(--accent) 70%, var(--accent-tint));
+  --clay-lo: color-mix(in srgb, var(--accent) 12%, var(--accent-tint));
   color-scheme: dark;
 }
 

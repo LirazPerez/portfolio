@@ -63,6 +63,8 @@ export const PATH = {
   /** Shown in the details panel before anyone touches the timeline. */
   initial: 'ministry',
   todayLabel: 'Today',
+  /** Under the heading: one line for a mouse, one for touch screens (chosen by media query). */
+  hint: { pointer: 'Hover or click a bar to read more', touch: 'Tap a row to read more' },
 };
 
 export const PATH_ROWS: PathRow[] = [
@@ -236,14 +238,14 @@ export interface Certificate {
   line: string;
   years: string;
   deansList?: boolean;
-  /** Spans two columns on wide screens. */
-  wide?: boolean;
+  /** Compact card (second row): small muted description. */
+  compact?: boolean;
 }
 
 export const CERTIFICATES = {
   heading: 'The certificates on my wall',
   deansListLabel: "Dean's List",
-  /** In this order: row 1 BFA (wide) + associate, row 2 three, row 3 negotiation + award (wide). */
+  /** In this order: row 1 the three big ones (BFA, associate, award), row 2 four compact ones. */
   items: [
     {
       issuer: 'Fashion Institute of Technology, SUNY · New York',
@@ -251,7 +253,6 @@ export const CERTIFICATES = {
       line: 'Art direction, brand strategy and digital product design, including UX and UI.',
       years: '2024-2026',
       deansList: true,
-      wide: true,
     },
     {
       issuer: 'Fashion Institute of Technology, SUNY',
@@ -261,35 +262,38 @@ export const CERTIFICATES = {
       deansList: true,
     },
     {
+      issuer: 'Israeli Ministry of Defense',
+      title: 'Head of Mission Award',
+      line: 'For excellence in contract execution.',
+      years: '2022',
+    },
+    {
       issuer: 'Memorisely',
       title: 'AI Coding for Designers',
       line: 'Design engineering with Cursor and Claude Code.',
       years: '2026',
+      compact: true,
     },
     {
       issuer: 'Memorisely',
       title: 'Claude Design: AI Prototyping with Design Systems',
       line: 'From a design system to testable prototypes.',
       years: '2026',
+      compact: true,
     },
     {
       issuer: 'Ministry of Defense training',
       title: 'Mentorship and Onboarding',
       line: 'Certified to train and certify new staff.',
       years: '2022',
+      compact: true,
     },
     {
       issuer: 'External workshop',
       title: 'Advanced Negotiation',
       line: 'A week-long workshop on negotiation strategy and the psychology behind it.',
       years: '2024',
-    },
-    {
-      issuer: 'Israeli Ministry of Defense',
-      title: 'Head of Mission Award',
-      line: 'For excellence in contract execution.',
-      years: '2022',
-      wide: true,
+      compact: true,
     },
   ] satisfies Certificate[],
 };

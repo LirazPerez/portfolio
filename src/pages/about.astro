@@ -6,7 +6,6 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PathTimeline from '../components/about/PathTimeline.astro';
 import ClayFrame from '../components/about/ClayFrame.astro';
-import portrait from '../assets/about/liraz-portrait.webp';
 import { aboutPhoto } from '../lib/about-media';
 import { CV_HREF, CV_SIZE_LABEL } from '../lib/cv';
 import { ABOUT_TITLE, OPENING, PATH, CERTIFICATES, BEFORE_DESIGN, DESIGN_BUILD_RUN, OFF_THE_CLOCK, CLOSING } from '../data/about';
@@ -26,57 +25,50 @@ const splitLink = (line: string, link?: { text: string }) => {
 <BaseLayout title={ABOUT_TITLE} description={OPENING.lede}>
   <!-- 1. Opening -->
   <div class={container}>
-    <header class="grid gap-3 pt-[clamp(32px,7vw,84px)] md:grid-cols-[minmax(0,1fr)_220px] md:items-center md:gap-6">
-      <div class="grid gap-[18px] min-w-0">
-        <p class="m-0 text-[14px] font-medium text-muted">{OPENING.eyebrow}</p>
-        <h1 class="m-0 text-[clamp(32px,4.6vw,52px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
-          {OPENING.headline.lead} <em class="not-italic text-accent">{OPENING.headline.accent}</em>
-        </h1>
-        <p class="m-0 text-[18px] leading-[1.6] text-muted max-w-[60ch]">{OPENING.lede}</p>
-        <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
-          {OPENING.pills.map((pill) => <li class="text-[13px] border border-line rounded-pill px-[12px] py-[5px] bg-raise">{pill}</li>)}
-        </ul>
-      </div>
-      <div class="order-first md:order-none w-[120px] md:w-[220px]">
-        <Image
-          src={portrait}
-          alt={OPENING.portraitAlt}
-          widths={[120, 220, 360, 440, 660]}
-          sizes="(min-width: 760px) 220px, 120px"
-          loading="eager"
-          class="block w-full h-auto rounded-card bg-surface"
-        />
-      </div>
+    <!-- Text only: the home page has my cutout and "Off the clock" has real photos of me.
+         (The portrait stays in src/assets/about/ in case it comes back.) -->
+    <header class="grid gap-[18px] pt-[clamp(32px,7vw,84px)]">
+      <p class="m-0 text-[14px] font-medium text-muted">{OPENING.eyebrow}</p>
+      <h1 class="m-0 max-w-[18ch] text-[clamp(32px,4.6vw,52px)] leading-[1.12] tracking-[-0.025em] font-semibold text-balance">
+        {OPENING.headline.lead} <em class="not-italic text-accent">{OPENING.headline.accent}</em>
+      </h1>
+      <p class="m-0 text-[18px] leading-[1.6] text-muted max-w-[60ch]">{OPENING.lede}</p>
+      <ul role="list" class="m-0 p-0 list-none flex flex-wrap gap-1">
+        {OPENING.pills.map((pill) => <li class="text-[13px] border border-line rounded-pill px-[12px] py-[5px] bg-raise">{pill}</li>)}
+      </ul>
     </header>
   </div>
 
   <div class={container}>
     <!-- 2. My path: the full content width, wider than the reading column -->
     <section class={section} aria-labelledby="path-h">
-      <h2 id="path-h" class={h2}>{PATH.heading}</h2>
+      <div class="grid gap-1">
+        <h2 id="path-h" class={h2}>{PATH.heading}</h2>
+        <!-- Which line shows depends on the device: a mouse, or a touch screen. -->
+        <p class="path-hint m-0 text-[15px] text-muted">
+          <span class="hint-pointer">{PATH.hint.pointer}</span><span class="hint-touch">{PATH.hint.touch}</span>
+        </p>
+      </div>
       <PathTimeline />
     </section>
 
     <!-- 3. Certificates -->
     <section class={section} aria-labelledby="certs-h">
       <h2 id="certs-h" class={h2}>{CERTIFICATES.heading}</h2>
-      <ul role="list" class="m-0 p-0 list-none grid gap-3 pt-1 md:grid-cols-2 lg:grid-cols-3">
+      <!-- A 12-column grid from 1024px: three big cards (4 columns each), then four compact
+           ones (3 each). Two columns on tablets, one on phones. -->
+      <ul role="list" class="m-0 p-0 list-none grid gap-2 pt-1 md:grid-cols-2 lg:grid-cols-12">
         {
-          CERTIFICATES.items.map((c, i) => (
-            // A wide certificate spans two columns from 1024px. With two columns only the first
-            // one does, so the two-column grid has no holes. Once a card is wide enough (its own
-            // width, a container query) the description sits beside the title instead of under it.
-            <li class:list={['cert', c.wide && 'lg:col-span-2', c.wide && i === 0 && 'md:col-span-2']}>
+          CERTIFICATES.items.map((c) => (
+            <li class:list={['cert', c.compact ? 'lg:col-span-3' : 'lg:col-span-4']}>
               <ClayFrame>
-                <div class:list={['cert-body', c.wide && 'cert-body--wide']}>
-                  <div class="grid gap-1 [grid-area:head]">
-                    <p class="m-0 text-[13px] leading-[1.4] text-[var(--paper-muted)]">{c.issuer}</p>
-                    <h3 class="cert-title m-0 text-[19px] leading-[1.3] font-semibold tracking-[-0.01em] text-balance">{c.title}</h3>
-                  </div>
-                  <p class="cert-line m-0 text-[15px] leading-[1.5] [grid-area:line]">{c.line}</p>
-                  <p class="m-0 pt-2 self-end flex items-center justify-between gap-2 text-[14px] font-medium [grid-area:foot]">
-                    <span class="text-[var(--paper-muted)]">{c.years}</span>
-                    {c.deansList && <span class="font-semibold text-[var(--paper-accent)]">{CERTIFICATES.deansListLabel}</span>}
+                <div class:list={['cert-body', c.compact && 'cert-body--compact']}>
+                  <p class="cert-issuer m-0 text-muted">{c.issuer}</p>
+                  <h3 class="cert-title m-0 font-semibold tracking-[-0.01em] text-balance">{c.title}</h3>
+                  <p class="cert-line m-0">{c.line}</p>
+                  <p class="cert-foot m-0 flex items-center justify-between gap-2 font-medium">
+                    <span class="text-muted">{c.years}</span>
+                    {c.deansList && <span class="font-semibold text-accent-strong">{CERTIFICATES.deansListLabel}</span>}
                   </p>
                 </div>
               </ClayFrame>
@@ -162,8 +154,10 @@ const splitLink = (line: string, link?: { text: string }) => {
     </section>
 
     <!-- 7. Closing -->
-    <section class="mt-[clamp(64px,10vw,112px)] pt-4 border-t border-line flex flex-wrap items-center justify-between gap-2" aria-labelledby="short-h">
-      <h2 id="short-h" class="m-0 text-[22px] font-semibold tracking-[-0.012em] text-balance">{CLOSING.heading}</h2>
+    <!-- No divider: the contact panel right below already starts a new block. The line is set
+         in Caveat, like the signature: a personal note. -->
+    <section class="pt-[clamp(56px,9vw,96px)] flex flex-wrap items-center justify-between gap-2" aria-labelledby="short-h">
+      <h2 id="short-h" class="m-0 font-signature font-semibold text-[clamp(30px,3.4vw,34px)] leading-[1.1] text-ink">{CLOSING.heading}</h2>
       <div class="flex flex-wrap gap-[10px]">
         <a class="inline-flex items-center min-h-[44px] px-[18px] rounded-pill bg-accent text-on-accent text-[15px] font-medium no-underline hover:bg-accent-strong transition-colors" href={CV_HREF} download>
           {CLOSING.cv}<span class="sr-only-text">, {CV_SIZE_LABEL}</span>
@@ -175,35 +169,38 @@ const splitLink = (line: string, link?: { text: string }) => {
 </BaseLayout>
 
 <style>
-  .cert {
-    container-type: inline-size;
-    transition: transform 0.25s ease;
+  /* The hint names the gesture the device has. Without JS the timeline can't open anything,
+     so the hint is hidden. */
+  .hint-touch { display: none; }
+  @media (pointer: coarse) {
+    .hint-pointer { display: none; }
+    .hint-touch { display: inline; }
   }
-  /* Issuer and title, then the line, then the years pinned to the bottom of the card. */
+  @media (hover: hover) and (pointer: fine) {
+    .hint-pointer { display: inline; }
+    .hint-touch { display: none; }
+  }
+  :global(html:not(.js)) .path-hint { display: none; }
+
+  .cert { transition: transform 0.25s ease; }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .cert:hover { transform: translateY(-3px); }
+  }
+  /* Issuer, title and line at the top; the year line at the bottom, so cards in a row
+     line up their years. */
   .cert-body {
     display: grid;
-    grid-template-areas: 'head' 'line' 'foot';
-    grid-template-rows: auto auto 1fr;
-    gap: 8px;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 6px;
     height: 100%;
-    padding: 22px;
+    padding: 14px;
   }
-  /* Wide: the line sits beside the title, so the card needs little height. Its row still
-     matches its tallest neighbor (straight grid), so the content is centered in the card
-     and the extra height becomes even margins instead of a hole above the years. */
-  @container (min-width: 560px) {
-    .cert-body--wide {
-      grid-template-areas: 'head line' 'foot foot';
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      grid-template-rows: auto auto;
-      align-content: center;
-      column-gap: 32px;
-    }
-    .cert-body--wide .cert-title { font-size: 22px; }
-    /* Line up with the title, below the issuer. */
-    .cert-body--wide .cert-line { padding-top: 26px; }
-  }
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .cert:hover { transform: translateY(-4px); }
-  }
+  .cert-issuer { font-size: 13px; line-height: 1.4; }
+  .cert-title { font-size: 16px; line-height: 1.3; }
+  .cert-line { font-size: 14.5px; line-height: 1.5; }
+  .cert-foot { align-self: end; padding-top: 6px; font-size: 13.5px; }
+  .cert-body--compact { gap: 4px; }
+  .cert-body--compact .cert-issuer { font-size: 12.5px; }
+  .cert-body--compact .cert-title { font-size: 15px; }
+  .cert-body--compact .cert-line { font-size: 13.5px; line-height: 1.45; color: var(--muted); }
 </style>

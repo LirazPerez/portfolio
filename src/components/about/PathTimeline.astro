@@ -95,7 +95,7 @@ const nyYear = Math.floor(years(PATH.newYork.from));
                 {row.sub && <span class="row-sub">{row.sub}</span>}
               </p>
               <div class="track">
-                <span class="band" aria-hidden="true" />
+                <span class:list={['band', row.kind === 'markers' && 'band--track']} aria-hidden="true" />
                 {row.entries.map((e) => {
                   if (markers) {
                     const m = markers.get(e.id)!;
@@ -306,6 +306,12 @@ const nyYear = Math.floor(years(PATH.newYork.from));
     background: var(--accent-tint);
     border-radius: 6px;
   }
+  /* The awards row: a neutral track for the whole span, 2017 to today (not New York). */
+  .band--track {
+    left: 0;
+    width: var(--today);
+    background: var(--surface);
+  }
 
   .bar,
   .marker {
@@ -355,9 +361,25 @@ const nyYear = Math.floor(years(PATH.newYork.from));
     line-height: 1.15;
     font-weight: 600;
   }
-  .bar:hover .fill { background: color-mix(in srgb, var(--c) 18%, var(--c-fill)); }
+  /* Hover says "this opens something": a darker fill, a soft shadow and a 1px lift. */
+  .bar:hover .fill {
+    background: color-mix(in srgb, var(--c) 18%, var(--c-fill));
+    box-shadow: var(--shadow);
+  }
   .bar.is-active { color: var(--bg); }
   .bar.is-active .fill { background: var(--c); }
+  /* The selected entry wears the focus ring, so the state is visible from the first view. */
+  .bar.is-active,
+  .marker.is-active {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .bar,
+    .diamond { transition: transform 0.15s ease; }
+    .bar:hover { transform: translateY(-1px); }
+    .marker:hover .diamond { transform: rotate(45deg) scale(1.2); }
+  }
 
   .marker {
     top: 50%;
