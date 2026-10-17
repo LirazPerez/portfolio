@@ -64,14 +64,17 @@ const splitLink = (line: string, link?: { text: string }) => {
         {
           CERTIFICATES.items.map((c, i) => (
             // A wide certificate spans two columns from 1024px. With two columns only the first
-            // one does, so the two-column grid has no holes.
+            // one does, so the two-column grid has no holes. Once a card is wide enough (its own
+            // width, a container query) the description sits beside the title instead of under it.
             <li class:list={['cert', c.wide && 'lg:col-span-2', c.wide && i === 0 && 'md:col-span-2']}>
               <ClayFrame>
-                <div class="flex flex-col gap-1 h-full min-h-[200px] p-[22px]">
-                  <p class="m-0 text-[13px] leading-[1.4] text-[var(--paper-muted)]">{c.issuer}</p>
-                  <h3 class="m-0 text-[19px] leading-[1.3] font-semibold tracking-[-0.01em] text-balance">{c.title}</h3>
-                  <p class="m-0 text-[15px] leading-[1.5]">{c.line}</p>
-                  <p class="m-0 mt-auto pt-2 flex items-center justify-between gap-2 text-[14px] font-medium">
+                <div class:list={['cert-body', c.wide && 'cert-body--wide']}>
+                  <div class="grid gap-1 [grid-area:head]">
+                    <p class="m-0 text-[13px] leading-[1.4] text-[var(--paper-muted)]">{c.issuer}</p>
+                    <h3 class="cert-title m-0 text-[19px] leading-[1.3] font-semibold tracking-[-0.01em] text-balance">{c.title}</h3>
+                  </div>
+                  <p class="cert-line m-0 text-[15px] leading-[1.5] [grid-area:line]">{c.line}</p>
+                  <p class="m-0 pt-2 self-end flex items-center justify-between gap-2 text-[14px] font-medium [grid-area:foot]">
                     <span class="text-[var(--paper-muted)]">{c.years}</span>
                     {c.deansList && <span class="font-semibold text-[var(--paper-accent)]">{CERTIFICATES.deansListLabel}</span>}
                   </p>
@@ -172,7 +175,34 @@ const splitLink = (line: string, link?: { text: string }) => {
 </BaseLayout>
 
 <style>
-  .cert { transition: transform 0.25s ease; }
+  .cert {
+    container-type: inline-size;
+    transition: transform 0.25s ease;
+  }
+  /* Issuer and title, then the line, then the years pinned to the bottom of the card. */
+  .cert-body {
+    display: grid;
+    grid-template-areas: 'head' 'line' 'foot';
+    grid-template-rows: auto auto 1fr;
+    gap: 8px;
+    height: 100%;
+    padding: 22px;
+  }
+  /* Wide: the line sits beside the title, so the card needs little height. Its row still
+     matches its tallest neighbor (straight grid), so the content is centered in the card
+     and the extra height becomes even margins instead of a hole above the years. */
+  @container (min-width: 560px) {
+    .cert-body--wide {
+      grid-template-areas: 'head line' 'foot foot';
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      align-content: center;
+      column-gap: 32px;
+    }
+    .cert-body--wide .cert-title { font-size: 22px; }
+    /* Line up with the title, below the issuer. */
+    .cert-body--wide .cert-line { padding-top: 26px; }
+  }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .cert:hover { transform: translateY(-4px); }
   }

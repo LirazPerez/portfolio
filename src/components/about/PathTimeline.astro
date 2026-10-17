@@ -18,7 +18,7 @@ const years = (ym: string) => {
   return y + (m - 1) / 12;
 };
 const axisStart = PATH.startYear;
-// A little room after today, so the ongoing bar has somewhere to fade.
+// A little room after today, so the Today line and its label sit inside the timeline.
 const axisEnd = todayY + 0.4;
 const pct = (y: number) => ((y - axisStart) / (axisEnd - axisStart)) * 100;
 const endOf = (e: PathEntry) => (e.end === 'today' || !e.end ? todayY : years(e.end));
@@ -38,6 +38,7 @@ const nameOf = (e: PathEntry) => {
 // Diamonds that are close in time are spread out around their shared moment, a fixed number
 // of pixels apart (MARKER_GAP), so they never overlap at any width.
 const MARKER_GAP = 26;
+const MIN_BAR = 28;
 function markerOffsets(entries: PathEntry[]) {
   const sorted = [...entries].sort((a, b) => years(a.start) - years(b.start));
   const groups: PathEntry[][] = [];
@@ -112,13 +113,17 @@ const nyYear = Math.floor(years(PATH.newYork.from));
                     );
                   }
                   const left = pct(years(e.start));
-                  const solid = pct(endOf(e)) - left;
-                  const width = e.ongoing ? 100 - left : solid;
+                  const width = pct(endOf(e)) - left;
+                  // A bar never draws shorter than MIN_BAR. An ongoing one is pinned to the
+                  // Today line by its right edge, so it grows to the left, never past today.
+                  const place = e.ongoing
+                    ? `right: ${100 - todayPct}%; width: max(${MIN_BAR}px, ${width}%);`
+                    : `left: ${left}%; width: max(${MIN_BAR}px, ${width}%);`;
                   return (
                     <button
                       type="button"
                       class:list={['bar', e.lane === 2 && 'bar--lane2', row.entries.some((x) => x.lane) && !e.lane && 'bar--lane1', e.ongoing && 'bar--ongoing', e.id === initial.id && 'is-active']}
-                      style={`left: ${left}%; width: ${width}%; --solid: ${e.ongoing ? (solid / width) * 100 : 100}%;`}
+                      style={place}
                       data-entry={e.id}
                       aria-label={nameOf(e)}
                       aria-controls="path-panel"
@@ -317,7 +322,6 @@ const nyYear = Math.floor(years(PATH.newYork.from));
   .bar {
     top: 8px;
     bottom: 8px;
-    min-width: 24px;
     display: flex;
     align-items: center;
     border-radius: var(--radius-control);
@@ -331,10 +335,12 @@ const nyYear = Math.floor(years(PATH.newYork.from));
     background: var(--c-fill);
     border: 1.5px solid var(--c);
   }
-  /* Still going: solid up to today, then it fades out. */
+  /* Still going: it fades out as it reaches the Today line. */
   .bar--ongoing .fill {
-    -webkit-mask-image: linear-gradient(to right, #000 var(--solid), transparent);
-    mask-image: linear-gradient(to right, #000 var(--solid), transparent);
+    border-right: 0;
+    border-radius: var(--radius-control) 0 0 var(--radius-control);
+    -webkit-mask-image: linear-gradient(to right, #000 35%, transparent);
+    mask-image: linear-gradient(to right, #000 35%, transparent);
   }
   .bar-text {
     position: relative;
