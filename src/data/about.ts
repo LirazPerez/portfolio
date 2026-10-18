@@ -30,7 +30,7 @@ export const OPENING = {
     { id: 'obj-beret', entry: 'army', label: 'Army', ariaLabel: 'Clay beret, see my army years in the timeline', x: 30, y: 74, w: 132, r: -12, z: 3 },
     { id: 'obj-statue-of-liberty', entry: 'ministry', label: 'Ministry of Defense, New York', ariaLabel: 'Clay Statue of Liberty, see my Ministry of Defense, New York years in the timeline', x: 150, y: 6, w: 96, r: 4, z: 1 },
     { id: 'obj-grad-cap', entry: 'bfa', label: 'Design school', ariaLabel: 'Clay graduation cap, see my design school years in the timeline', x: 206, y: 176, w: 140, r: 9, z: 3 },
-    { id: 'obj-laptop', entry: 'internship', label: 'Product design', ariaLabel: 'Clay laptop, see my product design work in the timeline', x: 6, y: 140, w: 172, r: -6, z: 2 },
+    { id: 'obj-laptop', entry: 'freelance', label: 'Product design', ariaLabel: 'Clay laptop, see my product design work in the timeline', x: 6, y: 140, w: 172, r: -6, z: 2 },
   ],
 };
 
@@ -109,14 +109,24 @@ export const PATH_ROWS: PathRow[] = [
     kind: 'bars',
     entries: [
       {
+        id: 'ministry-procurement',
+        when: '2021-2023 · Israeli Ministry of Defense, New York',
+        title: 'Procurement specialist, air systems',
+        text: 'Contracts and procurement for the air systems department, the role I was promoted from in 2023.',
+        dates: '2021-2023',
+        start: '2021-01',
+        end: '2023-01',
+        barLabel: 'Procurement',
+      },
+      {
         id: 'ministry',
-        when: '2021-2026 · Israeli Ministry of Defense, New York',
+        when: '2023-2026 · Israeli Ministry of Defense, New York',
         title: 'Senior project manager, procurement',
         text: 'Global logistics and procurement budgets in the hundreds of millions of dollars, a 30% cost reduction, and a contract pipeline of 15+ international vendors including the U.S. Armed Forces.',
-        dates: '2021-2026',
-        start: '2021-01',
+        dates: '2023-2026',
+        start: '2023-01',
         end: '2026-07',
-        barLabel: 'Senior project manager, procurement',
+        barLabel: 'Senior project manager',
       },
     ],
   },
@@ -166,9 +176,9 @@ export const PATH_ROWS: PathRow[] = [
       },
       {
         id: 'freelance',
-        when: 'July 2026 to today',
-        title: 'Freelance product designer',
-        text: 'Design and build work for clients in different fields, from research to a working product.',
+        when: 'July 2026 to today · Self-employed',
+        title: 'Freelance product designer and builder',
+        text: 'I design and build working tools for clients, from user research and flows to production. One of them, an internal logistics and inventory system, is used daily by 20-30 people and saves the team 8-10 hours a week.',
         dates: 'July 2026 to today',
         start: '2026-07',
         end: 'today',
@@ -360,7 +370,7 @@ export const DESIGN_BUILD_RUN = {
     {
       title: 'I build',
       points: [
-        'From design to a working product with Claude Code and Cursor',
+        'From design to a working product with Claude Code, Cursor and Base44',
         'Every project on this site runs as real code',
         'This site too, from first commit to launch',
       ],
