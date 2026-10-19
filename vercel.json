@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/aeropulse", "destination": "/work/aeropulse", "permanent": true },
+    { "source": "/aeropulse/", "destination": "/work/aeropulse", "permanent": true },
+    { "source": "/neta", "destination": "/work/neta", "permanent": true },
+    { "source": "/neta/", "destination": "/work/neta", "permanent": true },
+    { "source": "/recall", "destination": "/work/recall", "permanent": true },
+    { "source": "/recall/", "destination": "/work/recall", "permanent": true },
+    { "source": "/google-maps-recall", "destination": "/work/recall", "permanent": true },
+    { "source": "/google-maps-recall/", "destination": "/work/recall", "permanent": true },
+    { "source": "/waypoint", "destination": "/", "permanent": true },
+    { "source": "/waypoint/", "destination": "/", "permanent": true },
+    { "source": "/classpass", "destination": "/", "permanent": true },
+    { "source": "/classpass/", "destination": "/", "permanent": true },
+    { "source": "/work", "destination": "/#work", "permanent": true },
+    { "source": "/work/", "destination": "/#work", "permanent": true }
+  ]
+}

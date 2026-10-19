@@ -8,14 +8,20 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title: string;
   description?: string;
+  /** Link preview image (path or URL) and its alt text; every page shares /og.png unless it passes its own. */
+  image?: string;
+  imageAlt?: string;
 }
 
 const {
   title,
   description = 'Liraz Hazala Perez, product designer. Nine years running complex operations, now designing and building products.',
+  image = '/og.png',
+  imageAlt = 'Liraz Hazala Perez, Product Designer. I design and build products. Beside the words, a small heap of clay objects: a beret, a laptop, the Statue of Liberty, a running shoe and Bobby the dog.',
 } = Astro.props;
 const fullTitle = title === 'Home' ? 'Liraz Hazala Perez · Product Designer' : `${title} · Liraz Hazala Perez`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
 ---
 
 <!doctype html>
@@ -34,6 +40,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
     <!-- Apply the saved theme before first paint: no flash. Must stay inline and first. -->
     <script is:inline>
       (function () {
