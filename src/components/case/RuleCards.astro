@@ -4,29 +4,45 @@
  * (the ones nothing bends) get the accent tint and border, and say "Firm rule" to screen
  * readers; their own words say the same. Under the cards, an optional work loop: the steps
  * of every phase as pills joined by arrows (an ordered list).
- * Three across on desktop (64rem; the second row starts at the left), two across from 37.5rem
- * (tablets), one on phones.
+ * With a `legend`, a small key sits above the cards (filled = firm, outline = the rest, so the
+ * swatches differ in shape as well as color), and the cards are grouped in two rows by type:
+ * the firm rules first, the others under them, each row sharing the width evenly.
+ * Rows go one per line below 37.5rem.
  */
 interface Props {
   rules: { title: string; text: string; firm?: boolean }[];
+  legend?: { firm: string; other: string };
   loop?: string[];
   loopLabel?: string;
 }
-const { rules, loop, loopLabel = 'Each phase' } = Astro.props;
+const { rules, legend, loop, loopLabel = 'Each phase' } = Astro.props;
+const firmLabel = legend?.firm ?? 'Firm rule';
+const otherLabel = legend?.other;
+const groups = [rules.filter((r) => r.firm), rules.filter((r) => !r.firm)].filter((g) => g.length > 0);
 ---
 
 <div class="wrap">
-  <ul class="rules" role="list">
-    {rules.map((r) => (
-      <li class:list={['rule', r.firm && 'rule--firm']}>
-        <h3>
-          {r.firm && <span class="sr-only-text">Firm rule: </span>}
-          {r.title}
-        </h3>
-        <p>{r.text}</p>
-      </li>
-    ))}
-  </ul>
+  {
+    legend && (
+      <ul class="legend" role="list">
+        <li><i class="sw sw--firm" aria-hidden="true"></i>{legend.firm}</li>
+        <li><i class="sw" aria-hidden="true"></i>{legend.other}</li>
+      </ul>
+    )
+  }
+  {groups.map((group) => (
+    <ul class="rules" role="list" style={`--count:${group.length}`}>
+      {group.map((r) => (
+        <li class:list={['rule', r.firm && 'rule--firm']}>
+          <h3>
+            {r.firm ? <span class="sr-only-text">{firmLabel}: </span> : otherLabel && <span class="sr-only-text">{otherLabel}: </span>}
+            {r.title}
+          </h3>
+          <p>{r.text}</p>
+        </li>
+      ))}
+    </ul>
+  ))}
   {
     loop && (
       <ol class="loop" role="list" aria-label={loopLabel}>
@@ -57,13 +73,37 @@ const { rules, loop, loopLabel = 'Each phase' } = Astro.props;
   }
   @media (min-width: 37.5rem) {
     .rules {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(var(--count, 3), minmax(0, 1fr));
     }
   }
-  @media (min-width: 64rem) {
-    .rules {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .rules + .rules {
+    margin-top: -8px;
+  }
+  .legend {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sw {
+    width: 14px;
+    height: 10px;
+    border-radius: 3px;
+    border: 1.5px solid var(--muted);
+    background: var(--raise);
+  }
+  .sw--firm {
+    border-color: var(--accent);
+    background: var(--accent-tint);
   }
   .rule {
     display: grid;

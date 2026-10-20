@@ -1,0 +1,44 @@
+---
+/**
+ * Pause / play for one StageVideo (by its id). A 44px round button on a glass fill, placed
+ * by its parent (absolute, in a corner). Hidden until the StageVideo script wires it up, so it
+ * never shows without JS. Its accessible name says what it will do ("Pause the recording").
+ */
+interface Props {
+  for: string;
+  class?: string;
+}
+const { for: target, class: className } = Astro.props;
+---
+
+<button type="button" class:list={['vtoggle', className]} data-video-toggle={target} data-state="paused" aria-label="Play the recording" hidden>
+  <svg class="i-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="4.5" width="4" height="15" rx="1.2"></rect><rect x="14" y="4.5" width="4" height="15" rx="1.2"></rect></svg>
+  <svg class="i-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z"></path></svg>
+</button>
+
+<style>
+  .vtoggle {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--glass);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    backdrop-filter: saturate(160%) blur(12px);
+    box-shadow: var(--shadow);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .vtoggle[hidden] {
+    display: none;
+  }
+  .vtoggle:hover {
+    color: var(--accent-strong);
+  }
+  .vtoggle[data-state='playing'] .i-play,
+  .vtoggle[data-state='paused'] .i-pause {
+    display: none;
+  }
+</style>

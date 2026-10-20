@@ -7,9 +7,11 @@
  *
  * Motion: the recording only plays when motion is allowed and the laptop is on screen
  * (StageVideo). With reduced motion or no JS the poster (the recording's first frame) shows.
+ * `pausable` adds a pause / play button on the screen's corner (outside the image role).
  * All colors are tokens (--bezel, --bezel-edge, --deck, --deck-edge, --deck-shadow).
  */
 import StageVideo from './StageVideo.astro';
+import VideoToggle from './VideoToggle.astro';
 import type { FlowMedia } from '../lib/stage-media';
 
 interface Props {
@@ -17,16 +19,19 @@ interface Props {
   /** Text alternative: what the recording shows, start to end. */
   label: string;
   class?: string;
+  pausable?: boolean;
 }
-const { media, label, class: className } = Astro.props;
+const { media, label, class: className, pausable = false } = Astro.props;
+const id = pausable ? `laptop-${Math.random().toString(36).slice(2, 8)}` : undefined;
 ---
 
-<div class:list={['laptop', className]} role="img" aria-label={label}>
-  <div class="lid">
+<div class:list={['laptop', className]}>
+  <div class="lid" role="img" aria-label={label}>
     <div class="screen">
-      <StageVideo sources={media.videos} poster={media.poster} position="top-left" />
+      <StageVideo sources={media.videos} poster={media.poster} position="top-left" id={id} />
     </div>
   </div>
+  {id && <VideoToggle for={id} class="laptop-toggle" />}
   <div class="deck" aria-hidden="true"></div>
 </div>
 
@@ -36,6 +41,12 @@ const { media, label, class: className } = Astro.props;
     width: 100%;
     max-width: 860px;
     margin-inline: auto;
+  }
+  .laptop :global(.laptop-toggle) {
+    position: absolute;
+    right: calc(2.2% + 10px);
+    bottom: calc(3% + 24px);
+    z-index: 2;
   }
   .lid {
     position: relative;

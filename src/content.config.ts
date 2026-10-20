@@ -20,7 +20,6 @@ const work = defineCollection({
     /** Case-study eyebrow after "Case study ·", e.g. "Desktop SaaS". Falls back to the platform. */
     category: z.string().optional(),
     /** Up to two screens (file names in src/assets/work/<slug>/) floating beside the hero laptop. */
-    heroScreens: z.array(z.string()).max(2).optional(),
     /** Text alternative for the hero stage or laptop recording (role="img"). Falls back to a generic line. */
     stageAlt: z.string().optional(),
     /** Overrides the label for `status` on the case-study page, e.g. "Built and in daily use". */

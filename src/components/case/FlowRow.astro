@@ -8,6 +8,8 @@
  * starts near the phone's top third rather than its middle. Consecutive flows are set
  * apart by extra space and a hairline, so each reads as its own stop.
  * `native` plays a Simulator recording in the native phone (see Phone.astro).
+ * Optional: a first-person `lede` under the heading, and under the decision a `note` with
+ * `chips` (pills in the steps' style, each a bold lead and a few words).
  */
 import Phone from '../Phone.astro';
 import ClipFrame from './ClipFrame.astro';
@@ -24,8 +26,11 @@ interface Props {
   flip?: boolean;
   component?: { clip: string; name: string; alt: string };
   native?: boolean;
+  lede?: string;
+  note?: string;
+  chips?: { lead: string; text: string }[];
 }
-const { project, clip, alt, eyebrow, title, steps, decision, flip = false, component, native = false } = Astro.props;
+const { project, clip, alt, eyebrow, title, steps, decision, flip = false, component, native = false, lede, note, chips } = Astro.props;
 const media = workClip(project, clip);
 ---
 
@@ -37,6 +42,7 @@ const media = workClip(project, clip);
     <div class="txt">
       <p class="eyebrow">{eyebrow}</p>
       <h4>{title}</h4>
+      {lede && <p class="lede">{lede}</p>}
       <ol class="steps" role="list" aria-label="Steps">
         {steps.map((s, i) => (
           <li>
@@ -46,6 +52,18 @@ const media = workClip(project, clip);
         ))}
       </ol>
       <p class="decision"><b>Key decision</b> {decision}</p>
+      {note && <p class="note">{note}</p>}
+      {
+        chips && (
+          <ul class="chips" role="list">
+            {chips.map((c) => (
+              <li class="pill">
+                <b>{c.lead}:</b> {c.text}
+              </li>
+            ))}
+          </ul>
+        )
+      }
       {
         component && (
           <figure class="comp">
@@ -171,5 +189,30 @@ const media = workClip(project, clip);
     border-radius: var(--radius-frame);
     font-size: 13px;
     color: var(--muted);
+  }
+  .lede {
+    max-width: 52ch;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .note {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .chips {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .chips .pill b {
+    font-weight: 600;
   }
 </style>

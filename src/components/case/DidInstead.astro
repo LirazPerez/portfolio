@@ -1,13 +1,14 @@
 ---
 /**
  * What didn't work next to what I did instead. Each side has a visible heading, an icon
- * (cross / check) and its own tint, so the meaning never rests on color. The part that
- * was abandoned is struck through. Stacks below 560px of its own width.
+ * (cross / check) and its own tint, so the meaning never rests on color. The dropped side
+ * reads as two plain lines, "First idea:" and "Why it failed:", in body text color.
+ * Stacks below 560px of its own width.
  */
 interface Props {
-  /** The approach that was dropped (struck through). */
+  /** The approach that was dropped, after "First idea:". */
   dropped: string;
-  /** Why it didn't work, after the struck part. */
+  /** Why it didn't work, after "Why it failed:". */
   why: string;
   /** What replaced it. */
   instead: string;
@@ -21,10 +22,11 @@ const { dropped, why, instead } = Astro.props;
       <span class="ico" aria-hidden="true">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" focusable="false"><path d="M6 6l12 12M18 6L6 18"></path></svg>
       </span>
-      <p>
+      <div class="lines">
         <b>What didn't work</b>
-        <s>{dropped}</s>{' '}{why}
-      </p>
+        <p><span class="lead">First idea:</span> {dropped}</p>
+        <p><span class="lead">Why it failed:</span> {why}</p>
+      </div>
     </div>
     <div class="side yes">
       <span class="ico" aria-hidden="true">
@@ -90,7 +92,17 @@ const { dropped, why, instead } = Astro.props;
     font-weight: 600;
     color: var(--ink);
   }
-  s {
-    text-decoration-thickness: 2px;
+  .lines {
+    display: grid;
+    gap: 4px;
+  }
+  .lines b {
+    margin-bottom: 2px;
+  }
+  .no p {
+    color: var(--ink);
+  }
+  .lead {
+    font-weight: 600;
   }
 </style>

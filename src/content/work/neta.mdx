@@ -7,7 +7,7 @@ platform: mobile
 category: "iOS"
 role: "Product, design and build, solo"
 duration: "8 days to daily use, ongoing"
-tools: [Swift, SwiftUI, HealthKit, WorkoutKit, Claude Code]
+tools: ["Claude Code, built on Swift, SwiftUI, HealthKit and WorkoutKit"]
 status: in-progress
 statusLabel: "In daily use"
 tags: [Native iOS, Apple Health & Watch, In daily use]
@@ -18,7 +18,7 @@ phones:
   - clip: replan
     title: Replan
     caption: around a busy day
-    alt: "My week: Thursday marked busy, Neta proposes moving the tempo run to Wednesday with a reason, then the week is approved."
+    alt: "My week: Thursday marked busy, Neta proposes moving the tempo run to Wednesday with a reason, still 3 runs, then the week is approved."
   - clip: why
     title: Today
     caption: every number has a why
@@ -56,11 +56,13 @@ heroPhoto:
 <Intro headline="A plan that assumes a perfect week breaks in the first one." />
 
 <CompareTable
-  caption="How a typical fixed training plan and Neta handle five real-life situations."
+  caption="How a typical fixed training plan and Neta handle six real-life situations."
   columns={['When this happens', 'A fixed plan', 'Neta']}
+  note="The closest alternative is Runna, by Strava. Even that paid option didn't adapt to my real week: none of the plans I tried went all the way, moving the run, keeping the run count and explaining why."
   rows={[
     ['My easy pace is slower than the formula', "Pace target I can't hold", 'Heart rate first; pace is whatever that allows'],
-    ['Thursday fills up', 'Skip it, or stack two hard days', 'Moves the run, keeps 3 runs, explains why'],
+    ['I booked Pilates today', 'Skip a run, or stack two hard days', 'Reshuffles the week, still keeps 3 runs, explains why'],
+    ['A relocation or a trip', 'Breaks, or starts over', 'Rebuilds the weeks around it'],
     ["It's a treadmill day", 'Pace per km', 'Speed and incline for the machine'],
     ['Something hurts', 'Silent', 'Next run becomes rest. Never run through pain'],
     ["I'd rather read it in Hebrew", 'English only', 'Every explanation in both, one tap'],
@@ -72,12 +74,13 @@ heroPhoto:
 <Intro headline="I was the user, so I wrote the rules before the code." />
 
 <RuleCards
+  legend={{ firm: 'Hard rule', other: 'Training principle' }}
   rules={[
     { title: '3 runs a week', text: 'Non-negotiable. Strength sessions are the flexible ones.', firm: true },
-    { title: 'Never two hard days in a row', text: 'Quality never next to the long run.' },
-    { title: 'Grow 10% at most', text: 'With a lighter week every 3 to 4.' },
     { title: 'The cap is a firm line', text: 'Same 154 bpm in the app, on the Watch and in every review.', firm: true },
     { title: 'Pain overrides everything', text: 'The only thing that breaks the 3-run rule.', firm: true },
+    { title: 'Never two hard days in a row', text: 'Quality never next to the long run.' },
+    { title: 'Grow 10% at most', text: 'With a lighter week every 3 to 4.' },
   ]}
   loopLabel="Each phase"
   loop={['Spec', 'Acceptance criteria', 'Build', 'Unit tests', 'Test on my iPhone and Watch', 'Merge']}
@@ -87,8 +90,6 @@ heroPhoto:
 
 <Intro headline="Three moments that make it a coach, not a calendar." />
 
-<SubIntro eyebrow="Three moments" />
-
 <FlowRow
   project="neta"
   clip="why"
@@ -96,8 +97,9 @@ heroPhoto:
   alt="Today: an easy treadmill run, scroll to the why, tap Read in Hebrew, the text switches to right-to-left Hebrew."
   eyebrow="1 · Today"
   title="Every number comes with a why."
+  lede="I don't follow a plan I don't understand. When I know why a slow run matters, I enjoy it, learn from it and keep going."
   steps={["Today's run", 'The why', 'Read in Hebrew']}
-  decision="Labels stay in English; anything longer than a line comes in both languages, with Neta speaking to me in my own Hebrew."
+  decision="An accessibility call. A long paragraph in English, before or during a run, is one I skim; in Hebrew it actually gets read. So labels stay in English, and anything longer than a line comes in both languages, with Neta speaking to me in my own Hebrew."
 />
 
 <FlowRow
@@ -105,11 +107,12 @@ heroPhoto:
   clip="replan"
   native
   flip
-  alt="My week: mark Thursday busy, see the proposed week with the tempo run moved to Wednesday and the reason, approve."
+  alt="My week: Thursday marked busy, the proposed week with the tempo run moved to Wednesday and the reason, still 3 runs, then Approve."
   eyebrow="2 · My week"
-  title="Tell it the week. It moves the runs."
-  steps={['Mark a day busy', 'Proposed week', 'Approve']}
-  decision="Nothing changes until I approve. Then the plan, my calendar and the Watch update together."
+  title="It reads my calendar. Bigger changes wait for me."
+  lede="Neta reads my other calendars as busy time. If a meeting lands on a run, the run moves to the nearest free time that day, and Neta only ever moves its own events. When the week itself changes, like the Pilates class I booked today, I tell it on My week, and it proposes a new week that still has 3 runs."
+  steps={['Reads my calendar', 'Moves a run off a clash', 'I add Pilates', 'Proposes the week', 'I approve']}
+  decision="Nothing in the week changes until I approve. Then the plan, my calendar and the Watch update together."
 />
 
 <FlowRow
@@ -121,6 +124,13 @@ heroPhoto:
   title="Safety wins, and it says so."
   steps={['Log the run', 'Flag pain', 'Next run becomes rest']}
   decision="Logging takes under 15 seconds, and pain is a first-class answer, not a note field."
+  note="The log is my one place for everything about a run. I need everything to have its exact place, so this is how I use it:"
+  chips={[
+    { lead: 'Progress', text: 'the data behind my progress chart' },
+    { lead: 'History', text: 'what happened and how it felt, for later' },
+    { lead: 'Product notes', text: 'what I want to change in Neta itself, like a different Watch buzzer' },
+    { lead: 'Questions to check', text: 'things I wondered mid-run, like an unexpectedly high heart rate' },
+  ]}
 />
 
 <SubIntro eyebrow="Off the phone" headline="The plan follows me to the wrist and the home screen." />
@@ -131,12 +141,14 @@ heroPhoto:
     {
       kind: 'pair',
       images: [
+        { name: 'watch-ready', alt: "My Apple Watch before a run: Neta's long run is ready to start." },
         { name: 'watch-in-range', alt: 'Watch mid-run: 151 bpm, in range, shown in green.' },
         { name: 'watch-above-cap', alt: 'Watch mid-run: 159 bpm, above the alert line, shown in red.' },
       ],
       title: 'Structured workouts on the Watch',
       text: 'Sent from the plan with warm-up, steps and a heart-rate alert.',
       pills: [
+        { tone: 'neutral', text: 'Ready to start' },
         { tone: 'ok', text: 'In range' },
         { tone: 'warn', text: 'Above the cap' },
       ],
@@ -169,7 +181,7 @@ heroPhoto:
           notification: {
             app: 'Neta',
             title: 'Long run at 8:00 · 10 km',
-            body: 'Stay under 154. Light carb snack 1–2 h before, and water.',
+            body: 'Stay under 154. Light carb snack 1-2 h before, and water.',
             time: '6:00',
             label: 'Example reminder: Long run at 8:00, 10 km easy, stay under 154. Light carb snack 1 to 2 hours before, and water.',
           },
@@ -219,7 +231,7 @@ heroPhoto:
         },
         {
           title: 'When it climbs anyway',
-          text: "Talk test, then walk 30–60 seconds. Easy only works when it's truly easy.",
+          text: "Talk test, then walk 30-60 seconds. Easy only works when it's truly easy.",
         },
       ],
     },
@@ -308,7 +320,7 @@ heroPhoto:
 
 ## The build
 
-<Intro headline="I set the rules and the bar. Claude Code wrote the Swift." />
+<Intro headline="I designed and built it, with Claude Code." />
 
 <BuildSplit
   mine={['Product spec', 'Training rules', 'Acceptance criteria per phase', 'Every decision above', 'Testing on my iPhone and Watch']}
@@ -335,6 +347,9 @@ heroPhoto:
   items={[
     { title: 'The first 5K benchmark', text: 'Does recalibrating every zone from one time trial hold up?' },
     { title: 'A weekly review', text: 'An opt-in AI review of planned vs actual, if Ask Claude stops being enough.' },
+    { title: 'Ask before moving a run', text: 'A calendar clash moves a run to a free time on its own. Next: propose the new time and wait for my OK, like the week does.' },
+    { title: 'Spot Pilates in my calendar', text: 'Today I tell My week about it. Next, Neta reads it from my calendar and proposes the week itself.' },
+    { title: 'Separate note types', text: 'Progress, history, product notes and questions share one note field today.' },
     { title: 'February 26', text: '2:10 is the goal. The result goes here, either way.' },
   ]}
 />

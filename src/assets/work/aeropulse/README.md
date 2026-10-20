@@ -1,51 +1,38 @@
 # AeroPulse media
 
-Captured from https://aero-pulse-ops.base44.app (viewport 1440x900, device scale factor 2,
-the "Edit with Base44" badge hidden). Each file is picked up by name; nothing in the MDX or
-the components needs to change when one is replaced.
+Recorded from the live demo app, https://aero-pulse-ops.base44.app (viewport 1440x900, signed
+out, the "Edit with Base44" badge hidden), by `scripts/record-aeropulse-clips.mjs`, and encoded by
+`scripts/encode-aeropulse-clips.sh`. Each file is picked up by name; nothing in the MDX or the
+components needs to change when one is replaced.
 
-## Stills (WebP, each cropped to the part that proves its point)
+## How they are made
 
-| File | What it shows |
-|---|---|
-| `decision-1-draft-projects.webp` | `/drafts`: Central WH Avail colored by shortfall, and the Transfer From dropdown |
-| `decision-2-cable-low-stock.webp` | `/cables`: Part Number through Reorder Action (about 870 CSS px, close to the defect banner's width so both decision 2 screens render at a similar scale); the warning icon sits in the two low-stock rows |
-| `decision-2-defect-banner.webp` | `/defects`: the red banner above the KPI cards and charts |
-| `decision-3-shipment-confirmed.webp` | `/archive`: shipment FX-88520 opened with its row arrow, showing its two attachments, the delivery photo and the bill of lading, as thumbnails (Tracking # through Final Status, about 1020 CSS px) |
+- Frame by frame, 30 fps, through a virtual camera: every frame the browser re-renders the
+  camera's rectangle at 2400x1500, so text stays sharp at any zoom. Encoded at 1600x1000.
+- Each clip opens on the whole screen, eases in to the part that matters, and eases back out.
+  The cursor is drawn in the page, moves on gentle arcs and rests beside text, never on it.
+- One action per clip, and every clip ends on its first frame, so the loop is seamless.
+- Read-only: only navigation links, a row's expand arrow and the archive row are clicked.
+- The poster (`<clip>-poster.webp`) is the clip's key moment, zoomed in: what reduced motion
+  and no JS show. Videos preload nothing until they near the screen.
 
-Note on decision 3: FX-88520 was chosen over DHL-50501 because its bill of lading still reads at
-thumbnail size. Its attachments are generated demo images that match the shipment (FedEx, Central
-Logistics Depot to Mountain Region Hub, drone parts, October 2026). The app's thumbnails are about
-120 px, so the crop now includes the Final Status column ("Arrived") and they still render larger
-than before.
+## Clips
 
-## Flow recording (laptop on the home card and at the top of the case study)
+| Clip | Length | MP4 | WebM | Used in | Shows |
+|---|---|---|---|---|---|
+| `flow` | 14.4 s | 2.3 MB | 2.2 MB | Laptop, home card and case-study hero | Draft Projects → zoom into Thermal Optic Pod T7: 8 requested, 4 in the central warehouse, transfer from Rockies High-Altitude Hub → Archive → FX-88520 expanded → zoom into its delivery photo and bill of lading → back |
+| `decision-1-transfer` | 8.0 s | 0.9 MB | 0.9 MB | Decision 1 | The same request line, zoomed: requested, available, Transfer From |
+| `decision-2-low-stock` | 7.0 s | 0.8 MB | 0.7 MB | Decision 2 | Cable inventory, zoomed on quantity through reorder action: the warning stays in the two low-stock rows |
+| `decision-2-defects` | 7.3 s | 0.9 MB | 0.8 MB | Decision 2 | Defect analysis, whole page (full chart), then in to the red banner and the totals |
+| `decision-3-proof` | 10.1 s | 1.8 MB | 1.6 MB | Decision 3 | Archive: FX-88520 expanded, zoom into the delivery photo and the bill of lading, then out to the row's Arrived |
 
-| File | Notes |
-|---|---|
-| `flow.mp4` | H.264, 1440x900, 30 fps, muted, 20.6 s, about 1.0 MB |
-| `flow.webm` | Same clip, VP9, about 1.1 MB |
-| `flow-poster.webp` | First frame: what reduced motion and no JS show |
+The demo has no form for a new request, and its Transfer From selects are read-only when signed
+out, so the request story is told on an existing draft line rather than by typing one.
 
-One continuous take of the live app, signed out, with a drawn cursor (an arrow, plus a soft
-ring on each click) and the "Edit with Base44" badge hidden. Read-only: only navigation links,
-a row's expand arrow, a photo thumbnail and the lightbox close are clicked.
+## Re-recording
 
-1. Dashboard, resting.
-2. Draft Projects (Demands): the cursor points at the orange Central WH Avail on Thermal Optic
-   Pod T7 (4 against 8 requested), then at that line's Transfer From cell.
-3. Defect & Maintenance Analysis: rests on the red "Wear & Tear accounts for 63%" banner.
-4. Archive: opens FX-88520 with the arrow at the start of its row, opens the delivery photo,
-   rests, closes it with its X.
-5. Back to the Dashboard, cursor at its starting point: the last frame matches the first, so
-   the loop is seamless.
-
-It is captured frame by frame (one 2x screenshot per 1/30 s, downscaled with Lanczos), so no
-frame is ever dropped and text stays crisp. To re-record, run
-`scripts/record-aeropulse-flow.mjs` (its header has the steps).
-
-## Pins
-
-Each decision shows one numbered pin, placed with `pinX` / `pinY` (percent from the image's
-top-left) on the `<Screen />` in `src/content/work/aeropulse.mdx`. If a still is replaced or
-re-cropped, re-place its pin on empty space or an element's edge, never on text.
+In a scratch folder: `npm i playwright && npx playwright install chromium`, then
+`node /path/to/scripts/record-aeropulse-clips.mjs <frames-dir> [clip ...]`, then for each clip
+`scripts/encode-aeropulse-clips.sh <frames-dir> <clip> <poster-frame>` (poster frames used:
+flow 95, decision-1-transfer 110, decision-2-low-stock 100, decision-2-defects 115,
+decision-3-proof 105).

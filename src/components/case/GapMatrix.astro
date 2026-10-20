@@ -1,7 +1,7 @@
 ---
 /**
  * A comparison matrix as a real <table>: rows are gaps, columns are products, the last column
- * is ours (accent tint, and its header says its name). Each mark shows a symbol (✓ ½ ✕ –)
+ * is ours (accent tint, and its header says its name). Each mark shows a symbol (✓ ½ ✕ -)
  * and gives screen readers its word (Yes, Partly, No, Not its job), so nothing relies on
  * color. The caption says what the table compares. On a narrow screen the table keeps its
  * width and scrolls sideways inside its own frame (focusable, labelled), never the page.
@@ -17,7 +17,7 @@ const MARK: Record<Mark, { symbol: string; word: string }> = {
   yes: { symbol: '✓', word: 'Yes' },
   partly: { symbol: '½', word: 'Partly' },
   no: { symbol: '✕', word: 'No' },
-  na: { symbol: '–', word: 'Not its job' },
+  na: { symbol: '-', word: 'Not its job' },
 };
 const last = columns.length - 1;
 ---

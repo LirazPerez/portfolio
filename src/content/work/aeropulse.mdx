@@ -8,11 +8,10 @@ role: "Product design, research, build"
 duration: "1 month"
 tools: [Base44, Claude, Notion]
 status: shipped
-statusLabel: "In daily use by 20 to 30 people"
+statusLabel: "Original system in daily use by 20 to 30 people"
 tags: [Systems thinking, Desktop SaaS, In daily use]
 origin: "Based on a real system I designed and built for a company's logistics operation, still in daily use. That work is confidential, so I rebuilt it from scratch around a drone operation."
-heroScreens: [decision-2-defect-banner, decision-3-shipment-confirmed]
-stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens Draft Projects and points at a warehouse availability of 4 against 8 requested, then at that line's Transfer From cell. It opens Defect and Maintenance Analysis and rests on the red banner: Wear and Tear accounts for 63% of defects. It opens the Archive, expands shipment FX-88520, opens its delivery photo of a drone deployment kit on a pallet, closes it, and returns to the dashboard."
+stageAlt: "A recording of AeroPulse in use. On Draft Projects it zooms into one field request: 8 Thermal Optic Pods requested, 4 in the central warehouse, and a transfer from Rockies High-Altitude Hub suggested on the same line. It then opens the Archive, expands shipment FX-88520, marked Arrived, and zooms into its proof: a delivery photo and the bill of lading."
 ---
 
 ## What I noticed
@@ -58,6 +57,10 @@ stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens
     { value: '2', label: 'core users with opposite needs' },
     { value: '0', label: 'reviewed tools that solve trust' },
   ]}
+  notes={[
+    'The two core users: the Logistics Manager, who owns the whole picture and needs every number to hold up, and the LDO in each field team, for whom this is a side task and who only needs to know a request is moving without chasing it.',
+    'The zero comes from my review of Dronedesk, Airdata UAV and EZOfficeInventory: each one counts what you have, and none shows whether a count can be trusted.',
+  ]}
 />
 
 ## How I ran it
@@ -98,8 +101,8 @@ stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens
 />
 
 <DidInstead
-  dropped="Draft request numbers synced automatically into project inventory."
-  why="They drifted: what a team asks for isn't what lands on site."
+  dropped="draft request numbers synced automatically into project inventory."
+  why="they drifted. What a team asks for isn't what lands on site."
   instead="A deliberate manual step. A wrong number the system made up costs more than a minute of someone entering the right one."
 />
 
@@ -112,15 +115,12 @@ stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens
   title="Check availability before a request becomes a purchase."
   summary="The system looks across every active project and offers a transfer in the same form."
   considered="Considered: a low-stock alert to procurement."
-  verdict="Rejected, because it creates exactly the duplicate it tries to prevent."
+  verdict="Rejected, because the same shortage would enter twice, once from the field request and once from the alert, and procurement would buy instead of transfer."
 >
   <Screen
     project="aeropulse"
-    name="decision-1-draft-projects"
-    pin={1}
-    pinX={88.3}
-    pinY={77.9}
-    alt="Draft Projects table: Central WH availability colored by shortfall, and a Transfer From dropdown on each line. The Thermal Optic Pod T7 line has 4 available against 8 requested, so it can be met by a transfer from another project instead of a new purchase."
+    name="decision-1-transfer"
+    alt="Draft Projects, then a zoom into one request line: Mojave Desert Survey asks for 8 Thermal Optic Pod T7, the central warehouse has 4, shown in orange as a shortfall, and the line's Transfer From suggests Rockies High-Altitude Hub. The shortage is met by a transfer from another project instead of a new purchase."
   />
 </Decision>
 
@@ -133,19 +133,13 @@ stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens
 >
   <Screen
     project="aeropulse"
-    name="decision-2-cable-low-stock"
-    pin={2}
-    pinX={42.2}
-    pinY={83}
-    alt="Cable inventory: warning icons on the two low-stock rows, 8 against a minimum of 15 and 5 against 12, with a reorder already in motion. The warning stays inside the row; nothing else on the page changes."
+    name="decision-2-low-stock"
+    alt="Cable inventory, then a zoom into the table: warning icons on the two low-stock rows, 8 against a minimum of 15 and 5 against 12, each with its reorder already Pending or Ordered. The warning stays inside the row; nothing else on the page changes."
   />
   <Screen
     project="aeropulse"
-    name="decision-2-defect-banner"
-    pin={2}
-    pinX={94.7}
-    pinY={7.3}
-    alt="Defect analysis: a red banner says Wear and Tear accounts for 63 percent of defects, a concentrated root cause to investigate, above the defect totals and the chart it points to."
+    name="decision-2-defects"
+    alt="Defect analysis, first the whole page with its defect chart and root causes, then a zoom to the top: a red banner says Wear and Tear accounts for 63 percent of defects, a concentrated root cause to investigate, above the totals: 8 defects, 4 open or in repair, 2 with high readiness impact."
   />
 </Decision>
 
@@ -158,17 +152,14 @@ stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens
 >
   <Screen
     project="aeropulse"
-    name="decision-3-shipment-confirmed"
-    pin={3}
-    pinX={14.3}
-    pinY={53.7}
-    alt="Archived shipment FX-88520, Central Logistics Depot to Mountain Region Hub by FedEx, Arrived, with the delivery photo and the bill of lading attached."
+    name="decision-3-proof"
+    alt="The Archive: shipment FX-88520, Central Logistics Depot to Mountain Region Hub by FedEx, is expanded, and a zoom shows its two attachments, the delivery photo of a drone deployment kit on a pallet and the FedEx bill of lading, then the row's status, Arrived."
   />
 </Decision>
 
 ## The build
 
-<Intro headline="Direction from me, implementation from the tools." />
+<Intro headline="I designed and built it, with AI tools." />
 
 <BuildSplit
   mine={['Operating model', 'Research', 'Information architecture', 'Every decision above', 'Request-flow iterations']}
@@ -177,17 +168,20 @@ stageAlt: "A recording of AeroPulse in use. From the dashboard, the cursor opens
 
 ## Outcome
 
-<Intro headline="Adopted across the whole operation." />
+<Intro
+  headline="Adopted across the whole operation."
+  lede="These numbers come from the original system, which the team still runs every day. The demo below is my rebuild of it, with sample data."
+/>
 
 <OutcomeStats
   stats={[
-    { value: '20–30', spoken: '20 to 30', label: 'people use it every day' },
-    { value: '8–10 h', spoken: '8 to 10 hours', label: 'of work saved every week' },
+    { value: '20-30', spoken: '20 to 30', label: 'people use it every day' },
+    { value: '8-10 h', spoken: '8 to 10 hours', label: 'of work saved every week' },
     { value: 'Field → VP', spoken: 'From the field to the VP:', label: 'every role on one picture' },
   ]}
 />
 
-<ExternalLink href="https://aero-pulse-ops.base44.app" variant="primary">Try the live app</ExternalLink>
+<ExternalLink href="https://aero-pulse-ops.base44.app" variant="primary">Try the demo app</ExternalLink>
 
 ## Still open
 

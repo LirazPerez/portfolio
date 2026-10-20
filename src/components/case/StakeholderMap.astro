@@ -45,6 +45,29 @@ const ring = all.map((n, i) => {
   x = Math.min(Math.max(x, 4 + w / 2), W - 4 - w / 2);
   return { ...n, x, y, w, h, own: i === 0 };
 });
+// Boxes on the lower half can come close at their corners (wide labels side by side). Push
+// any two apart, along the axis that needs the smaller move, until at least PAD apart.
+const PAD = 16;
+for (let pass = 0; pass < 8; pass++) {
+  for (let i = 1; i < ring.length; i++) {
+    for (let j = i + 1; j < ring.length; j++) {
+      const a = ring[i];
+      const b = ring[j];
+      const ox = (a.w + b.w) / 2 + PAD - Math.abs(a.x - b.x);
+      const oy = (a.h + b.h) / 2 + PAD - Math.abs(a.y - b.y);
+      if (ox <= 0 || oy <= 0) continue;
+      if (ox < oy) {
+        const s = (a.x < b.x ? -1 : 1) * (ox / 2);
+        a.x = Math.min(Math.max(a.x + s, 4 + a.w / 2), W - 4 - a.w / 2);
+        b.x = Math.min(Math.max(b.x - s, 4 + b.w / 2), W - 4 - b.w / 2);
+      } else {
+        const s = (a.y < b.y ? -1 : 1) * (oy / 2);
+        a.y = Math.min(Math.max(a.y + s, 4 + a.h / 2), H - 4 - a.h / 2);
+        b.y = Math.min(Math.max(b.y - s, 4 + b.h / 2), H - 4 - b.h / 2);
+      }
+    }
+  }
+}
 
 // ---- Spine (narrow) ----
 const NW = 340;

@@ -4,6 +4,10 @@
  * from 680px of its own width, a vertical column with downward arrows below that.
  * It is an ordered list, so the order is announced. `key` steps (where a decision acts)
  * get a heavier accent border and tint, plus a "key step" note for screen readers.
+ *
+ * Motion: when the flow scrolls into view, the steps light up one after another (each fades
+ * from a dimmed state to its own style). The lit state is the plain style: without JS or with
+ * reduced motion nothing is dimmed and nothing moves.
  */
 interface Props {
   steps: { title: string; text: string; key?: boolean }[];
@@ -12,10 +16,10 @@ const { steps } = Astro.props;
 ---
 
 <div class="wrap">
-  <ol class="flow" role="list" style={`--n:${steps.length}`}>
+  <ol class="flow" role="list" style={`--n:${steps.length}`} data-process-flow>
     {
       steps.map((s, i) => (
-        <li class:list={['step', s.key && 'step--key']}>
+        <li class:list={['step', s.key && 'step--key']} style={`--i:${i}`}>
           <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
           <b>
             {s.key && <span class="sr-only-text">Key step: </span>}
@@ -27,6 +31,28 @@ const { steps } = Astro.props;
     }
   </ol>
 </div>
+
+<script>
+  // Light the steps up once the flow is well into view (CSS does the rest, and only when
+  // motion is allowed).
+  const flows = document.querySelectorAll<HTMLElement>('[data-process-flow]');
+  if (flows.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-lit');
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.35 },
+    );
+    flows.forEach((flow) => {
+      flow.classList.add('is-armed');
+      io.observe(flow);
+    });
+  }
+</script>
 
 <style>
   .wrap {
@@ -129,6 +155,33 @@ const { steps } = Astro.props;
     .step--key:not(:last-child)::before {
       right: -25px;
       top: calc(50% - 4px);
+    }
+  }
+
+  /* Before it is lit: steps dimmed, arrows hidden. Lit: each step comes up in turn. */
+  @media (prefers-reduced-motion: no-preference) {
+    .flow.is-armed .step {
+      transition:
+        opacity 0.5s ease,
+        transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-color 0.5s ease,
+        background-color 0.5s ease;
+      transition-delay: calc(var(--i) * 260ms);
+    }
+    .flow.is-armed .step::before,
+    .flow.is-armed .step::after {
+      transition: opacity 0.35s ease;
+      transition-delay: calc(var(--i) * 260ms + 200ms);
+    }
+    .flow.is-armed:not(.is-lit) .step {
+      opacity: 0.35;
+      transform: translateY(6px);
+      border-color: var(--line);
+      background-color: var(--raise);
+    }
+    .flow.is-armed:not(.is-lit) .step::before,
+    .flow.is-armed:not(.is-lit) .step::after {
+      opacity: 0;
     }
   }
 </style>

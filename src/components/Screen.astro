@@ -4,7 +4,11 @@
  *
  * - Found by name in src/assets/work/<project>/ (see src/lib/work-media.ts). If the file
  *   is not there yet, a visibly tagged placeholder is drawn so the page still reads.
- * - Never wider than the text column plus a little breathing room, and never taller
+ * - A recording with the same name (`<name>.mp4` / `.webm` plus `<name>-poster.*`, see
+ *   `workClip`) wins over a still: it plays muted and looping through StageVideo (only on
+ *   screen, only when motion is allowed, lazy: the poster until then) with a pause / play
+ *   button on its corner. The frame carries the text alternative (`role="img"`).
+ * - Exactly as wide as the text column, never wider, and never taller
  *   than 70% of the viewport (the frame's width is derived from the image's own aspect
  *   ratio so the image is never stretched or letterboxed).
  * - One optional numbered pin. It is decoration for sighted readers (aria-hidden); the
@@ -17,6 +21,9 @@
  */
 import { Image } from 'astro:assets';
 import { workScreen } from '../lib/work-media';
+import { workClip } from '../lib/stage-media';
+import StageVideo from './StageVideo.astro';
+import VideoToggle from './VideoToggle.astro';
 
 interface Props {
   project: string;
@@ -28,8 +35,11 @@ interface Props {
 }
 const { project, name, alt, pin, pinX, pinY } = Astro.props;
 
-const image = workScreen(project, name);
-const ratio = image ? image.width / image.height : 16 / 10;
+const clip = workClip(project, name);
+const image = clip ? undefined : workScreen(project, name);
+const poster = clip?.poster;
+const ratio = poster ? poster.width / poster.height : image ? image.width / image.height : 16 / 10;
+const clipId = clip ? `clip-${project}-${name}` : undefined;
 const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
 ---
 
@@ -38,7 +48,11 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
     <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="body">
       {
-        image ? (
+        clip ? (
+          <div class="clip" role="img" aria-label={alt} style={`aspect-ratio:${ratio.toFixed(4)}`}>
+            <StageVideo sources={clip.videos} poster={poster} position="center" id={clipId} />
+          </div>
+        ) : image ? (
           <Image src={image} alt={alt} widths={[720, 1080, 1440]} sizes="(min-width: 1024px) 760px, 100vw" loading="lazy" decoding="async" class="shot" />
         ) : (
           <div class="missing" role="img" aria-label={`Screenshot to add. ${alt}`}>
@@ -59,6 +73,7 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
           </span>
         )
       }
+      {clipId && <VideoToggle for={clipId} class="clip-toggle" />}
     </div>
   </div>
 </figure>
@@ -66,19 +81,13 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
 <style>
   .screen {
     margin: 0;
-    /* A little breathing room beyond the text column on wide screens, never more. */
+    /* Exactly the text column: its edges line up with the text above and below. */
     width: 100%;
   }
   /* Two stacked screens read as two frames, not one: 24px between them, with the
      section's own 12px flow gap. */
   .screen + .screen {
     margin-top: 12px;
-  }
-  @media (min-width: 47.5rem) {
-    .screen {
-      width: calc(100% + 48px);
-      margin-inline: -24px;
-    }
   }
 
   .frame {
@@ -116,6 +125,19 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
     width: 100%;
     height: auto;
     border-radius: 0 0 9px 9px;
+  }
+
+  .clip {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 9px 9px;
+    background: var(--surface);
+  }
+  .body :global(.clip-toggle) {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 2;
   }
 
   .missing {

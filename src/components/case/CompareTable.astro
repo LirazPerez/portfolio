@@ -4,14 +4,15 @@
  * per situation whose first cell is the row header. The last column is ours: its header names
  * it and it gets the accent tint, so the emphasis never rests on color alone. On narrow
  * screens the table scrolls inside its own frame (the frame is focusable so keyboard users can
- * scroll it).
+ * scroll it). An optional `note` sits under the frame as one short muted line.
  */
 interface Props {
   caption: string;
   columns: string[];
   rows: string[][];
+  note?: string;
 }
-const { caption, columns, rows } = Astro.props;
+const { caption, columns, rows, note } = Astro.props;
 const last = columns.length - 1;
 ---
 
@@ -36,6 +37,7 @@ const last = columns.length - 1;
     </tbody>
   </table>
 </div>
+{note && <div><p class="table-note">{note}</p></div>}
 
 <style>
   .frame {
@@ -75,5 +77,12 @@ const last = columns.length - 1;
   }
   thead .us {
     color: var(--accent-strong);
+  }
+  .table-note {
+    margin: 0;
+    max-width: 68ch;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
   }
 </style>

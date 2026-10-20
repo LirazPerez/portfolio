@@ -2,12 +2,14 @@
 /**
  * A row of small stats, each a value over a short label, with an accent rule on top.
  * Four across from 560px of its own width, two across below. `spoken` replaces the
- * value for screen readers when the visible form reads badly aloud.
+ * value for screen readers when the visible form reads badly aloud. Optional `notes` sit under
+ * the row as short lines that explain a number (who the users are, where a zero comes from).
  */
 interface Props {
   stats: { value: string; label: string; spoken?: string }[];
+  notes?: string[];
 }
-const { stats } = Astro.props;
+const { stats, notes } = Astro.props;
 ---
 
 <div class="wrap">
@@ -28,6 +30,11 @@ const { stats } = Astro.props;
       ))
     }
   </ul>
+  {notes && notes.length > 0 && (
+    <div class="notes">
+      {notes.map((n) => <p>{n}</p>)}
+    </div>
+  )}
 </div>
 
 <style>
@@ -61,6 +68,18 @@ const { stats } = Astro.props;
     font-weight: 650;
     font-variant-numeric: tabular-nums;
     color: var(--ink);
+  }
+  .notes {
+    display: grid;
+    gap: 8px;
+    margin-top: 20px;
+    max-width: 68ch;
+  }
+  .notes p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
   }
   .label {
     font-size: 13.5px;

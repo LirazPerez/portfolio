@@ -147,10 +147,9 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   status: 'shipped' | 'prototype' | 'in-progress' | 'concept';
   tags: string[];
   category?: string;        // case-study eyebrow after "Case study ·" (e.g. "Desktop SaaS"); falls back to the platform
-  heroScreens?: string[];   // up to two stills (file names in src/assets/work/<slug>/) floating beside the hero laptop
   stageAlt?: string;        // text alternative for the hero stage or laptop recording; generic fallback if omitted
   statusLabel?: string;     // case-study meta row: overrides the label for `status` (e.g. "In daily use by 20 to 30 people")
-  origin?: string;          // one line under the meta row: where the project comes from, what is and is not shown
+  origin?: string;          // a small framed note right under the meta row: where the project comes from, what is and is not shown
   lede?: string;            // case-study lede when it should differ from the card's tagline
   phones?: { clip, title, caption, alt }[];  // mobile: up to three recordings, each in a <Phone>; the hero shows all, middle one larger
   cardPhones?: string[];    // which `phones` (by clip) the home card shows, up to two
@@ -166,7 +165,7 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
 
 The home card shows the product on top (the laptop with the flow recording for a desktop project that has one, two phones for a mobile project with `cardPhones`, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. **Role, duration, status and tools are not on the card**; they live on the case-study page.
 
-**Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), the product (laptop plus `heroScreens` floating beside it, drifting only when motion is allowed; or the stage), then `origin`.
+**Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), `origin` as a small framed note right under it, then the product (the laptop on its own, with a pause control; or the stage).
 
 Current entries: `aeropulse` (1, desktop), `neta` (2, mobile, native phones plus real Watch photos), `recall` (3, mobile, phones), `waypoint` (4, desktop, `comingSoon`). A `comingSoon` card links nowhere and says "Case study coming soon"; a desktop one is a slim full-width row (stage beside text), a mobile one shows `ComingSoonPhone`. Its page shows only the hero (title, tagline, stage, no meta row or origin) and "Case study coming soon", and "Next project" skips it. `classpass` is a draft: its file is kept, nothing links to it.
 
@@ -189,13 +188,13 @@ Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCol
 
 Write each section in MDX as a `## <heading>` exactly as above. The `##` renders as the section's small sentence-case eyebrow; the TOC keeps the short titles (Decisions, Build), and the visible headings "Key decisions" and "The build" map to the same ids (`heading` in `SECTIONS`, `ALIASES` in the rehype plugin). A rehype plugin (`src/lib/rehype-case-study-sections.mjs`) wraps each `##` and its content in `<section id="<id>" aria-labelledby="<id>-heading">`, and **fails the build** if the headings are missing, renamed or out of order. Use `###` and below freely inside a section. While an MDX body is empty, the template renders the outline with clearly tagged placeholder copy.
 
-The TOC (`src/components/CaseStudyToc.astro`) is a sticky side column from 1024px and a collapsed "On this page" bar pinned to the top below that. Its links work without JS; a small script marks the current section (`aria-current="true"`) while scrolling.
+The TOC (`src/components/CaseStudyToc.astro`) is a sticky side column from 1024px and a collapsed "On this page" bar pinned to the top below that. Its links work without JS; a small script marks the current section (`aria-current="true"`) while scrolling: the last section whose top has passed 45% of the screen (below the sticky bar on smaller screens), and the last section at the very bottom of the page.
 
 ## Case-study components and media
 
 Available in every case-study MDX without importing (the template passes them as MDX components):
 
-- **`<Screen project="<slug>" name="<file>" alt="..." pin={n} pinX={..} pinY={..} />`** (`Screen.astro`): an app screenshot in the floating frame treatment (hairline border, soft shadow, three-dot bar). The still is found by name in `src/assets/work/<slug>/` (`src/lib/work-media.ts`: jpg, jpeg, png, webp or avif); if the file is missing a tagged "Screenshot to add" placeholder renders instead of failing the build. The frame spans the content column plus 24px each side, and never taller than 70% of the viewport (its width derives from the image's aspect ratio; the image is never stretched). Stills lazy-load. **`alt` is required: say what the screen shows and what to notice.** One optional numbered pin (accent disc matching the decision number), `aria-hidden` (the text beside it carries the meaning). `pinX` / `pinY` are percent from the image's top-left; place the pin on empty space or an element's edge, **never on text**. Without coordinates it sits on the frame's top-right corner.
+- **`<Screen project="<slug>" name="<file>" alt="..." pin={n} pinX={..} pinY={..} />`** (`Screen.astro`): an app screenshot in the floating frame treatment (hairline border, soft shadow, three-dot bar). The still is found by name in `src/assets/work/<slug>/` (`src/lib/work-media.ts`: jpg, jpeg, png, webp or avif); if the file is missing a tagged "Screenshot to add" placeholder renders instead of failing the build. A recording with the same name (`<file>.mp4` / `.webm` plus `<file>-poster.*`, `workClip`) wins over a still: it plays muted and looping through `StageVideo`, with a pause / play button (`VideoToggle`) on its corner, and the frame carries `alt` as `role="img"`. The frame is exactly as wide as the text column (its edges line up with the text), and never taller than 70% of the viewport (its width derives from the image's aspect ratio; the image is never stretched). Stills lazy-load. **`alt` is required: say what the screen shows and what to notice.** One optional numbered pin (accent disc; AeroPulse no longer uses any), `aria-hidden` (the text beside it carries the meaning). `pinX` / `pinY` are percent from the image's top-left; place the pin on empty space or an element's edge, **never on text**. Without coordinates it sits on the frame's top-right corner.
 - **`<ExternalLink href="..." variant="primary">Label</ExternalLink>`** (`ExternalLink.astro`): a pill link that opens in a new tab (`rel="noopener noreferrer"`), shows an icon, and adds "(opens an external site in a new tab)" to its accessible name. `variant="primary"` is the filled accent button (the live-app link).
 
 **Section components** (`src/components/case/`, reusable for every case study; each sizes itself with a container query, so it follows the room it really has next to the TOC):
@@ -205,28 +204,28 @@ Available in every case-study MDX without importing (the template passes them as
 | `<Intro headline lede>` | The big headline sentence and an optional lede under the `##` eyebrow. Children = a visual: the section goes two columns when the content column is 820px+. `slot="after"` sits under the lede (e.g. a legend). |
 | `<Converge label sources note calls result>` | Sources that disagree, an arrow, one shared number. `role="img"`, `label` says it all. |
 | `<Compare before after>` | Two framings side by side, the second emphasized; each has its own label. |
-| `<StatRow stats>` / `<OutcomeStats stats>` | Small stats under an accent rule / big outcome cards. `spoken` overrides how a value is read aloud ("20–30" → "20 to 30"). |
+| `<StatRow stats notes>` / `<OutcomeStats stats>` | Small stats under an accent rule (optional `notes`: short muted lines under them) / big outcome cards. `spoken` overrides how a value is read aloud ("20-30" → "20 to 30"). |
 | `<StakeholderMap label hub owner nodes>` + `<MapLegend owner others>` | SVG, tokens only. A ring from 480px of its own width, a vertical spine below that. The owner's sub-line names it as owner, so color is not the only cue. |
-| `<ProcessFlow steps>` | Numbered `ol`, horizontal from 680px, vertical with down arrows below. `key` steps get a 2px accent border and a "Key step" note for screen readers. |
-| `<DidInstead dropped why instead>` | What didn't work (struck through, cross icon) next to what I did instead (check icon). |
+| `<ProcessFlow steps>` | Numbered `ol`, horizontal from 680px, vertical with down arrows below. Steps light up one after another when it scrolls into view (only with JS and motion allowed; lit is the plain style). `key` steps get a 2px accent border and a "Key step" note for screen readers. |
+| `<DidInstead dropped why instead>` | What didn't work (cross icon) as two plain lines, "First idea:" and "Why it failed:", next to what I did instead (check icon). |
 | `<Decision n title summary considered verdict>` | A `###` decision with its number, one sentence, its `<Screen />`s as children, and one "Considered" line. |
 | `<BuildSplit mine tools>` | My part vs the tools' part, as chips. |
 | `<OpenCards items>` | Still-open cards (dashed = not done). |
 | `<SubIntro eyebrow headline lede>` | A sub-part inside a section (e.g. "Edge cases" in Process): `###` eyebrow plus a smaller headline. |
 | `<FailureModes under over>` | Two ways something fails, side by side, with a small decorative pin drawing. |
-| `<GapMatrix caption columns rows>` | A real `<table>` (caption, row and column headers) that scrolls inside its own frame on phones. Marks are ✓ ½ ✕ – with a spoken word each, and a key. Last column = ours. |
+| `<GapMatrix caption columns rows>` | A real `<table>` (caption, row and column headers) that scrolls inside its own frame on phones. Marks are ✓ ½ ✕ - with a spoken word each, and a key. Last column = ours. |
 | `<PivotNote when title text>` | A dated moment that changed the plan. |
 | `<Persona name role quote stats>` | Persona card next to big numbers. |
-| `<FlowRow project clip alt eyebrow title steps decision flip component>` | One flow: its recording in a `<Phone>`, steps as pills, the key decision, an optional component loop. |
+| `<FlowRow project clip alt eyebrow title lede steps decision note chips flip component>` | One flow: its recording in a `<Phone>`, an optional first-person `lede`, steps as pills, the key decision, an optional `note` with `chips` (pills with a bold lead), an optional component loop. |
 | `<ComponentStrip project items>` | Component loops cropped tight to the component, two across from 600px (an odd last item spans the row, text beside it), stacked on phones. |
 | `<ClipFrame project clip alt>` | One component loop in a hairline frame (used by the two above and `TagOptions`). |
 | `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. The shipped component's loop sits beside a short caption. |
 | `<ScopeSplit proven unproven quote next>` | Proven vs not proven (icon + word), then one quoted line. |
 | `<EdgeCards project items>` | Edge-case cards with a still or a recording in a small phone. |
 | `<HrDrift label caption start end cap distance stats>` | Heart rate over one run against a cap: SVG from tokens, the easy zone labelled in words, big stats beside it. |
-| `<CompareTable caption columns rows>` | A comparison in words as a real `<table>`; the last column is ours (named in its header, tinted). |
-| `<RuleCards rules loop>` | Rules written before the build (`firm` ones tinted, "Firm rule" for screen readers), then the work loop as pills. |
-| `<DeviceFigures project items>` | The product off the phone in real photos (a Watch pair, a widget), with status pills that say their state in words. |
+| `<CompareTable caption columns rows note>` | A comparison in words as a real `<table>`; the last column is ours (named in its header, tinted). Optional `note` line under it. |
+| `<RuleCards rules legend loop>` | Rules written before the build (`firm` ones tinted). With `legend` ({ firm, other }): a key above, firm rules in the first row, the others in the second, each row sharing the width, and the legend words as screen-reader prefixes. Then the work loop as pills. |
+| `<DeviceFigures project items>` | The product off the phone in real photos (a Watch set of two or three, in order, and a widget), with status pills that say their state in words (`ok`, `warn`, `neutral`). A three-photo card takes the wider column (2:1); on narrow cards its first photo spans the row. |
 | `<MomentColumns project columns>` | Small details by moment (before, during, after): cards with a cropped still, a photo, a drawn notification or drawn lines. |
 | `<TwoUp>` + `<Shot project name alt photo>` | Two visuals side by side inside a decision; `Shot` is a still cropped to one card (or a real photo). |
 | `<Timeline items>` / `<PromptSample label lead sections end>` | A dated timeline (`now` entry tinted and named) / a sample of generated text, in Geist. |
@@ -237,7 +236,7 @@ Every diagram has a text alternative (`role="img"` with a full `aria-label`, or 
 
 The template also renders a "Next project" link to the entry with the next `order` at the end of the page. Plain markdown prose still works inside a section (direct children of the section get the prose styles).
 
-**Per-project media** lives in `src/assets/work/<slug>/` (each folder has a README with the file names and what each must show). A desktop project's **flow recording** is `flow.mp4`, `flow.webm` and `flow-poster.webp` in that folder (`flowMedia` in `stage-media.ts`): one continuous take of the product in use with a drawn cursor, shown in `Laptop.astro` on both the home card and the case-study hero. Laptop: generic dark bezel and thin base, no logo, 16:10 screen, video `object-fit: cover` from the top-left. The poster is the reduced-motion and no-JS fallback. AeroPulse's is recorded by `scripts/record-aeropulse-flow.mjs` (read-only on the live app; see the README in its media folder).
+**Per-project media** lives in `src/assets/work/<slug>/` (each folder has a README with the file names and what each must show). A desktop project's **flow recording** is `flow.mp4`, `flow.webm` and `flow-poster.webp` in that folder (`flowMedia` in `stage-media.ts`): one continuous take of the product in use with a drawn cursor, shown in `Laptop.astro` on both the home card and the case-study hero. Laptop: generic dark bezel and thin base, no logo, 16:10 screen, video `object-fit: cover` from the top-left. The poster is the reduced-motion and no-JS fallback. The case-study hero laptop has a pause / play button. AeroPulse's flow and its decision clips are recorded by `scripts/record-aeropulse-clips.mjs` (read-only on the live demo, virtual-camera zooms) and encoded by `scripts/encode-aeropulse-clips.sh`; see the README in its media folder.
 
 ## Home page content you edit without touching code
 
@@ -266,11 +265,12 @@ src/
     Photo.astro              a real photo in a rounded frame (square, wide or its own shape)
     ComingSoonPhone.astro    the phone with a neutral "Case study coming soon" screen (comingSoon projects)
     Stage.astro              project hero stage (the only place for project colors)
-    StageVideo.astro         muted looping recording (stage or laptop); plays only when motion is allowed and on screen
+    StageVideo.astro         muted looping recording; lazy (poster until near), plays only when motion is allowed and on screen
+    VideoToggle.astro        pause / play button for one StageVideo (hidden without JS)
     WaypointScene.astro      Waypoint's CSS scene
     ClayHeap.tsx/.css        the React island (clay heap in the home hero)
     AiLab.astro              "AI that works for me"
-    Screen.astro             case-study screenshot: floating frame, one pin, placeholder when missing
+    Screen.astro             case-study screenshot or clip: floating frame, text-column width, placeholder when missing
     ExternalLink.astro       external link with icon and "opens in a new tab" name
     CaseStudyToc.astro
     case/                    case-study hero and section components (see above)
@@ -289,7 +289,8 @@ src/
   lib/cv.ts                  CV path + size label
   pages/  index, about, accessibility, 404, work/[slug]
 public/cv/liraz-hazala-perez-cv.pdf
-scripts/record-aeropulse-flow.mjs   re-records AeroPulse's flow video (Playwright, not a dependency)
+scripts/record-aeropulse-clips.mjs  re-records AeroPulse's flow and decision clips (Playwright, not a dependency)
+scripts/encode-aeropulse-clips.sh   encodes them to MP4, WebM and a WebP poster
 scripts/record-recall-flows.mjs     re-records Recall's three phone flows (same approach)
 scripts/export-hero-objects.mjs     exports the clay heap's WebPs and outlines from V01/Hero Objects/
 ```

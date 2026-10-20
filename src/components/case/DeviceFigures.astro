@@ -1,8 +1,10 @@
 ---
 /**
  * The product off the phone, in real photos: one card per surface (the Watch, the home-screen
- * widget), each with its photos, a short title and one line. `pair` cards show two photos side
- * by side (each with its own alt); a `widget` card shows one image centred on a surface.
+ * widget), each with its photos, a short title and one line. `pair` cards show their photos side
+ * by side, in order (two or three, each with its own alt); a `widget` card shows one image
+ * centred on a surface. A card with three photos takes the wider column (2:1) from 600px;
+ * on narrow cards the first photo spans the row above the other two.
  * Optional status pills say their state in words (In range / Above the cap), so color is
  * never the only cue. Two across from 600px of its own width.
  */
@@ -13,7 +15,7 @@ interface Item {
   images: { name: string; alt: string }[];
   title: string;
   text: string;
-  pills?: { tone: 'ok' | 'warn'; text: string }[];
+  pills?: { tone: 'ok' | 'warn' | 'neutral'; text: string }[];
 }
 interface Props {
   project: string;
@@ -25,9 +27,9 @@ const { project, items } = Astro.props;
 <div class="wrap">
   <ul class="off" role="list">
     {items.map((item) => (
-      <li>
+      <li class:list={[item.images.length > 2 && 'wide']}>
         <figure>
-          <div class:list={[item.kind === 'pair' ? 'pair' : 'widget']}>
+          <div class:list={[item.kind === 'pair' ? 'pair' : 'widget']} style={`--count:${item.images.length}`}>
             {item.images.map((img) => (
               <Photo
                 project={project}
@@ -35,7 +37,7 @@ const { project, items } = Astro.props;
                 alt={img.alt}
                 flat
                 ratio={item.kind === 'pair' ? 'square' : 'auto'}
-                sizes={item.kind === 'pair' ? '(min-width: 760px) 240px, 45vw' : '(min-width: 760px) 300px, 60vw'}
+                sizes={item.kind === 'pair' ? '(min-width: 760px) 240px, 50vw' : '(min-width: 760px) 300px, 60vw'}
               />
             ))}
           </div>
@@ -72,6 +74,9 @@ const { project, items } = Astro.props;
     .off {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .off:has(> .wide) {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
   }
   figure {
     margin: 0;
@@ -87,8 +92,22 @@ const { project, items } = Astro.props;
   }
   .pair {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--count, 2), minmax(0, 1fr));
     gap: 10px;
+  }
+  /* Three photos on a narrow card: the first one across the top, the other two under it. */
+  @container (max-width: 420px) {
+    .wide .pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .wide .pair > :global(:first-child) {
+      grid-column: 1 / -1;
+      aspect-ratio: 16 / 10;
+    }
+    /* Keep the Watch face in view in the wide crop. */
+    .wide .pair > :global(:first-child img) {
+      object-position: 50% 35%;
+    }
   }
   .widget {
     display: grid;
@@ -130,6 +149,10 @@ const { project, items } = Astro.props;
   .pill--ok {
     background: var(--ok-tint);
     color: var(--ok);
+  }
+  .pill--neutral {
+    background: var(--surface);
+    color: var(--ink);
   }
   .pill--warn {
     background: var(--warn-tint);
