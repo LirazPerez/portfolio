@@ -31,12 +31,9 @@
   --warn-tint: #FBEDE6;
   --ok: #2F7A57;
   --ok-tint: #E7F4EC;
-  /* Laptop mockup: a generic dark bezel and a thin base. */
+  /* Phone mockup: a generic dark bezel. */
   --bezel: #1D1B21;
   --bezel-edge: #3A3740;
-  --deck: #CFCBD6;
-  --deck-edge: #9F9AA8;
-  --deck-shadow: rgb(40 20 60 / 0.18);
   /* About page: one muted color family per timeline row ("My path"), always next to words. */
   --path-army: #56622F;
   --path-army-fill: #E7EBD6;
@@ -76,9 +73,6 @@
     --ok-tint: #1E3329;
     --bezel: #0B0A0D;
     --bezel-edge: #2E2B33;
-    --deck: #3A3640;
-    --deck-edge: #26232A;
-    --deck-shadow: rgb(0 0 0 / 0.5);
     --path-army: #BAC58C;
     --path-army-fill: #272B1B;
     --path-ministry: #9CB9DD;
@@ -116,9 +110,6 @@
   --ok-tint: #1E3329;
   --bezel: #0B0A0D;
   --bezel-edge: #2E2B33;
-  --deck: #3A3640;
-  --deck-edge: #26232A;
-  --deck-shadow: rgb(0 0 0 / 0.5);
   --path-army: #BAC58C;
   --path-army-fill: #272B1B;
   --path-ministry: #9CB9DD;

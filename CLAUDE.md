@@ -73,7 +73,7 @@ Supporting tokens follow the theme too: `--glass` (translucent capsule fill), `-
 
 **Case-study status pair:** `warn` / `warn-tint` (light `#A84E26` / `#FBEDE6`, dark `#F0A27E` / `#3A2620`) and `ok` / `ok-tint` (light `#2F7A57` / `#E7F4EC`, dark `#8FD3B0` / `#1E3329`). Only for diagrams and "considered" lines, always next to a word or an icon that says the same thing. (The concept's light warn `#B4542A` was 4.33 on its tint, so it was darkened.)
 
-**Laptop mockup:** `--bezel`, `--bezel-edge`, `--deck`, `--deck-edge`, `--deck-shadow` (see `Laptop.astro`). Decorative surfaces, not text colors.
+**Phone mockup:** `--bezel`, `--bezel-edge` (see `Phone.astro`). Decorative surfaces, not text colors. The browser window (`BrowserFrame.astro`) uses site tokens only.
 
 ### Shape, spacing, layout
 
@@ -115,7 +115,7 @@ Every project may have its own palette, but **only inside its hero stage** (`src
 
 **Stage background and media** (`Stage.astro`, resolved by `src/lib/stage-media.ts`): a blurred, darkened real-world photo per project, one per theme, plus an optional muted looping screen recording. Nothing is registered in code: drop files in `src/assets/stages/` by name (`<slug>-light.jpg`, `<slug>-dark.jpg`, `<slug>.mp4`, `<slug>-poster.jpg`; see the README there for the TODO list). Until a photo exists, stages show a neutral gradient. A recording sits in a solid hairline frame sized by the stage's height. Videos are muted, looping, `playsinline`, no controls, `aria-hidden`; the text alternative is on the stage (`role="img"`, `aria-label`). They play only when motion is allowed and on screen; otherwise the poster shows.
 
-**Waypoint's stage** is a recording of the real app (`src/assets/stages/waypoint.mp4`, `.webm`, `waypoint-poster.webp`): the same take as its case study's hero clip (recording A), recorded by `scripts/record-waypoint-clips.mjs` (clip `flow`) from the deployed demo, https://waypoint-app-three.vercel.app, which runs on sample data only (patient Ilan, caregiver Dana): the caregiver's home, "Check medications are still correct", the record on the two medications to check, and Gabapentin's source document, original beside translation. 10.9 s, seamless loop. It shows on the home coming-soon row. `WaypointScene.astro` (the earlier pure-CSS scene, now a calm caregiver-home window) is kept but unused; `Stage.astro` falls back to it only if the recording is removed.
+**Waypoint's stage** is a recording of the real app (`src/assets/stages/waypoint.mp4`, `.webm`, `waypoint-poster.webp`): the same take as its case study's hero clip (recording A), recorded by `scripts/record-waypoint-clips.mjs` (clip `flow`, which ends back on the home it starts on) from the deployed demo, https://waypoint-app-three.vercel.app, which runs on sample data only (patient Ilan, caregiver Dana): the caregiver's home, "Check medications are still correct", the record on the two medications to check, and Gabapentin's source document, original beside translation, then closed and back home. 10.7 s, loops with a plain cut. It shows on the home coming-soon row. `WaypointScene.astro` (the earlier pure-CSS scene, now a calm caregiver-home window) is kept but unused; `Stage.astro` falls back to it only if the recording is removed.
 
 ## Accessibility rules
 
@@ -147,7 +147,7 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   status: 'shipped' | 'prototype' | 'in-progress' | 'concept';
   tags: string[];
   category?: string;        // case-study eyebrow after "Case study ·" (e.g. "Desktop SaaS"); falls back to the platform
-  stageAlt?: string;        // text alternative for the hero stage or laptop recording; generic fallback if omitted
+  stageAlt?: string;        // text alternative for the hero stage or browser-window recording; generic fallback if omitted
   statusLabel?: string;     // case-study meta row: overrides the label for `status` (e.g. "In daily use by 20 to 30 people")
   origin?: string;          // a small framed note right under the meta row: where the project comes from, what is and is not shown
   lede?: string;            // case-study lede when it should differ from the card's tagline
@@ -166,9 +166,9 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
 
 `statusLabel` and `origin` are shown only on the case-study page (the meta row and the line under it). `status` stays the enum; `statusLabel` just replaces its wording.
 
-The home card shows the product on top (the laptop with the flow recording for a desktop project that has one, two phones for a mobile project with `cardPhones`, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. **Role, duration, status and tools are not on the card**; they live on the case-study page.
+The home card shows the product on top (a browser window with the flow recording for a desktop project that has one, two phones for a mobile project with `cardPhones`, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. **Role, duration, status and tools are not on the card**; they live on the case-study page.
 
-**Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), `origin` as a small framed note right under it, then the product (the laptop on its own, with a pause control; or the stage).
+**Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), `origin` as a small framed note right under it, then the product (the browser window on its own, with a pause control; or the stage). With `demo`, `highlights` and `heroNotes`: the demo button and the bullets under the meta row, numbered notes under the window, set well apart from it so they read as a caption.
 
 Current entries: `aeropulse` (1, desktop), `neta` (2, mobile, native phones plus real Watch photos), `recall` (3, mobile, phones), `waypoint` (4, desktop, `comingSoon`, case study written). A `comingSoon` card links nowhere and says "Case study coming soon"; a desktop one is a slim full-width row (stage beside text), a mobile one shows `ComingSoonPhone`. While its MDX body is empty, its page shows only the hero (title, tagline, stage, no meta row or origin) and "Case study coming soon". Once the body is written (Waypoint), the page renders the full case study for review at its URL, with `noindex`, while the card stays unlinked; remove `comingSoon` to publish. "Next project" skips it either way. `classpass` is a draft: its file is kept, nothing links to it.
 
@@ -235,7 +235,9 @@ Available in every case-study MDX without importing (the template passes them as
 | `<TwoUp>` + `<Shot project name alt photo>` | Two visuals side by side inside a decision; `Shot` is a still cropped to one card (or a real photo). |
 | `<Timeline items>` / `<PromptSample label lead sections end>` | A dated timeline (`now` entry tinted and named) / a sample of generated text, in Geist. |
 | `<PathCompare paths>` | Expected path vs the one people took: screens as pills with arrows; the `actual` one solid, the expected one dashed. |
-| `<RecordMap label sources hub questions>` | Scattered sources → one record → the questions it must answer. Columns from 600px, stacked below. |
+| `<RecordMap label sourcesLabel sources hub people peopleLabel questionsLabel questions>` | Scattered sources → one record (the people who share it under it) → the questions it must answer, each column with a small label. Columns with arrows from 600px, stacked with down arrows below. |
+| `<PhoneSequence project items>` | One screen as it changed: small phones in order with an arrow between each pair and a caption under each; stacks with down arrows on narrow widths. |
+| `<CaptionedClip project clip alt caption maxWidth>` | One small recording (420px by default) with a pause / play button and one caption. |
 | `<RoleMap caption first roles why rows>` | The role map: a real table, one row per screen, one column per user, a "why" column; `absent` cells muted with a dash mark. Screen names stay pinned while it scrolls on phones. |
 | `<DataLayer label tiers note>` | Sources → records → everything computed from them, with a closing note. |
 | `<UserLoops loops>` | Each user's loop as numbered steps with "Back to 1". |
@@ -250,7 +252,7 @@ Every diagram has a text alternative (`role="img"` with a full `aria-label`, or 
 
 The template also renders a "Next project" link to the entry with the next `order` at the end of the page. Plain markdown prose still works inside a section (direct children of the section get the prose styles).
 
-**Per-project media** lives in `src/assets/work/<slug>/` (each folder has a README with the file names and what each must show). A desktop project's **flow recording** is `flow.mp4`, `flow.webm` and `flow-poster.webp` in that folder (`flowMedia` in `stage-media.ts`): one continuous take of the product in use with a drawn cursor, shown in `Laptop.astro` on both the home card and the case-study hero. Laptop: generic dark bezel and thin base, no logo, 16:10 screen, video `object-fit: cover` from the top-left. The poster is the reduced-motion and no-JS fallback. The case-study hero laptop has a pause / play button just under it. AeroPulse's flow and its decision clips are recorded by `scripts/record-aeropulse-clips.mjs` (read-only on the live demo, virtual-camera zooms) and encoded by `scripts/encode-aeropulse-clips.sh`; see the README in its media folder.
+**Per-project media** lives in `src/assets/work/<slug>/` (each folder has a README with the file names and what each must show). A desktop project's **flow recording** is `flow.mp4`, `flow.webm` and `flow-poster.webp` in that folder (`flowMedia` in `stage-media.ts`): one continuous take of the product in use with a drawn cursor, shown in `BrowserFrame.astro` on both the home card and the case-study hero. Browser window: a thin top bar with three small dots (no address, no brand), rounded corners, hairline border, the lifted shadow, a 16:10 screen, video `object-fit: cover` from the top-left. (It replaced a laptop mockup whose screen and base read as two pieces.) The poster is the reduced-motion and no-JS fallback. The case-study hero window has a pause / play button just under it. AeroPulse's flow and its decision clips are recorded by `scripts/record-aeropulse-clips.mjs` (read-only on the live demo, virtual-camera zooms) and encoded by `scripts/encode-aeropulse-clips.sh`; see the README in its media folder.
 
 ## Home page content you edit without touching code
 
@@ -273,8 +275,8 @@ src/
     Footer.astro             #contact panel: "Let's talk", email (selectable, copy, mailto), LinkedIn; CV and Accessibility below
     about/                   PathTimeline.astro ("My path"), PathObjects.astro (opening clay objects that
                              select a timeline row), ClayFrame.astro (certificate frame)
-    WorkCard.astro           home cards: product on top (laptop, phones or stage), title, tagline, tags
-    Laptop.astro             generic laptop mockup playing a flow recording
+    WorkCard.astro           home cards: product on top (browser window, phones or stage), title, tagline, tags
+    BrowserFrame.astro       generic browser window playing a flow recording
     Phone.astro              generic phone mockup playing a recording (or any slot content); `native` variant
     Photo.astro              a real photo in a rounded frame (square, wide or its own shape)
     ComingSoonPhone.astro    the phone with a neutral "Case study coming soon" screen (comingSoon projects)
@@ -306,8 +308,8 @@ public/cv/liraz-hazala-perez-cv.pdf
 scripts/record-aeropulse-clips.mjs  re-records AeroPulse's flow and decision clips (Playwright, not a dependency)
 scripts/encode-aeropulse-clips.sh   encodes them to MP4, WebM and a WebP poster
 scripts/record-recall-flows.mjs     re-records Recall's three phone flows (same approach)
-scripts/record-waypoint-clips.mjs   re-records Waypoint's four clips (fake clock, fresh browser per clip)
-scripts/encode-waypoint-clips.sh    encodes them with a crossfade loop
+scripts/record-waypoint-clips.mjs   re-records Waypoint's five clips (fake clock, fresh browser per clip, each ends where it starts)
+scripts/encode-waypoint-clips.sh    encodes them (plain-cut loop, no crossfade)
 scripts/capture-waypoint-stills.mjs captures Waypoint's stills (live demo and local builds of old commits)
 scripts/export-hero-objects.mjs     exports the clay heap's WebPs and outlines from V01/Hero Objects/
 ```

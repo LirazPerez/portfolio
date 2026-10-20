@@ -2,8 +2,9 @@
 // src/assets/work/waypoint/ by the last step of this script). See the README in that folder.
 //
 // From the live demo (https://waypoint-app-three.vercel.app, sample data only), 1440 wide,
-// light mode unless named: both homes, the doctor's one-screen summary, the medication table,
-// one crop per record state, the accessibility crops, one dark-mode page and two phone screens.
+// light mode unless named: both homes, the medication table,
+// one crop per record state, the accessibility crops, one dark-mode page and two phone screens
+// (today's app on a phone: logo and avatar on top, the tabs in a bar at the bottom).
 //
 // Earlier mobile homes no longer exist in the live app. Build the waypoint-app commits and
 // serve each one's dist/ locally, then pass them as HISTORY:
@@ -32,7 +33,7 @@ const INIT = (theme) => {
   } catch {}
   document.addEventListener('DOMContentLoaded', () => {
     const s = document.createElement('style');
-    s.textContent = `.translate-x-full { box-shadow: none !important; } [aria-label^="Nearest "] { display: none !important; }`;
+    s.textContent = `[aria-label^="Nearest "] { display: none !important; }`;
     document.head.appendChild(s);
   });
 };
@@ -68,16 +69,6 @@ await shot(page, 'home-caregiver');
 await page.context().close();
 page = await open(`${APP}/?role=patient`);
 await shot(page, 'home-patient');
-await page.context().close();
-
-// The doctor's one-screen summary, opened from "My code".
-page = await open(`${APP}/?role=patient`, { width: 1200, height: 720 });
-await page.getByRole('button', { name: /My code/ }).first().click();
-await settle(page);
-await page.getByText(/See what a doctor sees/).click();
-await settle(page);
-const summary = await page.getByText('Standing devices').last().locator('xpath=ancestor::*[contains(@class,"rounded")][1]').boundingBox();
-await shot(page, 'doctor-view', { x: 0, y: 0, width: 1200, height: summary.y + summary.height + 32 });
 await page.context().close();
 
 // The medication table, one crop per state, the accessibility crops.

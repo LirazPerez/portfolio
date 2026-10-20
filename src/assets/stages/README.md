@@ -15,15 +15,15 @@ Replace `<slug>` with the project slug: `aeropulse`, `waypoint`, `recall`, `clas
 ## Waypoint
 
 `waypoint.mp4`, `waypoint.webm`, `waypoint-poster.webp`: the same take as the case study's hero
-clip (recording A, `src/assets/work/waypoint/flow.*`), 10.9 s, 1600x1000, 30 fps, muted, seamless
-loop. Recorded from the deployed demo, https://waypoint-app-three.vercel.app (`?role=caregiver`),
+clip (recording A, `src/assets/work/waypoint/flow.*`), 10.7 s, 1600x1000, 30 fps, muted. It ends on
+the home it starts on, so it loops with a plain cut. Recorded from the deployed demo, https://waypoint-app-three.vercel.app (`?role=caregiver`),
 which runs on sample data only (patient Ilan, caregiver Dana), by
 `scripts/record-waypoint-clips.mjs <frames-dir> flow` and encoded with
 `scripts/encode-waypoint-clips.sh <frames-dir> flow 15 src/assets/stages waypoint`.
 
 The story: the caregiver's home → "Check medications are still correct" → the medical record on
 the two medications to check → Gabapentin's source document, the Hebrew original beside the
-English translation. The poster is the caregiver's home. It replaces `WaypointScene.astro` (kept
+English translation → closed → back to the home. The poster is the caregiver's home. It replaces `WaypointScene.astro` (kept
 in the repo as the fallback, unused while this recording exists).
 
 ## Specs

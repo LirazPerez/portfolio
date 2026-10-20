@@ -1,0 +1,80 @@
+---
+/**
+ * One small recording with one caption: a hairline frame (the clip's own ratio, from its
+ * poster) at most `maxWidth` wide, a pause / play button just under its right edge (never
+ * over the clip; under reduced motion the poster shows and the button plays it on purpose),
+ * then the caption. The frame carries the text alternative (`alt`); the video is aria-hidden.
+ * Clips are found by name in src/assets/work/<project>/ (workClip).
+ */
+import StageVideo from '../StageVideo.astro';
+import VideoToggle from '../VideoToggle.astro';
+import { workClip } from '../../lib/stage-media';
+
+interface Props {
+  project: string;
+  clip: string;
+  alt: string;
+  caption: string;
+  maxWidth?: string;
+}
+const { project, clip, alt, caption, maxWidth = '420px' } = Astro.props;
+const media = workClip(project, clip);
+const ratio = media?.poster ? `${media.poster.width} / ${media.poster.height}` : '16 / 10';
+const id = `clip-${project}-${clip}`;
+---
+
+<figure class="cclip" style={`--max-w: ${maxWidth}; --ratio: ${ratio}`}>
+  {
+    media ? (
+      <div class="frame" role="img" aria-label={alt}>
+        <StageVideo sources={media.videos} poster={media.poster} position="center" id={id} />
+      </div>
+    ) : (
+      <div class="frame frame--missing">Clip to add: {clip}</div>
+    )
+  }
+  <div class="under">
+    <figcaption>{caption}</figcaption>
+    {media && <VideoToggle for={id} />}
+  </div>
+</figure>
+
+<style>
+  .cclip {
+    margin: 0;
+    width: 100%;
+    max-width: var(--max-w);
+    display: grid;
+    gap: 12px;
+  }
+  .frame {
+    position: relative;
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-frame);
+    background: var(--raise);
+    box-shadow: var(--shadow);
+  }
+  .frame--missing {
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    color: var(--muted);
+    border-style: dashed;
+    box-shadow: none;
+  }
+  /* Caption left, the pause / play button right, on one line under the frame. */
+  .under {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  figcaption {
+    padding-top: 2px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+</style>

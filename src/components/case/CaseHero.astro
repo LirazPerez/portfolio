@@ -3,7 +3,7 @@
  * The top of every case study: eyebrow, title, tagline, one meta row (role, time, tools,
  * status), the product, and the origin line.
  *
- * The product is the laptop with the project's flow recording when it has one (desktop
+ * The product is a browser window with the project's flow recording when it has one (desktop
  * projects), standing alone; otherwise the hero stage.
  *
  * `origin` (where the project comes from, what is and is not shown) is a small note right
@@ -24,7 +24,7 @@
  * the recording, saying what to notice in it).
  */
 import type { CollectionEntry } from 'astro:content';
-import Laptop from '../Laptop.astro';
+import BrowserFrame from '../BrowserFrame.astro';
 import Stage from '../Stage.astro';
 import Phone from '../Phone.astro';
 import ComingSoonPhone from '../ComingSoonPhone.astro';
@@ -111,7 +111,7 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
       </ul>
     ) : flow ? (
       <div class="showcase">
-        <Laptop media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} pausable />
+        <BrowserFrame media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} pausable />
         {heroNotes && !comingSoon && (
           <ol class="notes" role="list" aria-label="What to notice in the recording">
             {heroNotes.map((n, i) => (
@@ -209,7 +209,7 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
   }
   /* Numbered notes under the recording: what to notice, in order. */
   .notes {
-    margin: 4px auto 0;
+    margin: clamp(32px, 4vw, 44px) auto 0;
     padding: 0;
     list-style: none;
     display: grid;
@@ -346,7 +346,7 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
   }
   /* Numbered notes under the recording: what to notice, in order. */
   .notes {
-    margin: 4px auto 0;
+    margin: clamp(32px, 4vw, 44px) auto 0;
     padding: 0;
     list-style: none;
     display: grid;

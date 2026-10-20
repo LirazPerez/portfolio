@@ -1,0 +1,135 @@
+---
+/**
+ * One screen as it changed over time: small phones in order, an arrow between each pair, a
+ * short caption under each. Read left to right from 520px of its own width; below that the
+ * phones stack top to bottom with downward arrows, each caption staying with its phone.
+ * Real text: an ordered list (the arrows are hidden from assistive tech, the order is the list's).
+ * Each phone carries its own text alternative; the still inside it is decorative.
+ * Stills are found by name in src/assets/work/<project>/ (a 390-wide capture fits exactly).
+ */
+import { Image } from 'astro:assets';
+import Phone from '../Phone.astro';
+import { workScreen } from '../../lib/work-media';
+
+interface Props {
+  project: string;
+  items: { image: string; alt: string; caption: string }[];
+}
+const { project, items } = Astro.props;
+---
+
+<div class="wrap">
+  <ol class="seq" role="list">
+    {
+      items.map((it, i) => {
+        const still = workScreen(project, it.image);
+        return (
+          <li>
+            {i > 0 && (
+              <span class="arrow" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            )}
+            <figure class="step">
+              <Phone label={it.alt} native>
+                {still ? (
+                  <Image src={still} alt="" widths={[200, 300, 400]} sizes="160px" loading="lazy" class="still" />
+                ) : (
+                  <p class="missing">Screenshot to add: {it.image}</p>
+                )}
+              </Phone>
+              <figcaption>{it.caption}</figcaption>
+            </figure>
+          </li>
+        );
+      })
+    }
+  </ol>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+    padding-block: clamp(16px, 3vw, 28px);
+  }
+  .seq {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+  .seq li {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+  .step {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    width: 150px;
+  }
+  .step :global(.phone) {
+    width: 150px;
+  }
+  .arrow {
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    transform: rotate(90deg);
+  }
+  .still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  figcaption {
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--muted);
+  }
+  .missing {
+    margin: 0;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  @container (min-width: 520px) {
+    .seq {
+      --w: clamp(120px, 22cqi, 160px);
+      grid-auto-flow: column;
+      justify-content: center;
+      align-items: start;
+      gap: 0;
+    }
+    .seq li {
+      grid-auto-flow: column;
+      align-items: start;
+      gap: clamp(16px, 3cqi, 32px);
+      padding-left: 0;
+    }
+    .seq li + li {
+      margin-left: clamp(16px, 3cqi, 32px);
+    }
+    .arrow {
+      transform: none;
+      /* Level with the middle of the phones (590:1282 plus the frame, about 2.3 widths tall). */
+      margin-top: calc(var(--w) * 1.15 - 11px);
+    }
+    .step {
+      width: var(--w);
+    }
+    .step :global(.phone) {
+      width: 100%;
+    }
+  }
+</style>
