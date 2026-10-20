@@ -5,8 +5,8 @@
  * one row per role, columns for what they do and what they need to see.
  * A real <table> (caption, column and row headers). A cell can be `absent`: that row does
  * not apply to that column, drawn muted with a dash mark, the words saying it too.
- * The row headers stay pinned on the left while the table scrolls sideways inside its own
- * frame when it is a little too wide (the frame is focusable so keyboard users can scroll it).
+ * The table needs 640px at least, the same width where it turns into cards, so it never
+ * scrolls sideways (the frame stays focusable and pinned headers stay, as a safeguard).
  * Below 640px of its own width it becomes one card per row (TableCards): the row header as the
  * title, each column header as a label ("Caregiver (Dana)"), the "why" line still tinted.
  * Reusable: any product where several users share one data layer.
@@ -81,7 +81,7 @@ const cards = rows.map((row) => ({
 </div>
 
 <style>
-  /* The table while it fits (or nearly: it scrolls a little); one card per row below 640px. */
+  /* The table while it fits; one card per row below 640px. */
   .tt {
     container-type: inline-size;
   }
@@ -104,7 +104,9 @@ const cards = rows.map((row) => ({
   }
   table {
     width: 100%;
-    min-width: 680px;
+    /* The card breakpoint (640px) less the frame's borders and a little rounding room: from
+       there the table always fits, so it never scrolls. */
+    min-width: 636px;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 14.5px;
