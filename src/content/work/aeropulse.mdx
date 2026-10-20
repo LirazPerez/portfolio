@@ -9,6 +9,13 @@ duration: "1 month"
 tools: [Base44, Claude, Notion]
 status: shipped
 statusLabel: "Original system in daily use by 20 to 30 people"
+demo:
+  href: "https://aero-pulse-ops.base44.app"
+  label: "Try the live demo"
+highlights:
+  - "Researched and designed a logistics system for teams across dozens of sites and two countries."
+  - "Based on a system in daily use by 20 to 30 people, saving 8 to 10 hours a week."
+  - "Rebuilt it from scratch as a working app, so every name, number and screen here is my own."
 tags: [Systems thinking, Desktop SaaS, In daily use]
 origin: "Based on a real system I designed and built for a company's logistics operation, still in daily use. That work is confidential, so I rebuilt it from scratch around a drone operation."
 stageAlt: "A recording of AeroPulse in use. On Draft Projects it zooms into one field request: 8 Thermal Optic Pods requested, 4 in the central warehouse, and a transfer from Rockies High-Altitude Hub suggested on the same line. It then opens the Archive, expands shipment FX-88520, marked Arrived, and zooms into its proof: a delivery photo and the bill of lading."
@@ -63,28 +70,83 @@ stageAlt: "A recording of AeroPulse in use. On Draft Projects it zooms into one 
   ]}
 />
 
+## One number, five roles
+
+<Intro
+  headline="Five kinds of people touch the same equipment, from the LDO in the field to the VP."
+  lede="Each role adds or confirms one piece of a single shared number, and nobody keeps their own copy."
+/>
+
+<RoleMap
+  caption="Role map: what each role does, what they need to see, and why"
+  first="Role"
+  columns={[{ name: 'What they do' }, { name: 'What they need to see' }]}
+  last="Why"
+  rows={[
+    {
+      head: 'LDO (one per field team)',
+      cells: ['Logs requests and counts, and confirms arrival with a photo', "Their project's stock, and that a request is moving"],
+      last: "They shouldn't have to chase a request, and a shipment counts as arrived only when they stand behind it",
+    },
+    {
+      head: 'Logistics manager',
+      cells: ['Checks other projects first, then transfers or buys', 'Every project, every request, every shipment'],
+      last: 'Owns the number everyone else acts on',
+    },
+    {
+      head: 'Warehouse team',
+      cells: ['Packs and ships', 'The shipment queue'],
+      last: 'Every shipment starts from one request, not a phone call',
+    },
+    {
+      head: 'Supply chain team, Israel',
+      cells: ['Procures and sends parts from HQ', 'US and Israel procurement in one place'],
+      last: 'One record across the border',
+    },
+    {
+      head: 'Managers, up to the VP',
+      cells: ['Plan and decide', 'The dashboard and defect analysis'],
+      last: 'They decide from the same view, not from a separate report',
+    },
+  ]}
+/>
+
+<DataLayer
+  label="One data layer: a field request, then availability across projects, transfer or purchase, shipment, arrival with proof, and project inventory, the deliberate manual step. Everything is computed from it: the dashboard, stock alerts and defect analysis. One confirmed arrival updates every role's view."
+  tiers={[
+    { title: 'Field request' },
+    { title: 'Availability across projects' },
+    { title: 'Transfer or purchase' },
+    { title: 'Shipment' },
+    { title: 'Arrival with proof' },
+    { title: 'Project inventory (the deliberate manual step)' },
+    {
+      title: 'Everything computed from it',
+      items: ['The dashboard', 'Stock alerts', 'Defect analysis'],
+    },
+  ]}
+  note="One confirmed arrival updates every role's view."
+/>
+
+<UserLoops
+  loops={[
+    {
+      title: "The LDO's loop",
+      steps: ['Notice a shortage', 'Request', 'See it move', 'Confirm arrival with a photo'],
+    },
+    {
+      title: "The logistics manager's loop",
+      steps: ['See the request', 'Check other projects', 'Transfer or buy', 'Follow the shipment', 'Trust the number'],
+    },
+  ]}
+/>
+
 ## How I ran it
 
 <Intro
   headline="Built with the people who run it, for everyone who touches equipment."
   lede="I designed the flows with the US logistics manager against the real operation. He owns it today."
->
-  <MapLegend slot="after" owner="Owner and co-designer" others="Daily users" />
-  <StakeholderMap
-    label="AeroPulse at the center, connected to the logistics manager in the US, who owns it and co-designed the flows, and to its daily users: LDOs, one per field team; the warehouse, which receives and ships; the supply-chain team in Israel, for procurement; regional managers; team leads; the head of operations; and the VP."
-    hub="AeroPulse"
-    owner={{ label: 'Logistics Manager, US', sub: 'owner · co-designed the flows' }}
-    nodes={[
-      { label: 'LDOs', sub: 'one per field team' },
-      { label: 'Warehouse', sub: 'receives and ships' },
-      { label: 'Supply chain, Israel', sub: 'procurement' },
-      { label: 'Regional managers' },
-      { label: 'Team leads' },
-      { label: 'Head of ops' },
-      { label: 'VP' },
-    ]}
-  />
-</Intro>
+/>
 
 ## Process
 
@@ -170,7 +232,7 @@ stageAlt: "A recording of AeroPulse in use. On Draft Projects it zooms into one 
 
 <Intro
   headline="Adopted across the whole operation."
-  lede="These numbers come from the original system, which the team still runs every day. The demo below is my rebuild of it, with sample data."
+  lede="These numbers come from the original system, which the team still runs every day. The live demo is my rebuild of it, with sample data."
 />
 
 <OutcomeStats
@@ -180,8 +242,6 @@ stageAlt: "A recording of AeroPulse in use. On Draft Projects it zooms into one 
     { value: 'Field → VP', spoken: 'From the field to the VP:', label: 'every role on one picture' },
   ]}
 />
-
-<ExternalLink href="https://aero-pulse-ops.base44.app" variant="primary">Try the demo app</ExternalLink>
 
 ## Still open
 

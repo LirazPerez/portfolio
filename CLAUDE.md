@@ -189,7 +189,7 @@ Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCol
 | `outcome` | Outcome (or Result) |
 | `still-open` | Still open (or What's still open) |
 
-One optional section, `system` ("The system: one record, two lenses"), sits between `problem` and `how-i-ran-it`; the TOC lists it only on pages that have it (`sectionsIn` in `case-study.ts`). Other accepted headings: "Problem and constraints", "Process, including what didn't work". Every alias lives in `ALIASES` in both `case-study.ts` and the rehype plugin.
+One optional section, `system` (Waypoint: "The system: one record, two lenses"; AeroPulse: "One number, five roles"), sits between `problem` and `how-i-ran-it`; the TOC lists it only on pages that have it (`sectionsIn` in `case-study.ts`). Other accepted headings: "Problem and constraints", "Process, including what didn't work". Every alias lives in `ALIASES` in both `case-study.ts` and the rehype plugin.
 
 Write each section in MDX as a `## <heading>` exactly as above. The `##` renders as the section's small sentence-case eyebrow; the TOC keeps the short titles (Decisions, Build), and the visible headings "Key decisions" and "The build" map to the same ids (`heading` in `SECTIONS`, `ALIASES` in the rehype plugin). A rehype plugin (`src/lib/rehype-case-study-sections.mjs`) wraps each `##` and its content in `<section id="<id>" aria-labelledby="<id>-heading">`, and **fails the build** if the headings are missing, renamed or out of order. Use `###` and below freely inside a section. While an MDX body is empty, the template renders the outline with clearly tagged placeholder copy.
 
@@ -237,8 +237,8 @@ Available in every case-study MDX without importing (the template passes them as
 | `<PathCompare paths>` | Expected path vs the one people took: screens as pills with arrows; the `actual` one solid, the expected one dashed. |
 | `<RecordMap label sourcesLabel sources hub people peopleLabel questionsLabel questions>` | Scattered sources → one record (the people who share it under it) → the questions it must answer, each column with a small label. Columns with arrows from 600px, stacked with down arrows below. |
 | `<CaptionedClip project clip alt caption>` | One recording in the browser window at the full content width, with its pause / play button and one gray caption under it. |
-| `<RoleMap caption first roles why rows>` | The role map: a real table, one row per screen, one column per user, a "why" column; `absent` cells muted with a dash mark. Screen names stay pinned while it scrolls on phones. |
-| `<DataLayer label tiers note>` | Sources → records → everything computed from them, with a closing note. |
+| `<RoleMap caption first columns last rows>` | The role map: a real table with a row-header column, any middle `columns` and a tinted `last` ("Why") column; rows are `{ head, cells, last }` (Waypoint: one row per screen; AeroPulse: one row per role). `absent` cells muted with a dash mark. Row headers stay pinned while it scrolls on phones. |
+| `<DataLayer label tiers note>` | Sources → records → everything computed from them, with a closing note. Three tiers go side by side from 640px; a longer chain (AeroPulse) stays stacked. |
 | `<UserLoops loops>` | Each user's loop as numbered steps with "Back to 1". |
 | `<PriorityBoard columns>` | Must / Should / Cut for now, each item with a one-line reason; the cut column dashed. |
 | `<DeviceCompare project phone desktop>` | A phone still beside a desktop still, each captioned. |
