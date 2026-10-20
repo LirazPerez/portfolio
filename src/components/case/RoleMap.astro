@@ -1,23 +1,27 @@
 ---
 /**
- * The role map: one row per screen, one column per kind of user, and a last column that
- * says why. A real <table> (caption, column and row headers). A cell can be `absent`: that
- * screen is not there for that user, drawn muted with a dash mark, the words saying it too.
- * The screen names stay pinned on the left while the table scrolls sideways inside its own
+ * The role map: a row header column, any number of middle columns, and a last column that
+ * says why (tinted). Waypoint: one row per screen, one column per kind of user. AeroPulse:
+ * one row per role, columns for what they do and what they need to see.
+ * A real <table> (caption, column and row headers). A cell can be `absent`: that row does
+ * not apply to that column, drawn muted with a dash mark, the words saying it too.
+ * The row headers stay pinned on the left while the table scrolls sideways inside its own
  * frame on phones (the frame is focusable so keyboard users can scroll it).
  * Reusable: any product where several users share one data layer.
  */
 type Cell = string | { text: string; absent: true };
 interface Props {
   caption: string;
-  /** Header of the first column, e.g. "Screen". */
+  /** Header of the first column, e.g. "Screen" or "Role". */
   first: string;
-  roles: { name: string; sub?: string }[];
+  /** The middle columns' headers, each with an optional second line. */
+  columns: { name: string; sub?: string }[];
   /** Header of the last column, e.g. "Why". */
-  why: string;
-  rows: { screen: string; cells: Cell[]; why: string }[];
+  last: string;
+  /** One row each: its header (first column), its middle cells, its last cell. */
+  rows: { head: string; cells: Cell[]; last: string }[];
 }
-const { caption, first, roles, why, rows } = Astro.props;
+const { caption, first, columns, last, rows } = Astro.props;
 const text = (c: Cell) => (typeof c === 'string' ? c : c.text);
 const absent = (c: Cell) => typeof c !== 'string';
 ---
@@ -29,28 +33,28 @@ const absent = (c: Cell) => typeof c !== 'string';
       <tr>
         <th scope="col" class="screen">{first}</th>
         {
-          roles.map((r) => (
+          columns.map((r) => (
             <th scope="col" class="role">
               <span class="who">{r.name}</span>
               {r.sub && <span class="sub">{r.sub}</span>}
             </th>
           ))
         }
-        <th scope="col" class="why">{why}</th>
+        <th scope="col" class="why">{last}</th>
       </tr>
     </thead>
     <tbody>
       {
         rows.map((row) => (
           <tr>
-            <th scope="row" class="screen">{row.screen}</th>
+            <th scope="row" class="screen">{row.head}</th>
             {row.cells.map((c) => (
               <td class:list={[absent(c) && 'absent']}>
                 {absent(c) && <span class="dash" aria-hidden="true" />}
                 {text(c)}
               </td>
             ))}
-            <td class="why">{row.why}</td>
+            <td class="why">{row.last}</td>
           </tr>
         ))
       }
@@ -98,7 +102,7 @@ const absent = (c: Cell) => typeof c !== 'string';
   tbody tr:last-child > * {
     border-bottom: 0;
   }
-  /* The screen names stay in view while the table scrolls sideways. */
+  /* The row headers stay in view while the table scrolls sideways. */
   .screen {
     position: sticky;
     left: 0;

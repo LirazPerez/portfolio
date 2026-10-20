@@ -66,40 +66,40 @@ stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Il
 <RoleMap
   caption="Role map: what each screen shows the patient and the caregiver, and why"
   first="Screen"
-  roles={[
+  columns={[
     { name: 'Patient', sub: 'Ilan' },
     { name: 'Caregiver', sub: 'Dana' },
   ]}
-  why="Why"
+  last="Why"
   rows={[
     {
-      screen: 'Home',
+      head: 'Home',
       cells: [
         'Recovery progress: mobility score, pace vs. typical, 8-week trend, next appointment',
         'What needs attention: Ilan at a glance, the pre-trip checklist, recent activity',
       ],
-      why: 'Progress is personal. In testing, recovery stats confused the caregiver',
+      last: 'Progress is personal. In testing, recovery stats confused the caregiver',
     },
     {
-      screen: 'Recovery',
+      head: 'Recovery',
       cells: ['Full page: trend, weekly readings, milestones', { text: 'Not in her navigation', absent: true }],
-      why: "For Dana it's noise, not a task",
+      last: "For Dana it's noise, not a task",
     },
     {
-      screen: 'Activity',
+      head: 'Activity',
       cells: [{ text: 'Not needed', absent: true }, 'Full log: who changed what, and when'],
-      why: 'Two people editing one record need accountability',
+      last: 'Two people editing one record need accountability',
     },
-    { screen: 'Medical record and Documents', cells: ['Same', 'Same'], why: 'One source of truth for both' },
+    { head: 'Medical record and Documents', cells: ['Same', 'Same'], last: 'One source of truth for both' },
     {
-      screen: 'Ask Waypoint',
+      head: 'Ask Waypoint',
       cells: ['"You\'re at 73%", questions about his own progress', '"Ilan is at 73%", organizer questions'],
-      why: "The voice follows who's asking",
+      last: "The voice follows who's asking",
     },
     {
-      screen: 'Profile and code',
+      head: 'Profile and code',
       cells: ['His profile, "My code"', 'Her profile with "About Ilan", "Ilan\'s code"'],
-      why: 'Settings belong to the user; the record belongs to the patient',
+      last: 'Settings belong to the user; the record belongs to the patient',
     },
   ]}
 />

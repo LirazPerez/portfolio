@@ -30,6 +30,7 @@ export const ALIASES: Record<string, SectionId> = {
   'the-build': 'build',
   'problem-and-constraints': 'problem',
   'the-system-one-record-two-lenses': 'system',
+  'one-number-five-roles': 'system',
   'process-including-what-didnt-work': 'process',
   result: 'outcome',
   'whats-still-open': 'still-open',

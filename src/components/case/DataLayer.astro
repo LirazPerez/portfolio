@@ -2,7 +2,8 @@
 /**
  * One data layer: the sources, the records built from them, and everything computed from
  * those records. Three tiers joined by arrows, horizontal from 640px of its own width and
- * stacked below. An optional `note` closes it (e.g. what one action changes). Real text in
+ * stacked below. A longer chain (more than three tiers, e.g. AeroPulse's request to arrival)
+ * stays stacked at every width, in a narrower column. An optional `note` closes it (e.g. what one action changes). Real text in
  * lists; `label` names the whole diagram for assistive tech.
  * Reusable: any product whose screens all read from one shared record.
  */
@@ -16,7 +17,7 @@ const last = tiers.length - 1;
 ---
 
 <div class="wrap">
-  <figure class="layer" aria-label={label}>
+  <figure class:list={['layer', tiers.length > 3 && 'layer--long']} aria-label={label}>
     <ol class="tiers" role="list">
       {
         tiers.map((t, i) => (
@@ -114,13 +115,16 @@ const last = tiers.length - 1;
     line-height: 1.55;
     color: var(--muted);
   }
+  .layer--long .tiers {
+    max-width: 560px;
+  }
   @container (min-width: 640px) {
-    .tiers {
+    .layer:not(.layer--long) .tiers {
       grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.6fr);
       gap: 34px;
       align-items: center;
     }
-    .tier:not(:last-child)::after {
+    .layer:not(.layer--long) .tier:not(:last-child)::after {
       content: '→';
       left: auto;
       right: -27px;
