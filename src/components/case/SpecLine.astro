@@ -1,0 +1,64 @@
+---
+/**
+ * One line from a spec, next to what it produced: the line as a quoted card ("Spec"), an
+ * arrow, then the default slot (usually a <Screen />). Stacked: the spec reads first.
+ */
+interface Props {
+  spec: string;
+  /** Small label above the line. */
+  label?: string;
+}
+const { spec, label = 'Spec' } = Astro.props;
+---
+
+<figure class="spec">
+  <blockquote class="line">
+    <span class="label">{label}</span>
+    <p>“{spec}”</p>
+  </blockquote>
+  <span class="arrow" aria-hidden="true">↓</span>
+  <div class="result">
+    <slot />
+  </div>
+</figure>
+
+<style>
+  .spec {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    min-width: 0;
+  }
+  .line {
+    margin: 0;
+    display: grid;
+    gap: 4px;
+    max-width: 52ch;
+    padding: 14px 20px;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-control) var(--radius-control) 0;
+    background: var(--surface);
+    justify-self: stretch;
+  }
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+  .line p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+    font-weight: 550;
+    color: var(--ink);
+  }
+  .arrow {
+    font-size: 18px;
+    color: var(--muted);
+  }
+  .result {
+    width: 100%;
+    min-width: 0;
+  }
+</style>

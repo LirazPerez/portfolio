@@ -1,7 +1,7 @@
 #!/bin/sh
 # Encodes clips recorded by record-aeropulse-clips.mjs into src/assets/work/aeropulse/.
 # Usage: scripts/encode-aeropulse-clips.sh <frames-dir> <clip> <poster-frame> [out-dir]
-# (out-dir defaults to src/assets/work/aeropulse; Waypoint's stage clip goes to src/assets/stages)
+# (out-dir defaults to src/assets/work/aeropulse)
 # The poster is the clip's key moment (what reduced motion and no JS show).
 set -e
 IN="$1/$2"

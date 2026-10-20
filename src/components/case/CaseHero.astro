@@ -16,7 +16,12 @@
  * the first phone is the one left out, so the photo stays.
  *
  * A `comingSoon` project shows only the title, tagline and its stage (a mobile one: the
- * coming-soon phone); the meta row and origin wait for the real case study.
+ * coming-soon phone); the meta row and origin wait for the real case study. (`soon` is
+ * decided by the template: a coming-soon project whose case study is written shows it all.)
+ *
+ * Optional, for any project: `demo` (a filled "Try the live demo" button under the meta row),
+ * `highlights` (up to three summary bullets under it) and `heroNotes` (numbered notes under
+ * the recording, saying what to notice in it).
  */
 import type { CollectionEntry } from 'astro:content';
 import Laptop from '../Laptop.astro';
@@ -24,14 +29,18 @@ import Stage from '../Stage.astro';
 import Phone from '../Phone.astro';
 import ComingSoonPhone from '../ComingSoonPhone.astro';
 import Photo from '../Photo.astro';
+import ExternalLink from '../ExternalLink.astro';
 import { flowMedia, workClip } from '../../lib/stage-media';
 import { STATUS_LABEL, PLATFORM_LABEL } from '../../lib/case-study';
 
 interface Props {
   entry: CollectionEntry<'work'>;
+  /** Show only the coming-soon hero. Defaults to the entry's `comingSoon`. */
+  soon?: boolean;
 }
 const { entry } = Astro.props;
-const { comingSoon, title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, phones, nativeScreen, heroPhoto } =
+const comingSoon = Astro.props.soon ?? entry.data.comingSoon;
+const { demo, highlights, heroNotes, title, tagline, lede, platform, role, duration, tools, status, statusLabel, origin, stageAlt, category, phones, nativeScreen, heroPhoto } =
   entry.data;
 const phoneMedia = (phones ?? []).flatMap((p) => {
   const media = workClip(entry.id, p.clip);
@@ -55,6 +64,19 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
     <div><dt>Tools</dt><dd>{tools.join(' · ')}</dd></div>
     <div><dt>Status</dt><dd>{statusLabel ?? STATUS_LABEL[status]}</dd></div>
   </dl>
+  )}
+  {demo && !comingSoon && (
+    <ExternalLink href={demo.href} variant="primary" icon="arrow">{demo.label}</ExternalLink>
+  )}
+  {highlights && !comingSoon && (
+    <ul class="highlights" role="list">
+      {highlights.map((h) => (
+        <li>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span>{h}</span>
+        </li>
+      ))}
+    </ul>
   )}
   {origin && !comingSoon && (
     <p class="origin">
@@ -90,6 +112,16 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
     ) : flow ? (
       <div class="showcase">
         <Laptop media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} pausable />
+        {heroNotes && !comingSoon && (
+          <ol class="notes" role="list" aria-label="What to notice in the recording">
+            {heroNotes.map((n, i) => (
+              <li>
+                <span class="note-n" aria-hidden="true">{i + 1}</span>
+                <span><span class="sr-only-text">{i + 1}. </span>{n}</span>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
     ) : (
       <div class="stage-wrap">
@@ -150,6 +182,66 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
   }
   .meta dd {
     margin: 0;
+  }
+
+  /* The demo button and the three summary bullets: left-aligned lines in a centered block. */
+  .highlights {
+    margin: -4px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    max-width: 62ch;
+    text-align: start;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .highlights li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .highlights svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--accent-strong);
+  }
+  /* Numbered notes under the recording: what to notice, in order. */
+  .notes {
+    margin: 4px auto 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px 24px;
+    max-width: 860px;
+    text-align: start;
+  }
+  @media (min-width: 47.5rem) {
+    .notes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .notes li {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .note-n {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 12px;
+    font-weight: 700;
+    transform: translateY(-1px);
   }
 
   .showcase {
@@ -229,7 +321,67 @@ const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
     text-align: start;
   }
   @media (max-width: 47.49rem) {
-    .showcase {
+    /* The demo button and the three summary bullets: left-aligned lines in a centered block. */
+  .highlights {
+    margin: -4px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    max-width: 62ch;
+    text-align: start;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .highlights li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .highlights svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--accent-strong);
+  }
+  /* Numbered notes under the recording: what to notice, in order. */
+  .notes {
+    margin: 4px auto 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px 24px;
+    max-width: 860px;
+    text-align: start;
+  }
+  @media (min-width: 47.5rem) {
+    .notes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .notes li {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .note-n {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 12px;
+    font-weight: 700;
+    transform: translateY(-1px);
+  }
+
+  .showcase {
       padding: 20px 0 32px;
     }
   }

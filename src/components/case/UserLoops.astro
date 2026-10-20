@@ -1,0 +1,129 @@
+---
+/**
+ * Each user's loop through the product: numbered steps, and a closing mark that says the
+ * last step leads back to the first. One card per user, side by side from 600px of its own
+ * width, stacked below. Real text: an ordered list per loop.
+ * Reusable: any product with more than one kind of user.
+ */
+interface Props {
+  loops: { title: string; steps: string[] }[];
+}
+const { loops } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="loops" role="list">
+    {
+      loops.map((loop) => (
+        <li class="loop">
+          <p class="title">{loop.title}</p>
+          <ol class="steps" role="list">
+            {loop.steps.map((s, i) => (
+              <li>
+                <span class="n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span>
+                  <span class="sr-only-text">{i + 1}. </span>
+                  {s}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p class="again">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M4 12a8 8 0 1 0 3-6.2" />
+              <path d="M4 4v4h4" />
+            </svg>
+            <span>Back to 1</span>
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .loops {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 14px;
+  }
+  @container (min-width: 600px) {
+    .loops {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .loop {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--ink);
+  }
+  .steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0;
+  }
+  .steps li {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding-bottom: 14px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  /* The thread between numbers. */
+  .steps li:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 26px;
+    bottom: 2px;
+    width: 2px;
+    background: var(--line);
+  }
+  .n {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--accent);
+    background: var(--raise);
+    color: var(--accent-strong);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .steps li > span:last-child {
+    padding-top: 2px;
+  }
+  .again {
+    margin: -6px 0 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+</style>

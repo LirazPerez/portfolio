@@ -1,0 +1,99 @@
+---
+/**
+ * Every state of one component, as real crops from the product: one card per state, the
+ * crop on top, the state's name and an example under it. Auto-fills cards of at least 180px.
+ * A crop can be `wide` (an empty state, a full row): it spans two columns where there is room.
+ * Crops are found by name in src/assets/work/<project>/.
+ */
+import { Image } from 'astro:assets';
+import { workScreen } from '../../lib/work-media';
+
+interface Props {
+  project: string;
+  items: { state: string; example?: string; image: string; alt: string; wide?: boolean }[];
+}
+const { project, items } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="grid" role="list">
+    {
+      items.map((it) => {
+        const still = workScreen(project, it.image);
+        return (
+          <li class:list={['card', it.wide && 'card--wide']}>
+            <div class="crop">
+              {still ? (
+                <Image src={still} alt={it.alt} widths={[360, 720]} sizes="(min-width: 760px) 360px, 90vw" loading="lazy" />
+              ) : (
+                <p class="missing">Screenshot to add: {it.image}</p>
+              )}
+            </div>
+            <p class="state">{it.state}</p>
+            {it.example && <p class="example">{it.example}</p>}
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  @container (min-width: 400px) {
+    .card--wide {
+      grid-column: span 2;
+    }
+  }
+  .card {
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    padding: 12px 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .crop {
+    display: grid;
+    place-items: center;
+    min-height: 72px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raise);
+  }
+  .crop :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .state {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .example {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .missing {
+    margin: 0;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>

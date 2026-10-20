@@ -4,6 +4,8 @@
  * screens (the default slot, usually one or two <Screen />, or any visual), and an optional "Considered" line:
  * the alternative in the warn color, then why it lost. The alternative's own words
  * ("Considered:", "Trade-off:") carry the meaning, not the color.
+ * `evidence` is an alternative closing line: what in testing backed the decision, its lead
+ * word ("Evidence:") in ink.
  */
 interface Props {
   n: number;
@@ -13,8 +15,11 @@ interface Props {
   considered?: string;
   /** Why it lost, e.g. "Rejected, because ..." */
   verdict?: string;
+  /** What backed the decision, including its lead word, e.g. "Evidence: ..." (split at the first colon). */
+  evidence?: string;
 }
-const { n, title, summary, considered, verdict } = Astro.props;
+const { n, title, summary, considered, verdict, evidence } = Astro.props;
+const [evidenceLead, ...evidenceRest] = (evidence ?? '').split(':');
 ---
 
 <article class="dec" aria-labelledby={`decision-${n}`}>
@@ -29,6 +34,7 @@ const { n, title, summary, considered, verdict } = Astro.props;
     <slot />
   </div>
   {considered && <p class="considered"><span class="alt">{considered}</span> <span>{verdict}</span></p>}
+  {evidence && <p class="considered"><span class="lead">{evidenceLead}:</span>{evidenceRest.join(':')}</p>}
 </article>
 
 <style>
@@ -78,6 +84,10 @@ const { n, title, summary, considered, verdict } = Astro.props;
     font-size: 14px;
     line-height: 1.55;
     color: var(--muted);
+  }
+  .lead {
+    font-weight: 600;
+    color: var(--ink);
   }
   .alt {
     font-weight: 600;

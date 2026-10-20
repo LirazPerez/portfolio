@@ -1,0 +1,106 @@
+---
+/**
+ * A phone screen beside a desktop screen: the same product before and after a change of
+ * platform. The phone is a still in the generic phone, the desktop a still in a hairline
+ * window frame; each has its own short caption and text alternative. Side by side from
+ * 600px of its own width (the desktop takes the wider column), stacked below.
+ */
+import { Image } from 'astro:assets';
+import Phone from '../Phone.astro';
+import { workScreen } from '../../lib/work-media';
+
+interface Props {
+  project: string;
+  phone: { image: string; alt: string; caption: string };
+  desktop: { image: string; alt: string; caption: string };
+}
+const { project, phone, desktop } = Astro.props;
+const phoneStill = workScreen(project, phone.image);
+const deskStill = workScreen(project, desktop.image);
+---
+
+<div class="wrap">
+  <div class="pair">
+    <figure class="side side--phone">
+      <Phone label={phone.alt} native>
+        {phoneStill && <Image src={phoneStill} alt="" widths={[260, 390, 520]} sizes="(min-width: 760px) 200px, 50vw" loading="lazy" class="still" />}
+      </Phone>
+      <figcaption>{phone.caption}</figcaption>
+    </figure>
+    <figure class="side">
+      <div class="win">
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+        {deskStill && <Image src={deskStill} alt={desktop.alt} widths={[720, 1080, 1440]} sizes="(min-width: 1024px) 560px, 100vw" loading="lazy" class="desk" />}
+      </div>
+      <figcaption>{desktop.caption}</figcaption>
+    </figure>
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .pair {
+    display: grid;
+    gap: 28px;
+    justify-items: center;
+  }
+  .side {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+  .side--phone {
+    max-width: 200px;
+  }
+  @container (min-width: 600px) {
+    .pair {
+      grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+      align-items: end;
+      gap: 32px;
+    }
+  }
+  .still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .win {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--raise);
+    box-shadow: var(--shadow);
+  }
+  .bar {
+    display: flex;
+    gap: 5px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .bar i {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .desk {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  figcaption {
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--muted);
+  }
+</style>
