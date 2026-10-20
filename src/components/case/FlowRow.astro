@@ -9,7 +9,8 @@
  * apart by extra space and a hairline, so each reads as its own stop.
  * `native` plays a Simulator recording in the native phone (see Phone.astro).
  * Optional: a first-person `lede` under the heading, and under the decision a `note` with
- * `chips` (pills in the steps' style, each a bold lead and a few words).
+ * `chips`: small cards, each a bold lead and a line, two per row when the row has two
+ * columns, one per row below.
  */
 import Phone from '../Phone.astro';
 import ClipFrame from './ClipFrame.astro';
@@ -55,9 +56,9 @@ const media = workClip(project, clip);
       {note && <p class="note">{note}</p>}
       {
         chips && (
-          <ul class="chips" role="list">
+          <ul class="uses" role="list">
             {chips.map((c) => (
-              <li class="pill">
+              <li class="use">
                 <b>{c.lead}:</b> {c.text}
               </li>
             ))}
@@ -202,17 +203,30 @@ const media = workClip(project, clip);
     line-height: 1.55;
     color: var(--ink);
   }
-  .chips {
+  .uses {
     margin: 0;
     padding: 0;
     list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    font-size: 13px;
-    line-height: 1.4;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
-  .chips .pill b {
+  @container (min-width: 600px) {
+    .uses {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .use {
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .use b {
     font-weight: 600;
+    color: var(--ink);
   }
 </style>

@@ -1,7 +1,7 @@
 ---
 /**
- * Pause / play for one StageVideo (by its id). A 44px round button on a glass fill, placed
- * by its parent (absolute, in a corner). Hidden until the StageVideo script wires it up, so it
+ * Pause / play for one StageVideo (by its id). A 44px round button like the site's other
+ * secondary buttons (raise fill, muted border), placed by its parent under the clip, never on it. Hidden until the StageVideo script wires it up, so it
  * never shows without JS. Its accessible name says what it will do ("Pause the recording").
  */
 interface Props {
@@ -22,12 +22,9 @@ const { for: target, class: className } = Astro.props;
     height: 44px;
     display: grid;
     place-items: center;
-    border: 1px solid var(--line);
+    border: 1px solid var(--muted);
     border-radius: var(--radius-pill);
-    background: var(--glass);
-    -webkit-backdrop-filter: saturate(160%) blur(12px);
-    backdrop-filter: saturate(160%) blur(12px);
-    box-shadow: var(--shadow);
+    background: var(--raise);
     color: var(--ink);
     cursor: pointer;
   }
@@ -36,6 +33,7 @@ const { for: target, class: className } = Astro.props;
   }
   .vtoggle:hover {
     color: var(--accent-strong);
+    background: var(--surface);
   }
   .vtoggle[data-state='playing'] .i-play,
   .vtoggle[data-state='paused'] .i-pause {

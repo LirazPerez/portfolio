@@ -7,7 +7,8 @@
  *
  * Motion: the recording only plays when motion is allowed and the laptop is on screen
  * (StageVideo). With reduced motion or no JS the poster (the recording's first frame) shows.
- * `pausable` adds a pause / play button on the screen's corner (outside the image role).
+ * `pausable` adds a pause / play button just under the laptop's right edge (outside the image
+ * role, never over the screen).
  * All colors are tokens (--bezel, --bezel-edge, --deck, --deck-edge, --deck-shadow).
  */
 import StageVideo from './StageVideo.astro';
@@ -31,7 +32,13 @@ const id = pausable ? `laptop-${Math.random().toString(36).slice(2, 8)}` : undef
       <StageVideo sources={media.videos} poster={media.poster} position="top-left" id={id} />
     </div>
   </div>
-  {id && <VideoToggle for={id} class="laptop-toggle" />}
+  {
+    id && (
+      <div class="laptop-controls">
+        <VideoToggle for={id} />
+      </div>
+    )
+  }
   <div class="deck" aria-hidden="true"></div>
 </div>
 
@@ -42,11 +49,10 @@ const id = pausable ? `laptop-${Math.random().toString(36).slice(2, 8)}` : undef
     max-width: 860px;
     margin-inline: auto;
   }
-  .laptop :global(.laptop-toggle) {
-    position: absolute;
-    right: calc(2.2% + 10px);
-    bottom: calc(3% + 24px);
-    z-index: 2;
+  .laptop-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
   }
   .lid {
     position: relative;

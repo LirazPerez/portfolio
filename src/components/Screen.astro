@@ -7,7 +7,8 @@
  * - A recording with the same name (`<name>.mp4` / `.webm` plus `<name>-poster.*`, see
  *   `workClip`) wins over a still: it plays muted and looping through StageVideo (only on
  *   screen, only when motion is allowed, lazy: the poster until then) with a pause / play
- *   button on its corner. The frame carries the text alternative (`role="img"`).
+ *   button just under the frame's right edge, never over the clip. The frame carries the
+ *   text alternative (`role="img"`).
  * - Exactly as wide as the text column, never wider, and never taller
  *   than 70% of the viewport (the frame's width is derived from the image's own aspect
  *   ratio so the image is never stretched or letterboxed).
@@ -73,9 +74,15 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
           </span>
         )
       }
-      {clipId && <VideoToggle for={clipId} class="clip-toggle" />}
     </div>
   </div>
+  {
+    clipId && (
+      <div class="controls">
+        <VideoToggle for={clipId} />
+      </div>
+    )
+  }
 </figure>
 
 <style>
@@ -133,11 +140,12 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
     border-radius: 0 0 9px 9px;
     background: var(--surface);
   }
-  .body :global(.clip-toggle) {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    z-index: 2;
+  /* The pause / play button sits under the frame, aligned to its right edge. */
+  .controls {
+    display: flex;
+    justify-content: flex-end;
+    width: min(100%, calc(var(--ar) * min(70svh, 620px)));
+    margin: 8px auto 0;
   }
 
   .missing {

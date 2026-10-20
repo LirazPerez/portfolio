@@ -8,8 +8,11 @@
  *   - `notification`: a drawn notification (for one the Simulator can't capture), read as one
  *     image through its `label`;
  *   - `lines`: a few drawn label · value lines (e.g. a treadmill program), read through `label`.
+ *     With `columns`, each line has one value per column (the same program in two units).
+ * Every card should carry one visual, so no card has an empty area.
  * The moments stack, one group under the other. Inside a group the cards go two across from
  * 740px of its own width (so a still in a card renders at about 340px or more), one below.
+ * A group with an odd number of cards lets its last card span the row, text beside its visual.
  */
 import { Image } from 'astro:assets';
 import Photo from '../Photo.astro';
@@ -21,7 +24,12 @@ interface Detail {
   image?: { name: string; alt: string };
   photo?: { name: string; alt: string };
   notification?: { app: string; title: string; body: string; time: string; label: string };
-  lines?: { items: { label: string; value: string; rest?: string }[]; label: string };
+  lines?: {
+    label: string;
+    items: { label: string; value?: string; rest?: string; values?: string[] }[];
+    columns?: string[];
+    note?: string;
+  };
 }
 interface Props {
   project: string;
@@ -36,12 +44,15 @@ const { project, columns } = Astro.props;
       <div class="moment">
         <h4>{col.title}</h4>
         <ul role="list">
-          {col.items.map((d) => {
+          {col.items.map((d, i) => {
             const still = d.image ? workScreen(project, d.image.name) : undefined;
+            const wide = col.items.length % 2 === 1 && col.items.length > 1 && i === col.items.length - 1;
             return (
-              <li class="det">
-                <h5>{d.title}</h5>
-                <p>{d.text}</p>
+              <li class:list={['det', wide && 'det--wide']}>
+                <div class="txt">
+                  <h5>{d.title}</h5>
+                  <p>{d.text}</p>
+                </div>
                 {d.notification && (
                   <div class="notif" role="img" aria-label={d.notification.label}>
                     <span class="ic" aria-hidden="true">{d.notification.app.charAt(0)}</span>
@@ -54,7 +65,7 @@ const { project, columns } = Astro.props;
                     </span>
                   </div>
                 )}
-                {d.lines && (
+                {d.lines && !d.lines.columns && (
                   <div class="mini" role="img" aria-label={d.lines.label}>
                     {d.lines.items.map((l) => (
                       <span aria-hidden="true">
@@ -62,6 +73,19 @@ const { project, columns } = Astro.props;
                         {l.rest && ` · ${l.rest}`}
                       </span>
                     ))}
+                  </div>
+                )}
+                {d.lines && d.lines.columns && (
+                  <div class="mini mini--cols" role="img" aria-label={d.lines.label} style={`--cols:${d.lines.columns.length}`}>
+                    <span aria-hidden="true" class="mh"></span>
+                    {d.lines.columns.map((c) => <span aria-hidden="true" class="mh">{c}</span>)}
+                    {d.lines.items.map((l) => (
+                      <>
+                        <span aria-hidden="true" class="ml">{l.label}</span>
+                        {(l.values ?? []).map((v) => <em aria-hidden="true">{v}</em>)}
+                      </>
+                    ))}
+                    {d.lines.note && <span aria-hidden="true" class="mn">{d.lines.note}</span>}
                   </div>
                 )}
                 {d.image &&
@@ -127,8 +151,9 @@ const { project, columns } = Astro.props;
   .det {
     display: grid;
     gap: 8px;
-    /* Cards in a row share a height; keep each card's content at its top. */
-    align-content: start;
+    /* Cards in a row share a height: the text keeps its height and the visual's panel
+       stretches to the card's bottom (content centred in it), so no card has an empty area. */
+    grid-template-rows: auto 1fr;
     min-width: 0;
     padding: 14px;
     border: 1px solid var(--line);
@@ -202,6 +227,55 @@ const { project, columns } = Astro.props;
     font-weight: 600;
     color: var(--accent-strong);
   }
+  .txt {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  .det > .scrn,
+  .det > .notif,
+  .det > .mini,
+  .det > :global(.photo) {
+    align-self: stretch;
+  }
+  .scrn {
+    display: grid;
+    align-content: center;
+  }
+  .notif,
+  .mini {
+    align-content: center;
+  }
+  /* The odd last card of a group: across the row, its text beside its visual. */
+  @container (min-width: 740px) {
+    .det--wide {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto;
+      column-gap: 20px;
+      align-items: center;
+    }
+  }
+  .mini--cols {
+    grid-template-columns: minmax(0, 1.3fr) repeat(var(--cols), minmax(0, 1fr));
+    gap: 6px 12px;
+    align-items: baseline;
+  }
+  .mh {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .ml {
+    color: var(--ink);
+  }
+  .mn {
+    grid-column: 1 / -1;
+    padding-top: 2px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
   .missing {
     padding: 16px;
     border: 1px dashed var(--muted);

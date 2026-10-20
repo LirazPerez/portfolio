@@ -25,8 +25,8 @@ phones:
     alt: "Neta's Today screen: an easy treadmill run with a 154 bpm heart-rate cap, and its explanation opened in Hebrew."
 cardPhones: [why]
 cardPhoto:
-  image: watch-above-cap
-  alt: "An Apple Watch on a treadmill run showing heart rate 159, above the alert line, in red."
+  image: watch-ready
+  alt: "My Apple Watch before a run: Neta's long run is ready to start, running shoes below."
 heroPhoto:
   image: watch-in-range
   title: On the wrist
@@ -173,7 +173,7 @@ heroPhoto:
   project="neta"
   columns={[
     {
-      title: 'Before the run',
+      title: 'Before and during the run',
       items: [
         {
           title: 'Long runs at race hour',
@@ -187,13 +187,23 @@ heroPhoto:
           },
         },
         {
-          title: 'A bad night counts',
-          text: 'Under 6 hours of sleep, or a resting heart rate 5+ above usual, and Neta offers an easier version of a hard day.',
-          image: { name: 'today-make-it-easier', alt: 'Make today easier? You slept 5 h 17 min. Buttons: Make it easier, Keep plan.' },
+          title: 'Numbers the treadmill understands',
+          text: 'Pace becomes speed and incline I can type into the machine. I train between the US and Israel, so it switches units in Settings: mph in New York, km/h in Tel Aviv.',
+          lines: {
+            label: 'The same treadmill program in both units. In mph: warm-up 4.4, tempo 5.7 for 10 minutes twice, cool-down 4.4. In km/h: warm-up 7.1, tempo 9.2, cool-down 7.1. All at 1% incline.',
+            columns: ['New York', 'Tel Aviv'],
+            items: [
+              { label: 'Warm-up', values: ['4.4 mph', '7.1 km/h'] },
+              { label: 'Tempo, 2 × 10 min', values: ['5.7 mph', '9.2 km/h'] },
+              { label: 'Cool-down', values: ['4.4 mph', '7.1 km/h'] },
+            ],
+            note: 'All at 1% incline',
+          },
         },
         {
-          title: "The calendar bends, the plan doesn't",
-          text: "Workouts land in my calendar and slide to the nearest free slot. Neta never touches an event it didn't create.",
+          title: "Easier when I need it, faster when I've earned it",
+          text: 'Under 6 hours of sleep, or a resting heart rate 5+ above usual, and Neta offers an easier version of a hard day. Two tempo runs in a row that I log as comfortable (effort 6 or less) make next week\'s tempo pace 3 seconds per km faster.',
+          image: { name: 'today-make-it-easier', alt: 'Make today easier? You slept 5 h 17 min. Buttons: Make it easier, Keep plan.' },
         },
         {
           title: 'Race morning, to the minute',
@@ -206,36 +216,6 @@ heroPhoto:
       ],
     },
     {
-      title: 'During the run',
-      items: [
-        {
-          title: 'A tap on the wrist at 154',
-          text: 'The Watch buzzes the moment I go over the cap, so I slow down before the run turns hard.',
-          photo: { name: 'watch-above-cap', alt: 'Watch showing 159 bpm in red, above the alert line.' },
-        },
-        {
-          title: 'Numbers the treadmill understands',
-          text: 'Pace becomes speed and incline I can type into the machine.',
-          lines: {
-            label: 'Treadmill program: warm-up 4.4 mph, tempo 5.7 mph for 10 minutes twice, cool-down 4.4 mph, all at 1% incline.',
-            items: [
-              { label: 'Warm-up', value: '4.4 mph', rest: '1.5 km' },
-              { label: 'Tempo', value: '5.7 mph', rest: '2 × 10 min' },
-              { label: 'Cool-down', value: '4.4 mph', rest: '1% incline' },
-            ],
-          },
-        },
-        {
-          title: 'The workout is already on the Watch',
-          text: 'Warm-up, tempo blocks and cool-down arrive as one workout for the right day and time, in km even on the treadmill. The next 7 days stay in sync on their own.',
-        },
-        {
-          title: 'When it climbs anyway',
-          text: "Talk test, then walk 30-60 seconds. Easy only works when it's truly easy.",
-        },
-      ],
-    },
-    {
       title: 'After the run',
       items: [
         {
@@ -244,21 +224,17 @@ heroPhoto:
           image: { name: 'today-how-did-your-run-go', alt: 'How did your run go? Tuesday, 4.52 km, tap to log, 15 seconds.' },
         },
         {
+          title: 'Missed a run?',
+          text: "Neta suggests a safe new day this week, never next to a hard one. Or skips it, if that's safer.",
+          image: { name: 'today-missed-run', alt: "Missed run: Missed Tuesday's easy run, do it today? Buttons: Move to today, Skip it." },
+        },
+        {
           title: 'Shoes have a mileage',
           text: 'Each run counts toward its pair, with a default shoe for treadmill and outdoor, and a warning at 600 and 750 km.',
           image: {
             name: 'settings-shoes',
             alt: 'Shoes: Pegasus 41 at 171 km, treadmill default; Ghost 16 at 610 km, outdoor default, time to think about new shoes; Novablast 5 at 5 km.',
           },
-        },
-        {
-          title: 'Targets are earned',
-          text: "Two comfortable tempo runs in a row, and next week's pace gets 3 seconds per km faster.",
-        },
-        {
-          title: 'Missed a run?',
-          text: "Neta suggests a safe new day this week, never next to a hard one. Or skips it, if that's safer.",
-          image: { name: 'today-missed-run', alt: "Missed run: Missed Tuesday's easy run, do it today? Buttons: Move to today, Skip it." },
         },
       ],
     },
@@ -299,7 +275,11 @@ heroPhoto:
   </TwoUp>
 </Decision>
 
-<Decision n={3} title="Ask Claude, before building an AI coach.">
+<Decision
+  n={3}
+  title="Hand off to Claude instead of building an AI coach."
+  summary="One tap copies a summary of my training and opens Claude. I paste it and ask my question."
+>
   <TwoUp>
     <PromptSample
       label="Example of the summary Ask Claude copies: my goal, plan week, heart-rate cap, recent runs with logs, and the next 7 days."
