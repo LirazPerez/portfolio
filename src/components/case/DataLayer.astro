@@ -1,0 +1,132 @@
+---
+/**
+ * One data layer: the sources, the records built from them, and everything computed from
+ * those records. Three tiers joined by arrows, horizontal from 640px of its own width and
+ * stacked below. An optional `note` closes it (e.g. what one action changes). Real text in
+ * lists; `label` names the whole diagram for assistive tech.
+ * Reusable: any product whose screens all read from one shared record.
+ */
+interface Props {
+  label: string;
+  tiers: { title: string; items?: string[] }[];
+  note?: string;
+}
+const { label, tiers, note } = Astro.props;
+const last = tiers.length - 1;
+---
+
+<div class="wrap">
+  <figure class="layer" aria-label={label}>
+    <ol class="tiers" role="list">
+      {
+        tiers.map((t, i) => (
+          <li class:list={['tier', i === last && 'tier--out']}>
+            <p class="title">{t.title}</p>
+            {t.items && (
+              <ul class="items" role="list">
+                {t.items.map((it) => (
+                  <li>{it}</li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+    {note && <figcaption class="note">{note}</figcaption>}
+  </figure>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .layer {
+    margin: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .tiers {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 34px;
+  }
+  .tier {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  .tier:first-child {
+    background: var(--surface);
+  }
+  .tier--out {
+    border: 2px solid var(--accent);
+  }
+  /* The arrow to the next tier: down when stacked, right when side by side. */
+  .tier:not(:last-child)::after {
+    content: '↓';
+    position: absolute;
+    left: 50%;
+    bottom: -30px;
+    transform: translateX(-50%);
+    font-size: 18px;
+    line-height: 26px;
+    color: var(--muted);
+  }
+  .title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--ink);
+  }
+  .items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .items li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: var(--radius-control-sm);
+    background: var(--surface);
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .tier--out .items li {
+    background: var(--accent-tint);
+  }
+  .note {
+    margin: 0;
+    max-width: 68ch;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  @container (min-width: 640px) {
+    .tiers {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.6fr);
+      gap: 34px;
+      align-items: center;
+    }
+    .tier:not(:last-child)::after {
+      content: '→';
+      left: auto;
+      right: -27px;
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+</style>

@@ -115,7 +115,7 @@ Every project may have its own palette, but **only inside its hero stage** (`src
 
 **Stage background and media** (`Stage.astro`, resolved by `src/lib/stage-media.ts`): a blurred, darkened real-world photo per project, one per theme, plus an optional muted looping screen recording. Nothing is registered in code: drop files in `src/assets/stages/` by name (`<slug>-light.jpg`, `<slug>-dark.jpg`, `<slug>.mp4`, `<slug>-poster.jpg`; see the README there for the TODO list). Until a photo exists, stages show a neutral gradient. A recording sits in a solid hairline frame sized by the stage's height. Videos are muted, looping, `playsinline`, no controls, `aria-hidden`; the text alternative is on the stage (`role="img"`, `aria-label`). They play only when motion is allowed and on screen; otherwise the poster shows.
 
-**Waypoint's stage** is a recording of the real app (`src/assets/stages/waypoint.mp4`, `.webm`, `waypoint-poster.webp`), recorded by `scripts/record-aeropulse-clips.mjs` (scene `waypoint`) from the deployed demo, https://waypoint-app-three.vercel.app, which runs on mock data only (patient Ilan, caregiver Dana; no login): the caregiver's home, Ilan's code, and the doctor's one-screen view with its alerts first, 9.4 s, seamless loop. It shows on the home coming-soon row and the Waypoint page. `WaypointScene.astro` (the earlier pure-CSS scene) is kept but unused; `Stage.astro` falls back to it only if the recording is removed.
+**Waypoint's stage** is a recording of the real app (`src/assets/stages/waypoint.mp4`, `.webm`, `waypoint-poster.webp`): the same take as its case study's hero clip (recording A), recorded by `scripts/record-waypoint-clips.mjs` (clip `flow`) from the deployed demo, https://waypoint-app-three.vercel.app, which runs on sample data only (patient Ilan, caregiver Dana): the caregiver's home, "Check medications are still correct", the record on the two medications to check, and Gabapentin's source document, original beside translation. 10.9 s, seamless loop. It shows on the home coming-soon row. `WaypointScene.astro` (the earlier pure-CSS scene, now a calm caregiver-home window) is kept but unused; `Stage.astro` falls back to it only if the recording is removed.
 
 ## Accessibility rules
 
@@ -156,7 +156,10 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
   nativeScreen?: boolean;   // recordings from the iOS Simulator (own status bar and island): native phone, 590:1282
   cardPhoto?: { image, alt };                    // a real photo beside the card's phone, tilted
   heroPhoto?: { image, title, caption, alt };    // a real photo closing the hero's phone row
-  comingSoon?: boolean;     // the page shows "Case study coming soon" instead of the outline and TOC
+  demo?: { href, label };   // a filled button in the case-study hero (new tab, arrow icon)
+  highlights?: string[];    // up to three summary bullets in the hero, under the demo button
+  heroNotes?: string[];     // numbered notes under the hero recording: what to notice in it
+  comingSoon?: boolean;     // the card says "Case study coming soon" and links nowhere; with no MDX body the page says so too
   draft?: boolean;          // hidden everywhere: no card, no page, no "Next project" link (src/lib/work.ts)
 }
 ```
@@ -167,7 +170,7 @@ The home card shows the product on top (the laptop with the flow recording for a
 
 **Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), `origin` as a small framed note right under it, then the product (the laptop on its own, with a pause control; or the stage).
 
-Current entries: `aeropulse` (1, desktop), `neta` (2, mobile, native phones plus real Watch photos), `recall` (3, mobile, phones), `waypoint` (4, desktop, `comingSoon`). A `comingSoon` card links nowhere and says "Case study coming soon"; a desktop one is a slim full-width row (stage beside text), a mobile one shows `ComingSoonPhone`. Its page shows only the hero (title, tagline, stage, no meta row or origin) and "Case study coming soon", and "Next project" skips it. `classpass` is a draft: its file is kept, nothing links to it.
+Current entries: `aeropulse` (1, desktop), `neta` (2, mobile, native phones plus real Watch photos), `recall` (3, mobile, phones), `waypoint` (4, desktop, `comingSoon`, case study written). A `comingSoon` card links nowhere and says "Case study coming soon"; a desktop one is a slim full-width row (stage beside text), a mobile one shows `ComingSoonPhone`. While its MDX body is empty, its page shows only the hero (title, tagline, stage, no meta row or origin) and "Case study coming soon". Once the body is written (Waypoint), the page renders the full case study for review at its URL, with `noindex`, while the card stays unlinked; remove `comingSoon` to publish. "Next project" skips it either way. `classpass` is a draft: its file is kept, nothing links to it.
 
 Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCollection('work')` directly, so drafts stay hidden.
 
@@ -183,8 +186,10 @@ Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCol
 | `process` | Process |
 | `decisions` | Key decisions (or Decisions) |
 | `build` | The build (or Build) |
-| `outcome` | Outcome |
-| `still-open` | Still open |
+| `outcome` | Outcome (or Result) |
+| `still-open` | Still open (or What's still open) |
+
+One optional section, `system` ("The system: one record, two lenses"), sits between `problem` and `how-i-ran-it`; the TOC lists it only on pages that have it (`sectionsIn` in `case-study.ts`). Other accepted headings: "Problem and constraints", "Process, including what didn't work". Every alias lives in `ALIASES` in both `case-study.ts` and the rehype plugin.
 
 Write each section in MDX as a `## <heading>` exactly as above. The `##` renders as the section's small sentence-case eyebrow; the TOC keeps the short titles (Decisions, Build), and the visible headings "Key decisions" and "The build" map to the same ids (`heading` in `SECTIONS`, `ALIASES` in the rehype plugin). A rehype plugin (`src/lib/rehype-case-study-sections.mjs`) wraps each `##` and its content in `<section id="<id>" aria-labelledby="<id>-heading">`, and **fails the build** if the headings are missing, renamed or out of order. Use `###` and below freely inside a section. While an MDX body is empty, the template renders the outline with clearly tagged placeholder copy.
 
@@ -208,7 +213,7 @@ Available in every case-study MDX without importing (the template passes them as
 | `<StakeholderMap label hub owner nodes>` + `<MapLegend owner others>` | SVG, tokens only. A ring from 480px of its own width, a vertical spine below that. The owner's sub-line names it as owner, so color is not the only cue. |
 | `<ProcessFlow steps>` | Numbered `ol`, horizontal from 680px, vertical with down arrows below. Steps light up one after another when it scrolls into view (only with JS and motion allowed; lit is the plain style). `key` steps get a 2px accent border and a "Key step" note for screen readers. |
 | `<DidInstead dropped why instead>` | What didn't work (cross icon) as two plain lines, "First idea:" and "Why it failed:", next to what I did instead (check icon). |
-| `<Decision n title summary considered verdict>` | A `###` decision with its number, one sentence, its `<Screen />`s as children, and one "Considered" line. |
+| `<Decision n title summary considered verdict evidence>` | A `###` decision with its number, one sentence, its `<Screen />`s as children, and one "Considered" line (or an "Evidence:" line). |
 | `<BuildSplit mine tools>` | My part vs the tools' part, as chips. |
 | `<OpenCards items>` | Still-open cards (dashed = not done). |
 | `<SubIntro eyebrow headline lede>` | A sub-part inside a section (e.g. "Edge cases" in Process): `###` eyebrow plus a smaller headline. |
@@ -229,6 +234,15 @@ Available in every case-study MDX without importing (the template passes them as
 | `<MomentColumns project columns>` | Small details by moment (Neta: before and during, after): cards with a cropped still, a photo, a drawn notification or drawn lines (one column of values, or the same values in two units). Every card carries a visual, which stretches to the card's bottom; a group's odd last card spans the row, text beside its visual. |
 | `<TwoUp>` + `<Shot project name alt photo>` | Two visuals side by side inside a decision; `Shot` is a still cropped to one card (or a real photo). |
 | `<Timeline items>` / `<PromptSample label lead sections end>` | A dated timeline (`now` entry tinted and named) / a sample of generated text, in Geist. |
+| `<PathCompare paths>` | Expected path vs the one people took: screens as pills with arrows; the `actual` one solid, the expected one dashed. |
+| `<RecordMap label sources hub questions>` | Scattered sources → one record → the questions it must answer. Columns from 600px, stacked below. |
+| `<RoleMap caption first roles why rows>` | The role map: a real table, one row per screen, one column per user, a "why" column; `absent` cells muted with a dash mark. Screen names stay pinned while it scrolls on phones. |
+| `<DataLayer label tiers note>` | Sources → records → everything computed from them, with a closing note. |
+| `<UserLoops loops>` | Each user's loop as numbered steps with "Back to 1". |
+| `<PriorityBoard columns>` | Must / Should / Cut for now, each item with a one-line reason; the cut column dashed. |
+| `<PhoneRow project items>` / `<DeviceCompare project phone desktop>` | Stills in phones, up to three in a row / a phone still beside a desktop still, each captioned. |
+| `<SpecLine spec>` | One spec line, quoted, above what it produced (children, usually a `<Screen />`). |
+| `<StatesGrid project items>` / `<ProofCards project items>` | One crop per state of a component, named / decisions shown on real crops (e.g. accessibility). |
 
 `Decision` takes any visual as children, and its `summary` and "Considered" line are optional.
 
@@ -289,8 +303,11 @@ src/
   lib/cv.ts                  CV path + size label
   pages/  index, about, accessibility, 404, work/[slug]
 public/cv/liraz-hazala-perez-cv.pdf
-scripts/record-aeropulse-clips.mjs  re-records AeroPulse's flow and decision clips and Waypoint's stage clip (Playwright, not a dependency)
+scripts/record-aeropulse-clips.mjs  re-records AeroPulse's flow and decision clips (Playwright, not a dependency)
 scripts/encode-aeropulse-clips.sh   encodes them to MP4, WebM and a WebP poster
 scripts/record-recall-flows.mjs     re-records Recall's three phone flows (same approach)
+scripts/record-waypoint-clips.mjs   re-records Waypoint's four clips (fake clock, fresh browser per clip)
+scripts/encode-waypoint-clips.sh    encodes them with a crossfade loop
+scripts/capture-waypoint-stills.mjs captures Waypoint's stills (live demo and local builds of old commits)
 scripts/export-hero-objects.mjs     exports the clay heap's WebPs and outlines from V01/Hero Objects/
 ```

@@ -1,12 +1,12 @@
 ---
 /**
- * The Waypoint hero stage scene, rebuilt from reference/specimen.html: a phone shows an
- * emergency code, a scan line sweeps it, the physician view rises, its rows appear one
- * after another, alerts first.
+ * Waypoint's earlier hero stage scene, kept as the fallback for when the stage recording
+ * is missing: the caregiver's home in one window, Ilan's medications appearing one after
+ * another, each with its status in words.
  *
  * Pure CSS, looping, 7s. It starts mid-cycle (negative animation delay) so the very
  * first frame is the complete scene, and with prefers-reduced-motion nothing animates and
- * the un-animated style IS that complete frame (scan line hidden, everything in place).
+ * the un-animated style IS that complete frame (everything in place).
  *
  * Colors come only from --waypoint-* custom properties, defined in Stage.astro and
  * scoped to this project's stage. They never leak into site chrome.
@@ -20,10 +20,6 @@ interface Props {
 }
 const { backdrop = true } = Astro.props;
 
-const FINDERS =
-  'M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2z';
-const MODULES =
-  'M9 0h1v2H9zM11 1h2v1h-2zM8 3h2v1H8zM11 3h1v3h-1zM9 5h1v2H9zM8 8h3v1H8zM12 8h2v1h-2zM15 8h1v2h-1zM17 8h4v1h-4zM0 9h2v1H0zM3 9h3v1H3zM9 10h1v2H9zM11 10h3v1h-3zM18 10h2v2h-2zM1 11h3v1H1zM6 11h2v1H6zM12 12h1v3h-1zM14 12h3v1h-3zM8 13h2v1H8zM15 14h1v2h-1zM17 14h3v1h-3zM9 15h2v1H9zM8 17h1v4H8zM10 17h3v1h-3zM14 17h2v2h-2zM18 17h1v4h-1zM11 19h2v2h-2zM15 20h2v1h-2zM20 19h1v2h-1z';
 ---
 
 {
@@ -51,30 +47,14 @@ const MODULES =
 }
 
 <div class="wp-scene" aria-hidden="true">
-  <div class="wp-phone">
-    <span class="ph-h">Signal</span>
-    <div class="wp-qr">
-      <svg viewBox="0 0 21 21" shape-rendering="crispEdges" focusable="false">
-        <g fill="var(--waypoint-ink)">
-          <path d={FINDERS} fill-rule="evenodd"></path>
-          <path d={MODULES}></path>
-        </g>
-      </svg>
-      <span class="wp-scan"></span>
-    </div>
-    <span class="ph-s">Scan for my medical profile</span>
-  </div>
-
   <div class="wp-desk">
     <div class="wp-desk-bar"><i></i><i></i><i></i></div>
     <div class="wp-pv">
-      <div class="wp-pv-head"><strong>Dana K. · Emergency profile</strong><small>Scanned · no login</small></div>
-      <div class="wp-alert wp-stagger" style="--d:0s">
-        <b>Alerts</b><span>Severe latex allergy: use non-latex gloves</span>
-      </div>
-      <div class="wp-row wp-stagger" style="--d:.25s"><span>Allergies</span><span>Latex</span></div>
-      <div class="wp-row wp-stagger" style="--d:.45s"><span>Medications</span><span>Metformin 500 mg</span></div>
-      <div class="wp-row wp-stagger" style="--d:.65s"><span>Language</span><span class="wp-pill">Hebrew · translated</span></div>
+      <div class="wp-pv-head"><strong>Good morning, Dana</strong><small>Ilan · week 12</small></div>
+      <div class="wp-row wp-stagger" style="--d:0s"><span>Gabapentin 300 mg</span><span class="wp-check">Check</span></div>
+      <div class="wp-row wp-stagger" style="--d:.25s"><span>Levothyroxine 75 mcg</span><span class="wp-pill">Confirmed</span></div>
+      <div class="wp-row wp-stagger" style="--d:.45s"><span>Omeprazole 20 mg</span><span class="wp-check">Check</span></div>
+      <div class="wp-row wp-stagger" style="--d:.65s"><span>Prescription renewal</span><span class="wp-pill">Hebrew · translated</span></div>
     </div>
   </div>
 </div>
@@ -109,60 +89,6 @@ const MODULES =
     gap: clamp(14px, 4vw, 44px);
     width: 100%;
     min-width: 0;
-  }
-
-  .wp-phone {
-    flex: none;
-    width: clamp(92px, 15vw, 150px);
-    aspect-ratio: 9 / 18.5;
-    border-radius: 22px;
-    background: var(--waypoint-surface);
-    border: 1px solid var(--waypoint-border);
-    box-shadow: 0 20px 40px -18px rgb(0 0 0 / 0.55);
-    padding: 18px 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    overflow: hidden;
-    color: var(--waypoint-ink);
-  }
-  .ph-h {
-    font-size: clamp(8px, 1.1vw, 11px);
-    font-weight: 600;
-    text-align: center;
-  }
-  .ph-s {
-    font-size: clamp(7px, 0.9vw, 9px);
-    color: var(--waypoint-muted);
-    text-align: center;
-  }
-  .wp-qr {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 8px;
-    background: var(--waypoint-paper);
-    border: 1px solid var(--waypoint-border);
-    padding: 10%;
-    position: relative;
-    overflow: hidden;
-  }
-  .wp-qr svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-  /* Final frame: the scan line has finished its sweep and faded, so it is hidden. */
-  .wp-scan {
-    position: absolute;
-    left: 6%;
-    right: 6%;
-    height: 2px;
-    top: 86%;
-    opacity: 0;
-    background: var(--waypoint-route);
-    box-shadow: 0 0 10px 2px var(--waypoint-route);
-    border-radius: 2px;
   }
 
   .wp-desk {
@@ -209,19 +135,6 @@ const MODULES =
   .wp-pv-head small {
     color: var(--waypoint-muted);
   }
-  .wp-alert {
-    background: var(--waypoint-critical-bg);
-    border: 1px solid var(--waypoint-critical);
-    border-radius: 6px;
-    padding: 8px 10px;
-    display: grid;
-    gap: 2px;
-    position: relative;
-  }
-  .wp-alert b {
-    color: var(--waypoint-critical);
-    font-size: 0.85em;
-  }
   .wp-row {
     display: flex;
     justify-content: space-between;
@@ -233,6 +146,10 @@ const MODULES =
     color: var(--waypoint-muted);
     text-align: end;
   }
+  .wp-row .wp-check {
+    color: var(--waypoint-critical);
+    font-weight: 600;
+  }
   .wp-row .wp-pill {
     color: var(--waypoint-route);
     font-weight: 600;
@@ -241,10 +158,6 @@ const MODULES =
   /* Motion only when allowed. Each animation starts 4.5s into its 7s cycle, so the first
      frame already shows the complete scene (desk risen, rows in). */
   @media (prefers-reduced-motion: no-preference) {
-    .wp-scan {
-      animation: wp-scan 7s ease-in-out infinite;
-      animation-delay: -4.5s;
-    }
     .wp-desk {
       animation: wp-rise 7s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
       animation-delay: -4.5s;
@@ -259,21 +172,14 @@ const MODULES =
      still meets the complete scene first, and nothing animates off-screen. Without JS
      the loop simply runs. */
   @media (prefers-reduced-motion: no-preference) {
-    :global(.js) .wp-scan,
     :global(.js) .wp-desk,
     :global(.js) .wp-stagger {
       animation-play-state: paused;
     }
-    :global(.js) .wp-scene[data-scene-playing] .wp-scan,
     :global(.js) .wp-scene[data-scene-playing] .wp-desk,
     :global(.js) .wp-scene[data-scene-playing] .wp-stagger {
       animation-play-state: running;
     }
-  }
-  @keyframes wp-scan {
-    0% { top: 12%; opacity: 1; }
-    22% { top: 86%; opacity: 1; }
-    26%, 100% { top: 86%; opacity: 0; }
   }
   @keyframes wp-rise {
     0%, 22% { transform: translateY(10px); opacity: 0.55; }

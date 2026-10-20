@@ -4,14 +4,23 @@
  * Fails the build if the headings don't match SECTIONS in src/lib/case-study.ts,
  * so section ids stay stable for the TOC and for deep links.
  */
-const EXPECTED = [
-  'what-i-noticed', 'problem', 'how-i-ran-it', 'process',
+const OUTLINE = [
+  'what-i-noticed', 'problem', 'system', 'how-i-ran-it', 'process',
   'decisions', 'build', 'outcome', 'still-open',
 ]; // keep in sync with SECTIONS
+const OPTIONAL = new Set(['system']); // sections with `optional: true`
 
 // A section's visible heading may use other words than its TOC title; its id stays the same.
-// Keep in sync with `heading` in SECTIONS.
-const ALIASES = { 'key-decisions': 'decisions', 'the-build': 'build' };
+// Keep in sync with ALIASES in src/lib/case-study.ts.
+const ALIASES = {
+  'key-decisions': 'decisions',
+  'the-build': 'build',
+  'problem-and-constraints': 'problem',
+  'the-system-one-record-two-lenses': 'system',
+  'process-including-what-didnt-work': 'process',
+  result: 'outcome',
+  'whats-still-open': 'still-open',
+};
 
 const slug = (text) =>
   text.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
@@ -47,9 +56,10 @@ export default function rehypeCaseStudySections() {
       }
     }
     if (ids.length === 0) return; // empty body: the template renders placeholders
-    if (ids.join() !== EXPECTED.join()) {
+    const expected = OUTLINE.filter((id) => !OPTIONAL.has(id) || ids.includes(id));
+    if (ids.join() !== expected.join()) {
       throw new Error(
-        `[case study] ${path}\nSections must be, in order: ${EXPECTED.join(', ')}\nFound: ${ids.join(', ')}`,
+        `[case study] ${path}\nSections must be, in order: ${OUTLINE.join(', ')} (optional: ${[...OPTIONAL].join(', ')})\nFound: ${ids.join(', ')}`,
       );
     }
     tree.children = out;

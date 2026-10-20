@@ -1,0 +1,134 @@
+---
+/**
+ * The role map: one row per screen, one column per kind of user, and a last column that
+ * says why. A real <table> (caption, column and row headers). A cell can be `absent`: that
+ * screen is not there for that user, drawn muted with a dash mark, the words saying it too.
+ * The screen names stay pinned on the left while the table scrolls sideways inside its own
+ * frame on phones (the frame is focusable so keyboard users can scroll it).
+ * Reusable: any product where several users share one data layer.
+ */
+type Cell = string | { text: string; absent: true };
+interface Props {
+  caption: string;
+  /** Header of the first column, e.g. "Screen". */
+  first: string;
+  roles: { name: string; sub?: string }[];
+  /** Header of the last column, e.g. "Why". */
+  why: string;
+  rows: { screen: string; cells: Cell[]; why: string }[];
+}
+const { caption, first, roles, why, rows } = Astro.props;
+const text = (c: Cell) => (typeof c === 'string' ? c : c.text);
+const absent = (c: Cell) => typeof c !== 'string';
+---
+
+<div class="frame" tabindex="0" role="region" aria-label={caption}>
+  <table>
+    <caption class="sr-only-text">{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="screen">{first}</th>
+        {
+          roles.map((r) => (
+            <th scope="col" class="role">
+              <span class="who">{r.name}</span>
+              {r.sub && <span class="sub">{r.sub}</span>}
+            </th>
+          ))
+        }
+        <th scope="col" class="why">{why}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <th scope="row" class="screen">{row.screen}</th>
+            {row.cells.map((c) => (
+              <td class:list={[absent(c) && 'absent']}>
+                {absent(c) && <span class="dash" aria-hidden="true" />}
+                {text(c)}
+              </td>
+            ))}
+            <td class="why">{row.why}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .frame {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+  th,
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  thead th {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    vertical-align: bottom;
+  }
+  .who {
+    display: block;
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .sub {
+    display: block;
+    font-weight: 500;
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  /* The screen names stay in view while the table scrolls sideways. */
+  .screen {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    width: 18%;
+    background: var(--raise);
+    border-right: 1px solid var(--line);
+  }
+  tbody .screen {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  td.why {
+    width: 28%;
+    background: var(--surface);
+    color: var(--muted);
+  }
+  th.why {
+    background: var(--surface);
+  }
+  .absent {
+    color: var(--muted);
+  }
+  .dash {
+    display: inline-block;
+    width: 10px;
+    height: 2px;
+    margin-inline-end: 8px;
+    vertical-align: 0.3em;
+    border-radius: 1px;
+    background: var(--muted);
+  }
+</style>

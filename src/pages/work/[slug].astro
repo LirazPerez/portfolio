@@ -34,10 +34,21 @@ import TwoUp from '../../components/case/TwoUp.astro';
 import Shot from '../../components/case/Shot.astro';
 import Timeline from '../../components/case/Timeline.astro';
 import PromptSample from '../../components/case/PromptSample.astro';
+import PathCompare from '../../components/case/PathCompare.astro';
+import RecordMap from '../../components/case/RecordMap.astro';
+import RoleMap from '../../components/case/RoleMap.astro';
+import DataLayer from '../../components/case/DataLayer.astro';
+import UserLoops from '../../components/case/UserLoops.astro';
+import PriorityBoard from '../../components/case/PriorityBoard.astro';
+import PhoneRow from '../../components/case/PhoneRow.astro';
+import DeviceCompare from '../../components/case/DeviceCompare.astro';
+import SpecLine from '../../components/case/SpecLine.astro';
+import StatesGrid from '../../components/case/StatesGrid.astro';
+import ProofCards from '../../components/case/ProofCards.astro';
 import CaseStudyToc from '../../components/CaseStudyToc.astro';
 import Screen from '../../components/Screen.astro';
 import ExternalLink from '../../components/ExternalLink.astro';
-import { SECTIONS } from '../../lib/case-study';
+import { SECTIONS, sectionsIn } from '../../lib/case-study';
 import { publishedWork } from '../../lib/work';
 
 export async function getStaticPaths() {
@@ -58,10 +69,15 @@ const { title, tagline, comingSoon } = entry.data;
 const { Content } = await render(entry);
 // Until a case study is written, render the outline with placeholder copy.
 const hasBody = (entry.body ?? '').trim().length > 0;
+// A coming-soon project whose case study is written renders in full here, for review, while
+// its home card stays "coming soon" and links nowhere; the page stays out of search engines.
+const soon = comingSoon && !hasBody;
+const sections = hasBody ? sectionsIn(entry.body ?? '') : SECTIONS.filter((s) => !('optional' in s));
 
 const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
   'what-i-noticed': 'The observation that started this project: the one detail I saw that others walked past.',
   problem: 'Who was stuck, where, and what it cost them, in one or two sentences.',
+  system: 'How the product is put together, and who sees what.',
   'how-i-ran-it': 'How I scoped and ran the project: the research, the constraints, the timeline and who I worked with.',
   process: 'The path from research to design: what I tested, what I learned, and what changed because of it.',
   decisions: 'The calls that shaped the product, with the options I rejected and why.',
@@ -71,12 +87,12 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
 };
 ---
 
-<BaseLayout title={title} description={tagline}>
+<BaseLayout title={title} description={tagline} noindex={comingSoon}>
   <article class="mx-auto max-w-content px-[clamp(16px,5vw,56px)] pt-[clamp(32px,6vw,64px)]" aria-labelledby="cs-title">
-    <CaseHero entry={entry} />
+    <CaseHero entry={entry} soon={soon} />
 
     {
-      comingSoon ? (
+      soon ? (
         <section class="soon grid gap-1 justify-items-center text-center pt-2 pb-8" aria-labelledby="soon-h">
           <h2 id="soon-h" class="m-0 text-[clamp(24px,3vw,32px)] font-semibold tracking-[-0.012em]">Case study coming soon</h2>
           <p class="m-0 max-w-[52ch] text-[17px] leading-relaxed text-muted">
@@ -85,7 +101,7 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
         </section>
       ) : (
     <div class="grid gap-4 pt-2 pb-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-6">
-      <CaseStudyToc />
+      <CaseStudyToc sections={sections} />
       <div class="case-body grid min-w-0">
         {
           hasBody ? (
@@ -125,10 +141,21 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
                 Shot,
                 Timeline,
                 PromptSample,
+                PathCompare,
+                RecordMap,
+                RoleMap,
+                DataLayer,
+                UserLoops,
+                PriorityBoard,
+                PhoneRow,
+                DeviceCompare,
+                SpecLine,
+                StatesGrid,
+                ProofCards,
               }}
             />
           ) : (
-            SECTIONS.map((s) => (
+            sections.map((s) => (
               <section id={s.id} class="cs-section" aria-labelledby={`${s.id}-heading`}>
                 <h2 id={`${s.id}-heading`}>{'heading' in s ? s.heading : s.title}</h2>
                 <p>

@@ -26,6 +26,12 @@ const work = defineCollection({
     statusLabel: z.string().optional(),
     /** One line under the meta row: where the project comes from, and what is and is not shown. */
     origin: z.string().optional(),
+    /** A live demo: a filled button in the case-study hero, opening in a new tab. */
+    demo: z.object({ href: z.url(), label: z.string() }).optional(),
+    /** Up to three summary bullets in the case-study hero, under the demo button. */
+    highlights: z.array(z.string()).max(3).optional(),
+    /** Numbered notes under the hero recording: what to notice in it, in order. */
+    heroNotes: z.array(z.string()).max(4).optional(),
     /** Case-study lede under the title, when it should differ from the card's tagline. */
     lede: z.string().optional(),
     /**

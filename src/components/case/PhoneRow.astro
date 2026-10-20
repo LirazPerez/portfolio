@@ -1,0 +1,90 @@
+---
+/**
+ * Phone screenshots in a row, each in the generic phone (the `native` frame, so no drawn
+ * camera covers the app's own top bar), with an optional short caption under it. The phone
+ * carries the text alternative (`alt`); the still inside it is decorative to assistive tech.
+ * Up to three across, from 420px of its own width; one per row below that.
+ * Stills are found by name in src/assets/work/<project>/ (a 390-wide capture fits exactly).
+ */
+import { Image } from 'astro:assets';
+import Phone from '../Phone.astro';
+import { workScreen } from '../../lib/work-media';
+
+interface Props {
+  project: string;
+  items: { image: string; alt: string; caption?: string }[];
+}
+const { project, items } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class:list={['row', `row--${items.length}`]} role="list">
+    {
+      items.map((it) => {
+        const still = workScreen(project, it.image);
+        return (
+          <li>
+            <Phone label={it.alt} native>
+              {still ? (
+                <Image src={still} alt="" widths={[260, 390, 520]} sizes="(min-width: 760px) 240px, 60vw" loading="lazy" class="still" />
+              ) : (
+                <p class="missing">Screenshot to add: {it.image}</p>
+              )}
+            </Phone>
+            {it.caption && <p class="cap">{it.caption}</p>}
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .row {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 220px);
+    justify-content: center;
+    gap: 24px 20px;
+  }
+  @container (min-width: 420px) {
+    .row--2 {
+      grid-template-columns: repeat(2, minmax(0, 220px));
+    }
+    .row--3 {
+      grid-template-columns: repeat(3, minmax(0, 220px));
+    }
+  }
+  li {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    min-width: 0;
+  }
+  .still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .missing {
+    margin: 0;
+    padding: 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .cap {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--muted);
+  }
+</style>

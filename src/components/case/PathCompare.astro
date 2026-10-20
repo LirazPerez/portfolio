@@ -1,0 +1,108 @@
+---
+/**
+ * Paths through a product, side by side: the one the design expected and the one people
+ * really took. Each path is a row of screens joined by arrows, its label first. The path to
+ * look at (`actual`) gets solid accent-edged steps and the word "actual" is in its label, so
+ * the emphasis never rests on color alone; the expected one is dashed and muted.
+ * Real text: an ordered list per path, the arrows hidden from assistive tech.
+ */
+interface Props {
+  paths: { label: string; steps: string[]; actual?: boolean }[];
+}
+const { paths } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="paths">
+    {
+      paths.map((p) => (
+        <div class:list={['path', p.actual && 'path--actual']}>
+          <p class="label">{p.label}</p>
+          <ol class="steps" role="list">
+            {p.steps.map((s, i) => (
+              <li>
+                {i > 0 && (
+                  <span class="arrow" aria-hidden="true">
+                    →
+                  </span>
+                )}
+                <span class="step">{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .paths {
+    display: grid;
+    gap: 14px;
+  }
+  .path {
+    display: grid;
+    gap: 10px;
+    padding: 18px 20px;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-card);
+    background: var(--bg);
+  }
+  .path--actual {
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .path--actual .label {
+    color: var(--accent-strong);
+  }
+  .steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 0;
+  }
+  .steps li {
+    display: flex;
+    align-items: center;
+  }
+  .arrow {
+    padding: 0 10px;
+    color: var(--muted);
+    font-size: 16px;
+  }
+  .step {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .path--actual .step {
+    border: 2px solid var(--accent);
+    background: var(--raise);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  @container (min-width: 520px) {
+    .path {
+      grid-template-columns: 120px 1fr;
+      align-items: center;
+    }
+  }
+</style>

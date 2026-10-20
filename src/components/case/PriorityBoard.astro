@@ -1,0 +1,96 @@
+---
+/**
+ * A priority board: columns (Must, Should, Cut for now...), each item with a one-line
+ * reason. Three across from 640px of its own width, stacked below. A `cut` column is drawn
+ * dashed and muted, and its title says so in words.
+ */
+interface Props {
+  columns: { title: string; cut?: boolean; items: { title: string; reason: string }[] }[];
+}
+const { columns } = Astro.props;
+---
+
+<div class="wrap">
+  <div class="board">
+    {
+      columns.map((col) => (
+        <div class:list={['col', col.cut && 'col--cut']}>
+          <h3 class="title">{col.title}</h3>
+          <ul class="items" role="list">
+            {col.items.map((it) => (
+              <li>
+                <b>{it.title}</b>
+                <span>{it.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .board {
+    display: grid;
+    gap: 14px;
+  }
+  @container (min-width: 640px) {
+    .board {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .col {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .col:first-child {
+    border: 2px solid var(--accent);
+  }
+  .col--cut {
+    border: 1px dashed var(--muted);
+    background: transparent;
+  }
+  .title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--accent-strong);
+  }
+  .col--cut .title {
+    color: var(--muted);
+  }
+  .items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .items li {
+    display: grid;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: var(--radius-control);
+    background: var(--raise);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .items b {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .col--cut .items li {
+    background: var(--surface);
+  }
+</style>

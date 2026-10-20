@@ -1,0 +1,93 @@
+---
+/**
+ * Decisions shown on the product: one card per decision, a real crop on top and the
+ * decision in one line under it (e.g. accessibility: status never by color alone). Three
+ * across from 720px of its own width, stacked below. Crops are found by name in
+ * src/assets/work/<project>/; each has its own alt text.
+ */
+import { Image } from 'astro:assets';
+import { workScreen } from '../../lib/work-media';
+
+interface Props {
+  project: string;
+  items: { text: string; image: string; alt: string }[];
+}
+const { project, items } = Astro.props;
+---
+
+<div class="wrap">
+  <ul class="cards" role="list">
+    {
+      items.map((it) => {
+        const still = workScreen(project, it.image);
+        return (
+          <li class="card">
+            <div class="crop">
+              {still ? (
+                <Image src={still} alt={it.alt} widths={[360, 720]} sizes="(min-width: 1024px) 260px, 90vw" loading="lazy" />
+              ) : (
+                <p class="missing">Screenshot to add: {it.image}</p>
+              )}
+            </div>
+            <p class="text">{it.text}</p>
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .cards {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 14px;
+  }
+  @container (min-width: 720px) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .crop {
+    display: grid;
+    place-items: center;
+    height: 190px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raise);
+  }
+  .crop :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 550;
+    color: var(--ink);
+  }
+  .missing {
+    margin: 0;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>

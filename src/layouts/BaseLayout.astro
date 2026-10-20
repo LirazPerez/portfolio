@@ -11,12 +11,15 @@ interface Props {
   /** Link preview image (path or URL) and its alt text; every page shares /og.png unless it passes its own. */
   image?: string;
   imageAlt?: string;
+  /** Keep the page out of search results (a page that nothing links to yet). */
+  noindex?: boolean;
 }
 
 const {
   title,
   description = 'Liraz Hazala Perez, product designer. Nine years running complex operations, now designing and building products.',
   image = '/og.png',
+  noindex = false,
   imageAlt = 'Liraz Hazala Perez, Product Designer. I design and build products. Beside the words, a small heap of clay objects: a beret, a laptop, the Statue of Liberty, a running shoe and Bobby the dog.',
 } = Astro.props;
 const fullTitle = title === 'Home' ? 'Liraz Hazala Perez · Product Designer' : `${title} · Liraz Hazala Perez`;
@@ -33,6 +36,7 @@ const ogImage = new URL(image, Astro.site);
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={geistUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={caveatUrl} as="font" type="font/woff2" crossorigin />

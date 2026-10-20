@@ -14,16 +14,17 @@ Replace `<slug>` with the project slug: `aeropulse`, `waypoint`, `recall`, `clas
 
 ## Waypoint
 
-`waypoint.mp4` (1.5 MB), `waypoint.webm` (1.4 MB), `waypoint-poster.webp`: 9.4 s, 1600x1000,
-30 fps, muted, seamless loop. Recorded from the deployed demo, https://waypoint-app-three.vercel.app
-(`?role=caregiver`), which runs on mock data only (patient Ilan, caregiver Dana; no login, no
-real personal or health data), by `scripts/record-aeropulse-clips.mjs waypoint` and encoded with
-`scripts/encode-aeropulse-clips.sh <frames-dir> waypoint 175 src/assets/stages`.
+`waypoint.mp4`, `waypoint.webm`, `waypoint-poster.webp`: the same take as the case study's hero
+clip (recording A, `src/assets/work/waypoint/flow.*`), 10.9 s, 1600x1000, 30 fps, muted, seamless
+loop. Recorded from the deployed demo, https://waypoint-app-three.vercel.app (`?role=caregiver`),
+which runs on sample data only (patient Ilan, caregiver Dana), by
+`scripts/record-waypoint-clips.mjs <frames-dir> flow` and encoded with
+`scripts/encode-waypoint-clips.sh <frames-dir> flow 15 src/assets/stages waypoint`.
 
-The story: the caregiver's home → Ilan's code (zoom in on the QR card) → See what a doctor
-sees → the doctor's one-screen view (zoom in on "Alerts: read first") → back to the home screen.
-The poster is the alerts close-up. It replaces `WaypointScene.astro` (kept in the repo, unused
-while this recording exists).
+The story: the caregiver's home → "Check medications are still correct" → the medical record on
+the two medications to check → Gabapentin's source document, the Hebrew original beside the
+English translation. The poster is the caregiver's home. It replaces `WaypointScene.astro` (kept
+in the repo as the fallback, unused while this recording exists).
 
 ## Specs
 

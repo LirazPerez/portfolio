@@ -1,5 +1,11 @@
 ---
 import { SECTIONS } from '../lib/case-study';
+
+interface Props {
+  /** The sections this page has (optional ones may be missing). Defaults to the whole outline. */
+  sections?: readonly { id: string; title: string }[];
+}
+const { sections = SECTIONS } = Astro.props;
 // Two renderings of one list: a sticky side column from 1024px up, a collapsed bar below.
 // Only one is displayed at a time, so only one is in the accessibility tree.
 // Without JS both still work as plain jump links; JS adds the current-section marker.
@@ -9,7 +15,7 @@ import { SECTIONS } from '../lib/case-study';
   <p class="toc-title">On this page</p>
   <ol role="list">
     {
-      SECTIONS.map((s) => (
+      sections.map((s) => (
         <li>
           <a href={`#${s.id}`} data-toc-link={s.id}>
             {s.title}
@@ -23,13 +29,13 @@ import { SECTIONS } from '../lib/case-study';
 <details class="toc-bar" data-toc-bar>
   <summary>
     <span class="toc-bar-label">On this page<span class="sr-only-text">:</span></span>
-    <span class="toc-bar-current" data-toc-current>{SECTIONS[0].title}</span>
+    <span class="toc-bar-current" data-toc-current>{sections[0].title}</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"></path></svg>
   </summary>
   <nav aria-label="On this page">
     <ol role="list">
       {
-        SECTIONS.map((s) => (
+        sections.map((s) => (
           <li>
             <a href={`#${s.id}`} data-toc-link={s.id}>
               {s.title}

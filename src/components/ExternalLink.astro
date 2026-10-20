@@ -3,12 +3,15 @@
  * A link to an external site: opens in a new tab, shows an icon, and says so in its
  * accessible name. The visible label is the slot.
  * `primary` is the filled accent button (e.g. "Try the live app"); the default is a quiet pill.
+ * `icon="arrow"` draws a plain arrow instead of the new-tab icon (the accessible name still
+ * says it opens in a new tab).
  */
 interface Props {
   href: string;
   variant?: 'default' | 'primary';
+  icon?: 'external' | 'arrow';
 }
-const { href, variant = 'default' } = Astro.props;
+const { href, variant = 'default', icon = 'external' } = Astro.props;
 ---
 
 <a
@@ -24,6 +27,9 @@ const { href, variant = 'default' } = Astro.props;
 >
   <span><slot /></span>
   <span class="sr-only-text">(opens an external site in a new tab)</span>
+  {icon === 'arrow' ? (
+    <span class="ext-arrow" aria-hidden="true">→</span>
+  ) : (
   <svg
     width="15"
     height="15"
@@ -40,4 +46,14 @@ const { href, variant = 'default' } = Astro.props;
     <path d="M20 4l-9 9"></path>
     <path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"></path>
   </svg>
+  )}
 </a>
+
+<style>
+  .ext-arrow {
+    transition: transform 0.25s;
+  }
+  .ext:hover .ext-arrow {
+    transform: translateX(3px);
+  }
+</style>

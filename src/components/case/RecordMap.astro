@@ -1,0 +1,161 @@
+---
+/**
+ * Scattered sources on one side, one record in the middle, the questions that record must
+ * answer on the other. Three columns joined by arrows from 600px of its own width, stacked
+ * with down arrows below. Real text in lists; `label` names the whole map for assistive tech.
+ * People among the sources (`person: true`) get a round avatar mark instead of a document mark.
+ */
+interface Props {
+  label: string;
+  sources: { label: string; person?: boolean }[];
+  hub: string;
+  questions: string[];
+}
+const { label, sources, hub, questions } = Astro.props;
+---
+
+<div class="wrap">
+  <figure class="map" aria-label={label}>
+    <ul class="col sources" role="list" aria-label="Where the information lives">
+      {
+        sources.map((s) => (
+          <li class="chip">
+            {s.person ? (
+              <span class="mark mark--person" aria-hidden="true">
+                {s.label.slice(0, 1)}
+              </span>
+            ) : (
+              <svg class="mark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M7 3h7l4 4v14H7z" />
+                <path d="M14 3v4h4M10 12h5M10 16h5" />
+              </svg>
+            )}
+            <span>{s.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <span class="link" aria-hidden="true"></span>
+    <div class="hub">
+      <span>{hub}</span>
+    </div>
+    <span class="link" aria-hidden="true"></span>
+    <ul class="col questions" role="list" aria-label="What it must answer">
+      {questions.map((q) => <li class="q">{q}</li>)}
+    </ul>
+  </figure>
+</div>
+
+<style>
+  .wrap {
+    container-type: inline-size;
+  }
+  .map {
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+  }
+  .col {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px 0 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--raise);
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .mark {
+    flex: none;
+    color: var(--muted);
+  }
+  .mark--person {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .hub {
+    display: grid;
+    place-items: center;
+    min-width: 150px;
+    padding: 18px 22px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-card);
+    background: var(--accent-tint);
+    font-size: 17px;
+    font-weight: 650;
+    color: var(--accent-strong);
+    text-align: center;
+  }
+  .q {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  /* The connector: a short line with an arrowhead, pointing down when stacked. */
+  .link {
+    position: relative;
+    width: 2px;
+    height: 26px;
+    background: var(--muted);
+  }
+  .link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  @container (min-width: 600px) {
+    .map {
+      grid-template-columns: minmax(0, 1fr) 40px auto 40px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+    }
+    .col {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .sources .chip {
+      justify-content: flex-start;
+    }
+    .link {
+      width: 100%;
+      height: 2px;
+    }
+    .link::after {
+      left: auto;
+      right: -1px;
+      bottom: 50%;
+      transform: translateY(50%) rotate(-45deg);
+    }
+  }
+</style>
