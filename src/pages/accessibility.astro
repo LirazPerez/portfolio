@@ -33,9 +33,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <section aria-labelledby="known">
         <h2 id="known">Known gaps</h2>
-        <p>
-          <span class="placeholder-tag">Placeholder</span> This section will list anything I know is not yet fully accessible, with a plan to fix it, once the case studies and their media are in place.
-        </p>
+        <p>I audited every page in October 2026. This is what I know is not right yet.</p>
+        <ul>
+          <li>The clay objects on the home page can be picked up only with a mouse or a finger, and their names appear only on hover. Screen readers get the same names as a list, but sighted keyboard users don't see them yet.</li>
+          <li>The case-study recordings are silent product clips, and the text beside each one describes what it shows. The ones on the AeroPulse and Waypoint pages have a pause button, but the phone recordings and short clips on the Neta and Recall pages, and the recordings on the home page cards, don't yet. They play only while they are on screen, and stay still if your device asks for reduced motion.</li>
+          <li>My CV PDF is tagged and has real text, but a screen reader reads its two columns mixed together and its headings as plain text. The About page covers the same path in order, and if you need the CV in another format, ask me and I'll send one.</li>
+          <li>The live demos of AeroPulse and Waypoint are separate apps that the case studies link out to. They are working prototypes, and I haven't audited them to the same standard as this site.</li>
+        </ul>
       </section>
 
       <section aria-labelledby="report">
@@ -74,16 +78,5 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   .statement li::marker {
     color: var(--accent);
-  }
-  .placeholder-tag {
-    display: inline-block;
-    margin-inline-end: 6px;
-    padding: 2px 8px;
-    border: 1px dashed var(--muted);
-    border-radius: var(--radius-pill);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    vertical-align: 2px;
   }
 </style>

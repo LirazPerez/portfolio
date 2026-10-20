@@ -1,7 +1,7 @@
 ---
 /**
  * One product flow: its recording in a phone on one side; on the other, an eyebrow
- * ("1 · Capture"), the flow's line as a #### heading (it sits under a SubIntro's ###), the steps as small pills joined by
+ * ("1 · Capture"), the flow's line as a #### heading (it sits under a SubIntro's ###; `level={3}` when it sits right under the section's ##), the steps as small pills joined by
  * arrows (an ordered list), and the key decision. `flip` puts the phone on the right.
  * An optional component loop (`component`) sits under the decision.
  * Two columns from 600px of its own width; below that the phone comes first. The text
@@ -30,8 +30,11 @@ interface Props {
   lede?: string;
   note?: string;
   chips?: { lead: string; text: string }[];
+  /** Heading level of the flow's line: 4 under a SubIntro (default), 3 straight under the section. */
+  level?: 3 | 4;
 }
-const { project, clip, alt, eyebrow, title, steps, decision, flip = false, component, native = false, lede, note, chips } = Astro.props;
+const { project, clip, alt, eyebrow, title, steps, decision, flip = false, component, native = false, lede, note, chips, level = 4 } = Astro.props;
+const Heading = `h${level}` as 'h3' | 'h4';
 const media = workClip(project, clip);
 ---
 
@@ -42,7 +45,7 @@ const media = workClip(project, clip);
     </div>
     <div class="txt">
       <p class="eyebrow">{eyebrow}</p>
-      <h4>{title}</h4>
+      <Heading class="flow-title">{title}</Heading>
       {lede && <p class="lede">{lede}</p>}
       <ol class="steps" role="list" aria-label="Steps">
         {steps.map((s, i) => (
@@ -128,7 +131,7 @@ const media = workClip(project, clip);
     font-weight: 600;
     color: var(--accent-strong);
   }
-  h4 {
+  .flow-title {
     margin: 0;
     font-size: 24px;
     line-height: 1.2;

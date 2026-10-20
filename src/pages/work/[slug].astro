@@ -46,6 +46,7 @@ import StatesGrid from '../../components/case/StatesGrid.astro';
 import ProofCards from '../../components/case/ProofCards.astro';
 import CaptionedClip from '../../components/case/CaptionedClip.astro';
 import CaseStudyToc from '../../components/CaseStudyToc.astro';
+import BackToTop from '../../components/BackToTop.astro';
 import Screen from '../../components/Screen.astro';
 import ExternalLink from '../../components/ExternalLink.astro';
 import { SECTIONS, sectionsIn } from '../../lib/case-study';
@@ -188,6 +189,7 @@ const PLACEHOLDER: Record<(typeof SECTIONS)[number]['id'], string> = {
       )
     }
   </article>
+  <BackToTop />
 </BaseLayout>
 
 <style>

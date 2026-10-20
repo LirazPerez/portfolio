@@ -7,6 +7,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PathTimeline from '../components/about/PathTimeline.astro';
 import ClayFrame from '../components/about/ClayFrame.astro';
 import PathObjects from '../components/about/PathObjects.astro';
+import BackToTop from '../components/BackToTop.astro';
 import { aboutPhoto } from '../lib/about-media';
 import { CV_HREF, CV_SIZE_LABEL } from '../lib/cv';
 import { ABOUT_TITLE, OPENING, PATH, CERTIFICATES, BEFORE_DESIGN, DESIGN_BUILD_RUN, OFF_THE_CLOCK, CLOSING } from '../data/about';
@@ -170,6 +171,7 @@ const splitLink = (line: string, link?: { text: string }) => {
       </div>
     </section>
   </div>
+  <BackToTop />
 </BaseLayout>
 
 <style>

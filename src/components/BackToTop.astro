@@ -1,0 +1,128 @@
+---
+/**
+ * Back to top, for long pages (case studies, About). A 44px round button in the bottom-right
+ * corner: in the page's side gutter on wide screens, just above the docked capsule on phones.
+ * Hidden without JS (the page still scrolls, and Home in the nav goes up). It fades in once the
+ * reader is about one screen down and out again near the top, and steps aside while it would sit
+ * over something to operate (a clip's pause / play button, a link, a control).
+ * Smooth scroll, or an instant jump under reduced motion; then focus moves to <main>, so keyboard
+ * and screen reader users land where sighted users do.
+ */
+---
+
+<button type="button" class="to-top" data-to-top aria-label="Back to top" hidden>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M12 19V5M6 11l6-6 6 6"></path>
+  </svg>
+</button>
+
+<style>
+  .to-top {
+    position: fixed;
+    right: clamp(16px, 2.5vw, 32px);
+    bottom: 24px;
+    z-index: 45;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--muted);
+    border-radius: var(--radius-pill);
+    background: var(--raise);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    /* Hidden (not just transparent) when out, so it leaves the tab order and the a11y tree. */
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.25s ease,
+      visibility 0s linear 0.25s,
+      color 0.2s;
+  }
+  .to-top[hidden] {
+    display: none;
+  }
+  .to-top[data-shown] {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.25s ease,
+      visibility 0s,
+      color 0.2s;
+  }
+  .to-top:hover {
+    color: var(--accent-strong);
+    background: var(--surface);
+  }
+  /* Under 760px the capsule docks to the bottom (about 56px tall at 12px): sit just above it. */
+  @media (max-width: 47.49rem) {
+    .to-top {
+      right: 12px;
+      bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-to-top]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const INTERACTIVE = 'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])';
+
+  if (btn) {
+    btn.hidden = false;
+    let shown = false;
+    let frame = 0;
+
+    // Would the button sit over something the reader may want to operate?
+    const covers = () => {
+      const r = btn.getBoundingClientRect();
+      const points: [number, number][] = [
+        [r.left + r.width / 2, r.top + r.height / 2],
+        [r.left + 4, r.top + 4],
+        [r.right - 4, r.top + 4],
+        [r.left + 4, r.bottom - 4],
+        [r.right - 4, r.bottom - 4],
+      ];
+      return points.some(([x, y]) =>
+        document.elementsFromPoint(x, y).some((el) => !btn.contains(el) && !!el.closest(INTERACTIVE)),
+      );
+    };
+
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const far = shown ? y > window.innerHeight * 0.6 : y > window.innerHeight;
+      // Keep a focused button where it is, so it never vanishes under the keyboard.
+      const next = far && (btn === document.activeElement || !covers());
+      if (next !== shown) {
+        shown = next;
+        btn.toggleAttribute('data-shown', shown);
+      }
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    document.addEventListener('focusin', schedule);
+    update();
+
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: reduce.matches ? 'instant' : 'smooth' });
+      document.querySelector<HTMLElement>('main')?.focus({ preventScroll: true });
+    });
+  }
+</script>

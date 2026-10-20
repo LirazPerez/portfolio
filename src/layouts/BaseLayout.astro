@@ -23,7 +23,8 @@ const {
   imageAlt = 'Liraz Hazala Perez, Product Designer. I design and build products. Beside the words, a small heap of clay objects: a beret, a laptop, the Statue of Liberty, a running shoe and Bobby the dog.',
 } = Astro.props;
 const fullTitle = title === 'Home' ? 'Liraz Hazala Perez · Product Designer' : `${title} · Liraz Hazala Perez`;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+// Without the trailing slash the build adds ("/about/"), so it matches every internal link ("/about").
+const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, '$1'), Astro.site);
 const ogImage = new URL(image, Astro.site);
 ---
 

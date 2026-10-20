@@ -57,8 +57,9 @@ const BOX = { w: 360, h: 300 };
   .obj {
     position: relative;
     display: block;
-    width: 72px;
-    height: 72px;
+    /* Four across even at 320px (400% zoom) without a sideways scroll. */
+    width: clamp(56px, 18vw, 72px);
+    height: clamp(56px, 18vw, 72px);
     margin: 0;
     padding: 0;
     border: 0;

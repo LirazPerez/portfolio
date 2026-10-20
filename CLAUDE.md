@@ -221,7 +221,7 @@ Available in every case-study MDX without importing (the template passes them as
 | `<GapMatrix caption columns rows>` | A real `<table>` (caption, row and column headers) that scrolls inside its own frame on phones. Marks are ✓ ½ ✕ - with a spoken word each, and a key. Last column = ours. |
 | `<PivotNote when title text>` | A dated moment that changed the plan. |
 | `<Persona name role quote stats>` | Persona card next to big numbers. |
-| `<FlowRow project clip alt eyebrow title lede steps decision note chips flip component>` | One flow: its recording in a `<Phone>`, an optional first-person `lede`, steps as pills, the key decision, an optional `note` with `chips` (small cards with a bold lead, two per row when there is room), an optional component loop. |
+| `<FlowRow project clip alt eyebrow title lede steps decision note chips flip component level>` | One flow (`level={3}` when it sits straight under the `##`, else its title is an `h4`): its recording in a `<Phone>`, an optional first-person `lede`, steps as pills, the key decision, an optional `note` with `chips` (small cards with a bold lead, two per row when there is room), an optional component loop. |
 | `<ComponentStrip project items>` | Component loops cropped tight to the component, two across from 600px (an odd last item spans the row, text beside it), stacked on phones. |
 | `<ClipFrame project clip alt>` | One component loop in a hairline frame (used by the two above and `TagOptions`). |
 | `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. The shipped component's loop sits beside a short caption. |
@@ -288,6 +288,7 @@ src/
     Screen.astro             case-study screenshot or clip: floating frame, text-column width, placeholder when missing
     ExternalLink.astro       external link with icon and "opens in a new tab" name
     CaseStudyToc.astro
+    BackToTop.astro          round "Back to top" button on long pages (case studies, About): after one screen, steps aside over controls, focuses main
     case/                    case-study hero and section components (see above)
   content.config.ts          `work` schema
   content/work/*.mdx
