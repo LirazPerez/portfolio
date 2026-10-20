@@ -2,10 +2,12 @@
 /**
  * Edge cases as short cards, each with what it looks like on top: a still
  * (src/assets/work/<project>/<image>.*) or a recording in a small phone (`clip`). Media is
- * one image to assistive tech (`alt`). Three across from 600px of its own width.
+ * one image to assistive tech (`alt`); a recording's pause / play button sits under its panel, beside the title.
+ * Three across from 600px of its own width.
  */
 import { Image } from 'astro:assets';
 import Phone from '../Phone.astro';
+import VideoToggle from '../VideoToggle.astro';
 import { workScreen } from '../../lib/work-media';
 import { workClip } from '../../lib/stage-media';
 
@@ -18,6 +20,7 @@ const cards = items.map((item) => ({
   ...item,
   still: item.image ? workScreen(project, item.image) : undefined,
   media: item.clip ? workClip(project, item.clip) : null,
+  videoId: item.clip ? `edge-${item.clip}-${Math.random().toString(36).slice(2, 8)}` : undefined,
 }));
 ---
 
@@ -28,7 +31,7 @@ const cards = items.map((item) => ({
         <li>
           <div class="media">
             {c.media ? (
-              <Phone media={c.media} label={c.alt} class="mini" />
+              <Phone media={c.media} label={c.alt} class="mini" controls={false} videoId={c.videoId} />
             ) : c.still ? (
               <Image
                 src={c.still}
@@ -42,7 +45,16 @@ const cards = items.map((item) => ({
               <p class="missing">Media to add</p>
             )}
           </div>
-          <h4>{c.title}</h4>
+          {/* The phone peeks up from a cropped panel, so its button sits under the panel, at the
+              end of the title row (the titles of a row of cards stay level). */}
+          {c.media && c.videoId ? (
+            <div class="head">
+              <h4>{c.title}</h4>
+              <VideoToggle for={c.videoId} />
+            </div>
+          ) : (
+            <h4>{c.title}</h4>
+          )}
           <p>{c.text}</p>
         </li>
       ))
@@ -97,6 +109,15 @@ const cards = items.map((item) => ({
     object-position: center;
   }
   /* A small phone, cropped at the bottom of the panel like it is peeking up. */
+  .head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .head h4 {
+    padding-top: 2px;
+  }
   .media :global(.mini) {
     width: 62%;
     max-width: 210px;

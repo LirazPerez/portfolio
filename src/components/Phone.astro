@@ -2,10 +2,13 @@
 /**
  * A generic phone: dark frame, a pill-shaped camera cutout, no brand, no logo. The screen is
  * 390:844 and the recording fills it (object-fit: cover, anchored to the top). The whole
- * phone is one image to assistive tech; the video itself is aria-hidden.
+ * phone (its body) is one image to assistive tech; the video itself is aria-hidden.
  *
  * Motion: the recording plays only when motion is allowed and the phone is on screen
- * (StageVideo). With reduced motion or no JS its poster shows.
+ * (StageVideo). With reduced motion or no JS its poster shows. A pause / play button
+ * (VideoToggle) sits just under the phone's right edge, outside the image; `controls={false}`
+ * leaves it to the parent (pass `videoId` and place a <VideoToggle for={videoId} /> yourself),
+ * for a phone cropped by its panel.
  * Everything scales with the phone's own width (container units), so it reads the same at
  * 140px in an edge-case card and at 300px in the hero. Colors are tokens (--bezel, --bezel-edge).
  *
@@ -16,6 +19,7 @@
  * status bar and Dynamic Island. No drawn camera cutout, and the screen is 590:1282.
  */
 import StageVideo from './StageVideo.astro';
+import VideoToggle from './VideoToggle.astro';
 import type { FlowMedia } from '../lib/stage-media';
 
 interface Props {
@@ -24,16 +28,28 @@ interface Props {
   label: string;
   class?: string;
   native?: boolean;
+  /** Render the pause / play button under the phone (default), or leave it to the parent. */
+  controls?: boolean;
+  /** The recording's id, for a parent that places its own VideoToggle. */
+  videoId?: string;
 }
-const { media, label, class: className, native = false } = Astro.props;
+const { media, label, class: className, native = false, controls = true, videoId } = Astro.props;
+const id = media ? (videoId ?? `phone-${Math.random().toString(36).slice(2, 8)}`) : undefined;
 ---
 
-<div class:list={['phone', native && 'phone--native', className]} role="img" aria-label={label}>
-  <div class="body">
+<div class:list={['phone', native && 'phone--native', className]}>
+  <div class="body" role="img" aria-label={label}>
     <div class="screen">
-      {media ? <StageVideo sources={media.videos} poster={media.poster} /> : <slot />}
+      {media ? <StageVideo sources={media.videos} poster={media.poster} id={id} /> : <slot />}
     </div>
   </div>
+  {
+    id && controls && (
+      <div class="phone-controls">
+        <VideoToggle for={id} />
+      </div>
+    )
+  }
 </div>
 
 <style>
@@ -70,6 +86,11 @@ const { media, label, class: className, native = false } = Astro.props;
     overflow: hidden;
     border-radius: 12cqi;
     background: var(--surface);
+  }
+  .phone-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
   }
   .phone--native .body {
     padding: 3.2cqi;

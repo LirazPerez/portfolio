@@ -3,9 +3,11 @@
  * A short component loop (src/assets/work/<project>/<clip>.mp4, .webm, <clip>-poster.*) in a
  * quiet frame: hairline border, raised surface, its own aspect ratio from the poster. One
  * image to assistive tech (`alt`); the video is aria-hidden and plays only when motion is
- * allowed and it is on screen. A missing clip renders a tagged placeholder.
+ * allowed and it is on screen, with a pause / play button just under the frame's right edge.
+ * A missing clip renders a tagged placeholder.
  */
 import StageVideo from '../StageVideo.astro';
+import VideoToggle from '../VideoToggle.astro';
 import { workClip } from '../../lib/stage-media';
 
 interface Props {
@@ -23,17 +25,23 @@ interface Props {
 const { project, clip, alt, maxHeight, maxWidth, ratio: fixedRatio, class: className } = Astro.props;
 const media = workClip(project, clip);
 const ratio = fixedRatio ?? (media?.poster ? `${media.poster.width} / ${media.poster.height}` : '4 / 5');
+const id = `clip-${clip}-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
 {
   media ? (
-    <div
-      class:list={['clip', fixedRatio && 'clip--fit', className]}
-      role="img"
-      aria-label={alt}
-      style={`--ratio: ${ratio};${maxHeight ? ` --max-h: ${maxHeight};` : ''}${maxWidth ? ` --max-w: ${maxWidth};` : ''}`}
-    >
-      <StageVideo sources={media.videos} poster={media.poster} />
+    <div class:list={['clipframe', className]} style={maxWidth ? `--max-w: ${maxWidth};` : undefined}>
+      <div
+        class:list={['clip', fixedRatio && 'clip--fit']}
+        role="img"
+        aria-label={alt}
+        style={`--ratio: ${ratio};${maxHeight ? ` --max-h: ${maxHeight};` : ''}`}
+      >
+        <StageVideo sources={media.videos} poster={media.poster} id={id} />
+      </div>
+      <div class="clip-controls">
+        <VideoToggle for={id} />
+      </div>
     </div>
   ) : (
     <div class:list={['clip clip--missing', className]}>
@@ -43,12 +51,20 @@ const ratio = fixedRatio ?? (media?.poster ? `${media.poster.width} / ${media.po
 }
 
 <style>
+  .clipframe {
+    width: 100%;
+    max-width: var(--max-w, none);
+  }
+  .clip-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
   .clip {
     position: relative;
     width: 100%;
     aspect-ratio: var(--ratio);
     max-height: var(--max-h, none);
-    max-width: var(--max-w, none);
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-frame);

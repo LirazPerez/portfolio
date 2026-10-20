@@ -166,7 +166,7 @@ Schema in `src/content.config.ts`; files in `src/content/work/<slug>.mdx`. The f
 
 `statusLabel` and `origin` are shown only on the case-study page (the meta row and the line under it). `status` stays the enum; `statusLabel` just replaces its wording.
 
-The home card shows the product on top (a browser window with the flow recording for a desktop project that has one, two phones for a mobile project with `cardPhones`, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. **Role, duration, status and tools are not on the card**; they live on the case-study page.
+The home card shows the product on top (a browser window with the flow recording for a desktop project that has one, two phones for a mobile project with `cardPhones`, otherwise the stage), then title, tagline, tags and "View case study". No annotation, no "What I noticed" line. The title is the link, stretched over the whole card (`::after`), so the card clicks anywhere while each recording keeps its own pause / play button (never nested in a link); the focus ring goes around the card. **Role, duration, status and tools are not on the card**; they live on the case-study page.
 
 **Case-study hero** (`case/CaseHero.astro`): "All work", eyebrow "Case study · <category>", `h1`, tagline, one meta row (Role, Time, Tools, Status), `origin` as a small framed note right under it, then the product (the browser window on its own, with a pause control; or the stage). With `demo`, `highlights` and `heroNotes`: the demo button and the bullets under the meta row, numbered notes under the window, set well apart from it so they read as a caption.
 
@@ -174,7 +174,7 @@ Current entries: `aeropulse` (1, desktop), `waypoint` (2, desktop), `neta` (3, m
 
 Always list entries through `publishedWork()` (`src/lib/work.ts`), never `getCollection('work')` directly, so drafts stay hidden.
 
-**Phone mockup** (`Phone.astro`): a generic dark frame (`--bezel`, `--bezel-edge`), a pill camera cutout, no logo, a 390:844 screen with the recording filling it (cover, from the top). `native` drops the cutout and uses a 590:1282 screen, for Simulator recordings that carry their own status bar and Dynamic Island (Neta). Everything scales with its own width (container units). One image to assistive tech (`label`). A mobile project's recordings live in its media folder as `<clip>.mp4`, `<clip>.webm`, `<clip>-poster.*` (`workClip` in `stage-media.ts`); Recall's are recorded by `scripts/record-recall-flows.mjs` (see the README in its media folder).
+**Phone mockup** (`Phone.astro`): a generic dark frame (`--bezel`, `--bezel-edge`), a pill camera cutout, no logo, a 390:844 screen with the recording filling it (cover, from the top). `native` drops the cutout and uses a 590:1282 screen, for Simulator recordings that carry their own status bar and Dynamic Island (Neta). Everything scales with its own width (container units). One image to assistive tech (`label`, on the frame's body). With a recording it renders its pause / play button (`VideoToggle`) just under its right edge; `controls={false}` plus `videoId` lets a parent place it instead (`EdgeCards`, whose phones are cropped). **Every looping recording on the site has a pause / play button.** A mobile project's recordings live in its media folder as `<clip>.mp4`, `<clip>.webm`, `<clip>-poster.*` (`workClip` in `stage-media.ts`); Recall's are recorded by `scripts/record-recall-flows.mjs` (see the README in its media folder).
 
 **Case-study sections.** Every case study has these sections, in this order, with these ids (single source: `SECTIONS` in `src/lib/case-study.ts`):
 
@@ -223,10 +223,10 @@ Available in every case-study MDX without importing (the template passes them as
 | `<Persona name role quote stats>` | Persona card next to big numbers. |
 | `<FlowRow project clip alt eyebrow title lede steps decision note chips flip component level>` | One flow (`level={3}` when it sits straight under the `##`, else its title is an `h4`): its recording in a `<Phone>`, an optional first-person `lede`, steps as pills, the key decision, an optional `note` with `chips` (small cards with a bold lead, two per row when there is room), an optional component loop. |
 | `<ComponentStrip project items>` | Component loops cropped tight to the component, two across from 600px (an odd last item spans the row, text beside it), stacked on phones. |
-| `<ClipFrame project clip alt>` | One component loop in a hairline frame (used by the two above and `TagOptions`). |
+| `<ClipFrame project clip alt>` | One component loop in a hairline frame, with its pause / play button under the right edge (used by the two above and `TagOptions`). |
 | `<TagOptions options component>` | Design options drawn as real chips, each with a status word; the product's chip colors are scoped `--recall-*` properties. The shipped component's loop sits beside a short caption. |
 | `<ScopeSplit proven unproven quote next>` | Proven vs not proven (icon + word), then one quoted line. |
-| `<EdgeCards project items>` | Edge-case cards with a still or a recording in a small phone. |
+| `<EdgeCards project items>` | Edge-case cards with a still or a recording in a small phone (its pause / play button at the end of the title row). |
 | `<HrDrift label caption start end cap distance stats>` | Heart rate over one run against a cap: SVG from tokens, the easy zone labelled in words, big stats beside it. |
 | `<CompareTable caption columns rows note>` | A comparison in words as a real `<table>`; the last column is ours (named in its header, tinted). Optional `note` line under it. |
 | `<RuleCards rules legend loop>` | Rules written before the build (`firm` ones tinted). With `legend` ({ firm, other }): a key above, firm rules in the first row, the others in the second, each row sharing the width, and the legend words as screen-reader prefixes. Then the work loop as pills. |

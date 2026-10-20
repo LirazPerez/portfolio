@@ -1,7 +1,9 @@
 ---
 /**
  * A home-page project card: the product on top, then title, tagline, tags and
- * "View case study". The whole card is one link.
+ * "View case study". The title is the link, stretched over the whole card (::after), so the
+ * card clicks anywhere while its recordings keep real pause / play buttons (VideoToggle,
+ * never nested in a link), raised above the stretch.
  *
  * A desktop project with a flow recording (src/assets/work/<slug>/flow.mp4) shows it in
  * a browser window, large. A mobile project with `cardPhones` shows those recordings in two
@@ -27,7 +29,6 @@ interface Props {
 const { entry } = Astro.props;
 const { title, tagline, platform, tags, stageAlt, phones, cardPhones, comingSoon, nativeScreen, cardPhoto } = entry.data;
 const titleId = `card-${entry.id}`;
-const Tag = comingSoon ? 'article' : 'a';
 const flow = platform === 'desktop' ? flowMedia(entry.id) : null;
 const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   const phone = phones?.find((p) => p.clip === clip);
@@ -36,8 +37,7 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
 });
 ---
 
-<Tag
-  href={comingSoon ? undefined : `/work/${entry.id}`}
+<article
   aria-labelledby={titleId}
   class:list={[
     'card group grid overflow-hidden rounded-card border border-line bg-surface text-inherit no-underline',
@@ -50,7 +50,7 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   {
     flow && !comingSoon ? (
       <div class="browser-stage">
-        <BrowserFrame media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} />
+        <BrowserFrame media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} pausable />
       </div>
     ) : comingSoon && platform === 'mobile' ? (
       <div class="soon-stage">
@@ -69,7 +69,9 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   }
   <div class="info">
     <div class="grid gap-[10px] min-w-0 max-w-[560px]">
-      <h3 id={titleId} class="m-0 text-[clamp(24px,3vw,28px)] font-semibold tracking-[-0.01em]">{title}</h3>
+      <h3 id={titleId} class="m-0 text-[clamp(24px,3vw,28px)] font-semibold tracking-[-0.01em]">
+        {comingSoon ? title : <a class="card-link" href={`/work/${entry.id}`}>{title}</a>}
+      </h3>
       <p class="m-0 text-[16px] leading-relaxed text-muted">{tagline}</p>
       <ul role="list" aria-label="Tags" class="m-0 p-0 list-none flex flex-wrap gap-1">
         {tags.map((tag) => <li class="text-[13px] border border-line rounded-pill px-[12px] py-[5px] bg-raise">{tag}</li>)}
@@ -87,15 +89,47 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
       )
     }
   </div>
-</Tag>
+</article>
 
 <style>
   .card {
+    position: relative;
     transition:
       transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
       box-shadow 0.35s;
   }
-  a.card:hover {
+  /* The title link covers the card; the focus ring goes around the whole card. */
+  .card-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .card-link:focus-visible {
+    outline: none;
+  }
+  .card:has(.card-link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  /* Pause / play stays clickable above the stretched link: the recordings sit above it (some
+     are transformed, which makes their own layer) but let clicks fall through to it, except
+     on their buttons. */
+  .card :global(.phone),
+  .card :global(.browser) {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .card :global(.vtoggle) {
+    pointer-events: auto;
+  }
+  .card:has(.card-link:hover) {
     transform: translateY(-3px);
     box-shadow: var(--shadow);
   }
@@ -172,7 +206,7 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   .more i {
     transition: transform 0.3s;
   }
-  .card:hover .more i {
+  .card:has(.card-link:hover) .more i {
     transform: translateX(4px);
   }
 </style>
