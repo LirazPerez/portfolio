@@ -8,8 +8,10 @@
  *   1. Background: a blurred, darkened real-world photo from the project's world, with a
  *      light and a dark version. If there is no photo yet: the project's own built-in
  *      backdrop (Waypoint has one), otherwise the neutral placeholder gradient.
- *   2. Foreground: Waypoint's CSS scene, or a framed placeholder that a muted looping
- *      screen recording replaces automatically once it exists.
+ *   2. Foreground: a framed muted looping screen recording when the project has one
+ *      (Waypoint does: src/assets/stages/waypoint.*), otherwise a framed placeholder.
+ *      WaypointScene.astro (the earlier pure-CSS scene) stays in the repo but is only used
+ *      if Waypoint's recording is removed.
  *
  * TODO(Liraz): add the real files to src/assets/stages/. Nothing else to change; the
  * stage finds them by name on the next build. Expected names, per project slug
@@ -40,7 +42,7 @@ const media = stageMedia(slug);
 const hasPhoto = Boolean(media.light || media.dark);
 const hasVideo = media.videos.length > 0;
 const label = alt ?? `${title}: ${platform} hero stage. Placeholder until the screen recording is added.`;
-const isScene = slug === 'waypoint';
+const isScene = slug === 'waypoint' && !hasVideo;
 ---
 
 <div
@@ -80,7 +82,7 @@ const isScene = slug === 'waypoint';
     isScene ? (
       <WaypointScene backdrop={!hasPhoto} />
     ) : platform === 'desktop' ? (
-      <div class="frame frame--desk" aria-hidden="true">
+      <div class:list={['frame', 'frame--desk', hasVideo && 'frame--video']} aria-hidden="true">
         <div class="frame-bar">
           <i />
           <i />
@@ -98,7 +100,7 @@ const isScene = slug === 'waypoint';
         </div>
       </div>
     ) : (
-      <div class="frame frame--phone" aria-hidden="true">
+      <div class:list={['frame', 'frame--phone', hasVideo && 'frame--video']} aria-hidden="true">
         <div class="frame-body">
           {hasVideo ? (
             <StageVideo sources={media.videos} poster={media.poster} />
@@ -207,6 +209,17 @@ const isScene = slug === 'waypoint';
     width: min(78%, 560px);
     aspect-ratio: 16 / 10;
     border-radius: 10px;
+  }
+  /* A real recording: a solid hairline frame with the soft shadow, and more room in the hero. */
+  .frame--video {
+    border-style: solid;
+    box-shadow: var(--shadow-lift);
+  }
+  /* Sized by the stage's height (16:10 inside a wider stage), so it never overflows it. */
+  .frame--desk.frame--video {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
   }
   .frame--phone {
     height: 86%;

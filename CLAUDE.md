@@ -113,9 +113,9 @@ Supporting tokens follow the theme too: `--glass` (translucent capsule fill), `-
 
 Every project may have its own palette, but **only inside its hero stage** (`src/components/Stage.astro`, marked `data-project="<slug>"`). Define project colors as `--<slug>-*` custom properties scoped to that stage, with dark variants under the same theme selectors as the tokens. Site chrome (nav, cards, text, buttons, TOC) stays neutral and purple.
 
-**Stage background and media** (`Stage.astro`, resolved by `src/lib/stage-media.ts`): a blurred, darkened real-world photo per project, one per theme, plus an optional muted looping screen recording. Nothing is registered in code: drop files in `src/assets/stages/` by name (`<slug>-light.jpg`, `<slug>-dark.jpg`, `<slug>.mp4`, `<slug>-poster.jpg`; see the README there for the TODO list). Until a photo exists: Waypoint shows its built-in backdrop, the other stages a neutral gradient. Videos are muted, looping, `playsinline`, no controls, `aria-hidden`; the text alternative is on the stage (`role="img"`, `aria-label`). They play only when motion is allowed and on screen; otherwise the poster shows.
+**Stage background and media** (`Stage.astro`, resolved by `src/lib/stage-media.ts`): a blurred, darkened real-world photo per project, one per theme, plus an optional muted looping screen recording. Nothing is registered in code: drop files in `src/assets/stages/` by name (`<slug>-light.jpg`, `<slug>-dark.jpg`, `<slug>.mp4`, `<slug>-poster.jpg`; see the README there for the TODO list). Until a photo exists, stages show a neutral gradient. A recording sits in a solid hairline frame sized by the stage's height. Videos are muted, looping, `playsinline`, no controls, `aria-hidden`; the text alternative is on the stage (`role="img"`, `aria-label`). They play only when motion is allowed and on screen; otherwise the poster shows.
 
-**Waypoint's stage** is a pure-CSS scene (`WaypointScene.astro`): phone with code, scan line, physician view rising, rows appearing, alerts first. It loops over 7s, starts mid-cycle so the first frame is complete, is held at that frame until on screen, and under reduced motion shows the final frame (the un-animated style).
+**Waypoint's stage** is a recording of the real app (`src/assets/stages/waypoint.mp4`, `.webm`, `waypoint-poster.webp`), recorded by `scripts/record-aeropulse-clips.mjs` (scene `waypoint`) from the deployed demo, https://waypoint-app-three.vercel.app, which runs on mock data only (patient Ilan, caregiver Dana; no login): the caregiver's home, Ilan's code, and the doctor's one-screen view with its alerts first, 9.4 s, seamless loop. It shows on the home coming-soon row and the Waypoint page. `WaypointScene.astro` (the earlier pure-CSS scene) is kept but unused; `Stage.astro` falls back to it only if the recording is removed.
 
 ## Accessibility rules
 
@@ -267,7 +267,7 @@ src/
     Stage.astro              project hero stage (the only place for project colors)
     StageVideo.astro         muted looping recording; lazy (poster until near), plays only when motion is allowed and on screen
     VideoToggle.astro        pause / play button for one StageVideo (hidden without JS)
-    WaypointScene.astro      Waypoint's CSS scene
+    WaypointScene.astro      Waypoint's earlier CSS scene (kept, unused while the recording exists)
     ClayHeap.tsx/.css        the React island (clay heap in the home hero)
     AiLab.astro              "AI that works for me"
     Screen.astro             case-study screenshot or clip: floating frame, text-column width, placeholder when missing
@@ -289,7 +289,7 @@ src/
   lib/cv.ts                  CV path + size label
   pages/  index, about, accessibility, 404, work/[slug]
 public/cv/liraz-hazala-perez-cv.pdf
-scripts/record-aeropulse-clips.mjs  re-records AeroPulse's flow and decision clips (Playwright, not a dependency)
+scripts/record-aeropulse-clips.mjs  re-records AeroPulse's flow and decision clips and Waypoint's stage clip (Playwright, not a dependency)
 scripts/encode-aeropulse-clips.sh   encodes them to MP4, WebM and a WebP poster
 scripts/record-recall-flows.mjs     re-records Recall's three phone flows (same approach)
 scripts/export-hero-objects.mjs     exports the clay heap's WebPs and outlines from V01/Hero Objects/

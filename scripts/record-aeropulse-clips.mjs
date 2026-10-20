@@ -1,5 +1,6 @@
-// Records AeroPulse's case-study clips from the live demo app (see the README in
-// src/assets/work/aeropulse/): the hero flow and one clip per key decision.
+// Records the case-study clips from the live demo apps: AeroPulse's hero flow and one clip
+// per key decision (see the README in src/assets/work/aeropulse/), and Waypoint's
+// coming-soon stage recording (src/assets/stages/README.md).
 //
 // Frame by frame: the app runs in a 1440x900 viewport, and every frame is captured through a
 // virtual camera (a rectangle on the page, 16:10). The browser re-renders that rectangle at
@@ -171,7 +172,7 @@ const linkPoint = async (href) => {
 
 async function open(path) {
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 });
-  await page.goto(APP + path, { waitUntil: 'networkidle' });
+  await page.goto(path.startsWith('http') ? path : APP + path, { waitUntil: 'networkidle' });
   await page.waitForTimeout(2500);
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.18 });
 }
@@ -331,6 +332,48 @@ await record('decision-3-proof', '/archive', { x: 900, y: 640 }, async () => {
   await rest(120);
   await click(900);
   await tween(800, { to: startPos, bend: -0.1 });
+  lastClick = null;
+  await rest(300);
+});
+
+// ---------- Waypoint (src/assets/stages/waypoint.*) ----------
+// The emergency layer, end to end, on the deployed demo (mock data only, no login): the
+// caregiver's home, Ilan's code, and what a doctor sees when it is shown, alerts first.
+const WAYPOINT = 'https://waypoint-app-three.vercel.app/?role=caregiver';
+await record('waypoint', WAYPOINT, { x: 700, y: 640 }, async () => {
+  const startPos = { ...pos };
+  await rest(700);
+  // Ilan's code, from the sidebar.
+  const codeLink = await box(page.getByText("Ilan's code").first());
+  await tween(900, { to: { x: codeLink.x + 40, y: codeLink.y + codeLink.height / 2 + 6 }, bend: 0.1 });
+  await rest(120);
+  await click(900);
+  // In to the code card.
+  const dialog = await box(page.locator('[role=dialog]').first());
+  const see = page.getByText('See what a doctor sees').first();
+  const sb = await box(see);
+  await tween(1100, { camTo: frameRect(dialog, 30), to: { x: sb.x + sb.width - 6, y: sb.y + sb.height / 2 + 6 } });
+  await rest(700);
+  await click(1300);
+  // The doctor's view opens wide, then the camera goes to the alerts.
+  cam = { x: VW / 2, y: VH / 2, w: VW };
+  await rest(350);
+  const alerts = await box(page.getByText('Alerts: read first').first().locator('xpath=..'));
+  const head = await box(page.getByText('Age 63').first());
+  await tween(1200, { camTo: frameRect(union(alerts, head), 28), to: { x: alerts.x + alerts.width - 40, y: alerts.y + alerts.height + 18 } });
+  await rest(1400);
+  // Back out and close the preview, to the home screen the loop started on.
+  const close = await box(page.getByText('Close preview').first());
+  await tween(1000, { camTo: WIDE, to: { x: close.x + close.width / 2, y: close.y + close.height / 2 + 6 } });
+  await rest(120);
+  await click(900);
+  const x = page.locator('[role=dialog] button[aria-label="Close"], [role=dialog] button:has-text("Close")').first();
+  if (await x.count()) {
+    const xb = await box(x);
+    await tween(600, { to: { x: xb.x + xb.width / 2, y: xb.y + xb.height / 2 + 4 } });
+    await click(700);
+  }
+  await tween(900, { to: startPos, bend: -0.1 });
   lastClick = null;
   await rest(300);
 });
