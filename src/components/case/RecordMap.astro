@@ -1,48 +1,68 @@
 ---
 /**
- * Scattered sources on one side, one record in the middle, the questions that record must
- * answer on the other. Three columns joined by arrows from 600px of its own width, stacked
- * with down arrows below. Real text in lists; `label` names the whole map for assistive tech.
- * People among the sources (`person: true`) get a round avatar mark instead of a document mark.
+ * Scattered sources, the one record they become, and the questions that record must answer.
+ * Three columns, each with a small label on top, joined by arrows: sources → record →
+ * questions. The record names the people who share it under it. Side by side from 600px of
+ * its own width; stacked top to bottom with downward arrows below. Real text in lists;
+ * `label` names the whole map for assistive tech.
  */
 interface Props {
   label: string;
-  sources: { label: string; person?: boolean }[];
+  sourcesLabel: string;
+  sources: string[];
   hub: string;
+  people: string[];
+  peopleLabel: string;
+  questionsLabel: string;
   questions: string[];
 }
-const { label, sources, hub, questions } = Astro.props;
+const { label, sourcesLabel, sources, hub, people, peopleLabel, questionsLabel, questions } = Astro.props;
 ---
 
 <div class="wrap">
   <figure class="map" aria-label={label}>
-    <ul class="col sources" role="list" aria-label="Where the information lives">
-      {
-        sources.map((s) => (
-          <li class="chip">
-            {s.person ? (
-              <span class="mark mark--person" aria-hidden="true">
-                {s.label.slice(0, 1)}
-              </span>
-            ) : (
-              <svg class="mark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <div class="col">
+      <p class="col-label" id="rm-sources">{sourcesLabel}</p>
+      <ul class="list" role="list" aria-labelledby="rm-sources">
+        {
+          sources.map((s) => (
+            <li class="source">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <path d="M7 3h7l4 4v14H7z" />
                 <path d="M14 3v4h4M10 12h5M10 16h5" />
               </svg>
-            )}
-            <span>{s.label}</span>
-          </li>
-        ))
-      }
-    </ul>
-    <span class="link" aria-hidden="true"></span>
-    <div class="hub">
-      <span>{hub}</span>
+              <span>{s}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
     <span class="link" aria-hidden="true"></span>
-    <ul class="col questions" role="list" aria-label="What it must answer">
-      {questions.map((q) => <li class="q">{q}</li>)}
-    </ul>
+    <div class="hub-col">
+      <div class="hub">
+        <span class="hub-title">{hub}</span>
+        <ul class="people" role="list" aria-label={peopleLabel}>
+          {
+            people.map((p) => (
+              <li>
+                <span class="avatar" aria-hidden="true">
+                  {p.slice(0, 1)}
+                </span>
+                <span>{p}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <p class="hub-note" aria-hidden="true">{peopleLabel}</p>
+    </div>
+    <span class="link" aria-hidden="true"></span>
+    <div class="col">
+      <p class="col-label" id="rm-questions">{questionsLabel}</p>
+      <ul class="list" role="list" aria-labelledby="rm-questions">
+        {questions.map((q) => <li class="q">{q}</li>)}
+      </ul>
+    </div>
   </figure>
 </div>
 
@@ -54,73 +74,113 @@ const { label, sources, hub, questions } = Astro.props;
     margin: 0;
     display: grid;
     justify-items: center;
-    gap: 10px;
+    gap: 12px;
   }
   .col {
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+    width: 100%;
+    max-width: 280px;
+  }
+  .col-label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    width: 100%;
+  }
+  .source {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px 0 12px;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-control);
+    background: var(--bg);
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .source svg {
+    flex: none;
+    color: var(--muted);
+  }
+  .hub-col {
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+  }
+  .hub {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    min-width: 170px;
+    padding: 18px 20px 16px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-card);
+    background: var(--accent-tint);
+  }
+  .hub-title {
+    font-size: 17px;
+    font-weight: 650;
+    color: var(--accent-strong);
+  }
+  .people {
     margin: 0;
     padding: 0;
     list-style: none;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    gap: 14px;
   }
-  .chip {
+  .people li {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 40px;
-    padding: 0 14px 0 10px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-pill);
-    background: var(--raise);
-    font-size: 14.5px;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--ink);
   }
-  .mark {
-    flex: none;
-    color: var(--muted);
-  }
-  .mark--person {
-    width: 22px;
-    height: 22px;
+  .avatar {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: var(--accent-tint);
+    background: var(--raise);
     color: var(--accent-strong);
     font-size: 12px;
     font-weight: 700;
   }
-  .hub {
-    display: grid;
-    place-items: center;
-    min-width: 150px;
-    padding: 18px 22px;
-    border: 2px solid var(--accent);
-    border-radius: var(--radius-card);
-    background: var(--accent-tint);
-    font-size: 17px;
-    font-weight: 650;
-    color: var(--accent-strong);
-    text-align: center;
+  .hub-note {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
   }
   .q {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     min-height: 40px;
     padding: 0 14px;
+    border: 1px solid var(--line);
     border-radius: var(--radius-control);
     background: var(--surface);
     font-size: 14.5px;
     font-weight: 600;
     color: var(--ink);
   }
-  /* The connector: a short line with an arrowhead, pointing down when stacked. */
+  /* The connector: a line with an arrowhead, pointing down when stacked. */
   .link {
     position: relative;
     width: 2px;
-    height: 26px;
+    height: 28px;
     background: var(--muted);
   }
   .link::after {
@@ -136,16 +196,12 @@ const { label, sources, hub, questions } = Astro.props;
   }
   @container (min-width: 600px) {
     .map {
-      grid-template-columns: minmax(0, 1fr) 40px auto 40px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) 36px auto 36px minmax(0, 1fr);
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .col {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .sources .chip {
-      justify-content: flex-start;
+      justify-items: start;
     }
     .link {
       width: 100%;

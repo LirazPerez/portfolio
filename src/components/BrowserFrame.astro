@@ -1,0 +1,102 @@
+---
+/**
+ * A generic browser window: a thin top bar with three small dots (no address, no brand),
+ * rounded corners, a hairline border and the soft lifted shadow, then a 16:10 screen that
+ * plays a project's flow recording (object-fit: cover, anchored top-left, so the app's
+ * sidebar and page title always stay in view). It replaced the laptop mockup, whose screen
+ * and base read as two separate pieces. The window is one image to assistive tech; the
+ * video itself is aria-hidden.
+ *
+ * Motion: the recording only plays when motion is allowed and the window is on screen
+ * (StageVideo). With reduced motion or no JS the poster shows.
+ * `pausable` adds a pause / play button just under the window's right edge (outside the
+ * image role, never over the screen).
+ * Colors are site tokens only (raise, surface, line, muted, shadow-lift), light and dark.
+ */
+import StageVideo from './StageVideo.astro';
+import VideoToggle from './VideoToggle.astro';
+import type { FlowMedia } from '../lib/stage-media';
+
+interface Props {
+  media: FlowMedia;
+  /** Text alternative: what the recording shows, start to end. */
+  label: string;
+  class?: string;
+  pausable?: boolean;
+}
+const { media, label, class: className, pausable = false } = Astro.props;
+const id = pausable ? `browser-${Math.random().toString(36).slice(2, 8)}` : undefined;
+---
+
+<div class:list={['browser', className]}>
+  <div class="window" role="img" aria-label={label}>
+    <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="screen">
+      <StageVideo sources={media.videos} poster={media.poster} position="top-left" id={id} />
+    </div>
+  </div>
+  {
+    id && (
+      <div class="browser-controls">
+        <VideoToggle for={id} />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .browser {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+    margin-inline: auto;
+  }
+  .window {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--raise);
+    box-shadow: var(--shadow-lift);
+  }
+  .bar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    height: 28px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .bar i {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--muted) 40%, transparent);
+  }
+  .screen {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .browser-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+  @media (max-width: 47.49rem) {
+    .window {
+      border-radius: 10px;
+    }
+    .bar {
+      height: 22px;
+      gap: 5px;
+      padding: 0 9px;
+    }
+    .bar i {
+      width: 6px;
+      height: 6px;
+    }
+  }
+</style>

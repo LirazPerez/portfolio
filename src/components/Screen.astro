@@ -18,6 +18,8 @@
  *   Without coordinates it sits on the frame's top-right corner, which cannot cover text.
  * - Real alt text is required: say what the screen shows and what to notice.
  *
+ * An optional `caption` sits under the frame as one short gray line.
+ *
  * Stills are lazy-loaded. (The hero recording's poster is the stage's job, not this one.)
  */
 import { Image } from 'astro:assets';
@@ -33,8 +35,10 @@ interface Props {
   pin?: number;
   pinX?: number;
   pinY?: number;
+  /** A short gray caption under the frame, e.g. "Desktop, dark mode". */
+  caption?: string;
 }
-const { project, name, alt, pin, pinX, pinY } = Astro.props;
+const { project, name, alt, pin, pinX, pinY, caption } = Astro.props;
 
 const clip = workClip(project, name);
 const image = clip ? undefined : workScreen(project, name);
@@ -83,6 +87,7 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
       </div>
     )
   }
+  {caption && <figcaption class="caption">{caption}</figcaption>}
 </figure>
 
 <style>
@@ -146,6 +151,14 @@ const placed = pin !== undefined && pinX !== undefined && pinY !== undefined;
     justify-content: flex-end;
     width: min(100%, calc(var(--ar) * min(70svh, 620px)));
     margin: 8px auto 0;
+  }
+
+  .caption {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--muted);
   }
 
   .missing {

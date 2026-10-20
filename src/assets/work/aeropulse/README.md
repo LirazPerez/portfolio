@@ -20,7 +20,7 @@ components needs to change when one is replaced.
 
 | Clip | Length | MP4 | WebM | Used in | Shows |
 |---|---|---|---|---|---|
-| `flow` | 14.4 s | 2.3 MB | 2.2 MB | Laptop, home card and case-study hero | Draft Projects → zoom into Thermal Optic Pod T7: 8 requested, 4 in the central warehouse, transfer from Rockies High-Altitude Hub → Archive → FX-88520 expanded → zoom into its delivery photo and bill of lading → back |
+| `flow` | 14.4 s | 2.3 MB | 2.2 MB | Browser window, home card and case-study hero | Draft Projects → zoom into Thermal Optic Pod T7: 8 requested, 4 in the central warehouse, transfer from Rockies High-Altitude Hub → Archive → FX-88520 expanded → zoom into its delivery photo and bill of lading → back |
 | `decision-1-transfer` | 8.0 s | 0.9 MB | 0.9 MB | Decision 1 | The same request line, zoomed: requested, available, Transfer From |
 | `decision-2-low-stock` | 7.0 s | 0.8 MB | 0.7 MB | Decision 2 | Cable inventory, zoomed on quantity through reorder action: the warning stays in the two low-stock rows |
 | `decision-2-defects` | 7.3 s | 0.9 MB | 0.8 MB | Decision 2 | Defect analysis, whole page (full chart), then in to the red banner and the totals |

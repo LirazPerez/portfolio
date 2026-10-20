@@ -1,0 +1,50 @@
+---
+/**
+ * One recording with one caption, presented like every other recording on the site: the
+ * browser window (BrowserFrame) at the full content width, its pause / play button just under
+ * the window's right edge, then the caption as a short gray line. Under reduced motion the
+ * poster shows and the button plays it on purpose. The window carries the text alternative
+ * (`alt`); the video is aria-hidden. Clips are found by name in src/assets/work/<project>/.
+ */
+import BrowserFrame from '../BrowserFrame.astro';
+import { workClip } from '../../lib/stage-media';
+
+interface Props {
+  project: string;
+  clip: string;
+  alt: string;
+  caption: string;
+}
+const { project, clip, alt, caption } = Astro.props;
+const media = workClip(project, clip);
+---
+
+<figure class="cclip">
+  {media ? <BrowserFrame media={media} label={alt} pausable /> : <div class="missing">Clip to add: {clip}</div>}
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<style>
+  .cclip {
+    margin: 0;
+    width: 100%;
+    display: grid;
+    gap: 4px;
+  }
+  /* Same as the other captions on the page (Screen, DeviceCompare). */
+  figcaption {
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--muted);
+  }
+  .missing {
+    aspect-ratio: 16 / 10;
+    display: grid;
+    place-items: center;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-frame);
+    font-size: 13px;
+    color: var(--muted);
+  }
+</style>

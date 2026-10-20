@@ -4,7 +4,7 @@
  * "View case study". The whole card is one link.
  *
  * A desktop project with a flow recording (src/assets/work/<slug>/flow.mp4) shows it in
- * the laptop mockup, large. A mobile project with `cardPhones` shows those recordings in two
+ * a browser window, large. A mobile project with `cardPhones` shows those recordings in two
  * phones, and a `cardPhoto` (a real photo, tilted) beside them. Every other project shows
  * its hero stage.
  *
@@ -15,7 +15,7 @@
  */
 import type { CollectionEntry } from 'astro:content';
 import Stage from './Stage.astro';
-import Laptop from './Laptop.astro';
+import BrowserFrame from './BrowserFrame.astro';
 import Phone from './Phone.astro';
 import ComingSoonPhone from './ComingSoonPhone.astro';
 import Photo from './Photo.astro';
@@ -42,15 +42,15 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
   class:list={[
     'card group grid overflow-hidden rounded-card border border-line bg-surface text-inherit no-underline',
     platform === 'desktop' && 'md:col-span-2',
-    (flow || cardPhoneMedia.length > 0 || comingSoon) && 'card--laptop',
+    (flow || cardPhoneMedia.length > 0 || comingSoon) && 'card--device',
     comingSoon && 'card--soon',
     comingSoon && platform === 'desktop' && 'card--soon-row',
   ]}
 >
   {
     flow && !comingSoon ? (
-      <div class="laptop-stage">
-        <Laptop media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} />
+      <div class="browser-stage">
+        <BrowserFrame media={flow} label={stageAlt ?? `${title}: a recording of the product in use.`} />
       </div>
     ) : comingSoon && platform === 'mobile' ? (
       <div class="soon-stage">
@@ -99,10 +99,10 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
     transform: translateY(-3px);
     box-shadow: var(--shadow);
   }
-  .card--laptop {
+  .card--device {
     background: radial-gradient(120% 90% at 80% 0%, var(--accent-tint) 0%, var(--surface) 55%);
   }
-  .laptop-stage {
+  .browser-stage {
     padding: clamp(28px, 5vw, 56px) clamp(18px, 5vw, 64px) clamp(36px, 5vw, 56px);
   }
   .phones-stage {
@@ -144,7 +144,7 @@ const cardPhoneMedia = (cardPhones ?? []).flatMap((clip) => {
     justify-content: space-between;
     padding: clamp(18px, 3vw, 30px);
   }
-  .card--laptop .info {
+  .card--device .info {
     padding: 0 clamp(20px, 4vw, 40px) clamp(22px, 3vw, 32px);
   }
   /* Coming soon, desktop: a slim row from 760px, the stage beside the text. */

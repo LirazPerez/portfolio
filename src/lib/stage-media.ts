@@ -12,7 +12,7 @@ import type { ImageMetadata } from 'astro';
  * If only one of -light / -dark exists it is used for both themes. See
  * src/assets/stages/README.md for the expected file names.
  *
- * A desktop project's flow recording lives in its own folder and is shown in the laptop
+ * A desktop project's flow recording lives in its own folder and is shown in the browser window
  * mockup (home card and case-study hero) instead of the stage; see `flowMedia` below.
  * A mobile project's recordings play in the phone mockup instead; see `workClip`:
  *

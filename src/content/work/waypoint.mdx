@@ -1,8 +1,7 @@
 ---
 title: Waypoint
 tagline: "A health organizer for patients and the family members who manage their care."
-order: 4
-comingSoon: true
+order: 2
 platform: desktop
 role: "Product design, research, front-end build"
 duration: "Aug-Oct 2026"
@@ -22,7 +21,7 @@ heroNotes:
   - "What needs checking before the trip"
   - "The record at a glance"
   - "Answers from the record itself"
-stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Ilan's care. On her home she opens Check medications are still correct, and the medical record opens on Medications with Gabapentin and Omeprazole marked Needs check. She opens Gabapentin's source, a prescription renewal, and the document shows the Hebrew original beside its English translation."
+stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Ilan's care. On her home she opens Check medications are still correct, and the medical record opens on Medications with Gabapentin and Omeprazole marked Needs check. She opens Gabapentin's source, a prescription renewal, and the document shows the Hebrew original beside its English translation. She closes it and goes back to her home."
 ---
 
 ## What I noticed
@@ -46,16 +45,14 @@ stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Il
   lede="Two kinds of users share one record, I worked solo, and everything runs on realistic sample data."
 >
   <RecordMap
-    label="Clinics, letters, lab results, Ilan and Dana all feed one record, which must answer three questions: what's current, what's missing, and where it came from."
-    sources={[
-      { label: 'Clinics' },
-      { label: 'Letters' },
-      { label: 'Lab results' },
-      { label: 'Ilan', person: true },
-      { label: 'Dana', person: true },
-    ]}
+    label="Scattered today: clinic portals, paper letters, lab results and family members' memory. They become one record, shared by Ilan and Dana, which must answer: What's current? What's missing? Where did it come from?"
+    sourcesLabel="Scattered today"
+    sources={['Clinic portals', 'Paper letters', 'Lab results', "Family members' memory"]}
     hub="One record"
-    questions={["What's current", "What's missing", 'Where it came from']}
+    people={['Ilan', 'Dana']}
+    peopleLabel="Shared by Ilan and Dana"
+    questionsLabel="Must answer"
+    questions={["What's current?", "What's missing?", 'Where did it come from?']}
   />
 </Intro>
 
@@ -136,7 +133,7 @@ stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Il
 <Screen
   project="waypoint"
   name="confirm"
-  alt="In the medical record, Confirm next to Gabapentin turns its Needs check badge into Confirmed. Back on the home, the medications tile now says 1 needs checking, Ilan at a glance shows Gabapentin as Confirmed, the checklist names only Omeprazole, and Recent activity starts with Confirmed Gabapentin 300mg is still correct, by Dana, Oct 20."
+  alt="In the medical record, Confirm next to Gabapentin turns its Needs check badge into Confirmed. Back on the home, the medications tile now says 1 needs checking, Ilan at a glance shows Gabapentin as Confirmed, the checklist names only Omeprazole, and Recent activity starts with Confirmed Gabapentin 300mg is still correct, by Dana, Oct 20. Then back to the medical record."
 />
 
 <UserLoops
@@ -199,35 +196,19 @@ stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Il
     ['Both went to Documents, not the record', 'Shortcuts to the record, and every record linked to its source'],
     ['"Re-check" read as "renew the prescription"', '"Check medications are still correct", with the medication names'],
     ['The chat went unnoticed', 'Intro message and suggested questions, and Ask always open on the desktop home'],
-    ['"Looks too much like a spreadsheet"', 'Three new home directions, then the desktop workspace'],
+    ['"Looks too much like a spreadsheet"', 'The home redesigned, then rebuilt as a desktop workspace'],
     ['Offline access raised as essential', '"Save for offline" in the pre-trip checklist'],
   ]}
 />
 
-<PhoneRow
-  project="waypoint"
-  items={[
-    {
-      image: 'mobile-01ce219',
-      alt: "A mobile home direction for Ilan: a greeting card for week 12 of recovery, a 73% mobility score in a ring, 6 days ahead of typical pace, and a five-week mobility chart.",
-    },
-    {
-      image: 'mobile-0432e29',
-      alt: "A mobile home direction for Dana, caring for Ilan: the week strip, Ilan's mobility score in one card, then a Before the flight checklist: medications to check, the new letter to add and the record to save for offline.",
-    },
-    {
-      image: 'mobile-72ec069',
-      alt: "A mobile home direction for Dana: Ilan at a glance with his allergies, three active medications with two needing a check, and his latest document, above the Before the flight checklist.",
-    },
-  ]}
-/>
 
 We also checked that a clinician spots the critical alerts within seconds.
 
-<Shot
+<CaptionedClip
   project="waypoint"
-  name="doctor-view"
-  alt="Ilan's one-screen summary for a doctor, opened from My code: his name and age, two alerts read first in a red band, then allergies, current medications and standing devices."
+  clip="clinician"
+  caption="Ilan shows his code, and the clinician sees his record, critical alerts first."
+  alt="On Ilan's profile, My code opens his QR code. A camera frame closes in on the code, and the one-screen view a clinician sees opens: his name and age, then two alerts in a red band, read first, above allergies, current medications and standing devices. The view closes, back to his profile."
 />
 
 ## Key decisions
@@ -298,12 +279,13 @@ We also checked that a clinician spots the critical alerts within seconds.
 
 <StatesGrid
   project="waypoint"
+  label="One medication row, in every state it can be in"
+  rows
   items={[
-    { state: 'Needs check', example: 'Gabapentin', image: 'state-needs-check', alt: 'A Needs check badge beside a Confirm button.' },
-    { state: 'Confirmed', example: 'Levothyroxine', image: 'state-confirmed', alt: 'A Confirmed badge.' },
-    { state: 'Stopped', example: 'Tramadol', image: 'state-stopped', alt: 'A Stopped Jun 2024 badge.' },
-    { state: 'Completed', example: 'Cefazolin', image: 'state-completed', alt: 'A Completed badge.' },
-    { state: 'Empty', image: 'state-empty', wide: true, alt: 'The medications table with no rows and one line: Nothing matches "Ibuprofen".' },
+    { state: 'Needs check', image: 'state-needs-check', alt: 'Gabapentin, 300 mg 3 times daily, for nerve pain, prescribed by Dr. M. Levy: a Needs check badge with a Confirm button beside it, Confirmed Mar 2 under it, and its source, a renewal from Aug 17. The row is tinted.' },
+    { state: 'Confirmed', image: 'state-confirmed', alt: 'Levothyroxine, 75 mcg daily in the morning, for the thyroid, from the endocrinology clinic: a Confirmed badge, Confirmed Oct 17 under it, and its source, a prescription from Apr 2024.' },
+    { state: 'Stopped', image: 'state-stopped', alt: 'Tramadol, 50 mg as needed, for post-op pain, prescribed by Dr. A. Sagi: a Stopped Jun 2024 badge, and its source, a prescription from Mar 2024.' },
+    { state: 'Completed', image: 'state-completed', alt: 'Cefazolin, 1 g IV, for surgical prophylaxis, by the surgical team: a Completed badge, and its source, a discharge summary from Mar 2024.' },
   ]}
 />
 
@@ -331,21 +313,8 @@ We also checked that a clinician spots the critical alerts within seconds.
 <Screen
   project="waypoint"
   name="record-dark"
+  caption="Desktop, dark mode"
   alt="The medical record in dark mode: the same medications table, statuses and source links on a dark background."
-/>
-
-<PhoneRow
-  project="waypoint"
-  items={[
-    {
-      image: 'phone-home',
-      alt: "Dana's home on a phone: the week strip, Ilan at a glance with his allergies, the medications to check and his latest document.",
-    },
-    {
-      image: 'phone-record',
-      alt: 'The medical record on a phone: the table rebuilt as a list, each medication with its status, when it was last updated and its source document.',
-    },
-  ]}
 />
 
 ## Result
