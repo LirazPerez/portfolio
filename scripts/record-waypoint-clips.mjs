@@ -3,8 +3,8 @@
 //
 //   flow       A · hero: caregiver home → "Check medications are still correct" → the record with
 //                the two medications to check → Gabapentin's source document, Hebrew original
-//                beside the English translation → closed → back to the home. Also Waypoint's
-//                coming-soon stage clip.
+//                beside the English translation → closed → back to the home. Also the home card's
+//                clip (it is the project's flow recording).
 //   roles      B · the welcome screen, "I'm caring for someone", Dana's home; then Patient in
 //                Profile, and Ilan's home.
 //   confirm    C · in the record, Confirm next to Gabapentin → Confirmed → home: one medication

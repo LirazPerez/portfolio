@@ -3,15 +3,14 @@
 //
 // From the live demo (https://waypoint-app-three.vercel.app, sample data only), 1440 wide,
 // light mode unless named: both homes, the medication table,
-// one crop per record state, the accessibility crops, one dark-mode page and two phone screens
-// (today's app on a phone: logo and avatar on top, the tabs in a bar at the bottom).
+// one complete medication row per state (at 1024), the accessibility crops and one dark-mode page.
 //
 // Earlier mobile homes no longer exist in the live app. Build the waypoint-app commits and
 // serve each one's dist/ locally, then pass them as HISTORY:
 //   HISTORY="153432f=http://localhost:5171,01ce219=http://localhost:5172,..." node capture-waypoint-stills.mjs <out-dir>
-// 153432f is the version tested in the first sessions; 01ce219, 0432e29 and 72ec069 are the three
-// mobile home directions that followed. Two of those still carry a floating button that was later
-// removed from the product; it is hidden in the capture.
+// 153432f is the version tested in the first sessions (the case study shows it beside the final
+// desktop home). Later builds still carry a floating button that was removed from the product;
+// it is hidden in the capture.
 //
 // Playwright is not a project dependency (see record-waypoint-clips.mjs). Run from a scratch folder.
 import { chromium } from 'playwright';
@@ -85,19 +84,6 @@ await nav(page, 'Medical record').click();
 await settle(page);
 const tableCard = await rounded(page.locator('table').first()).boundingBox();
 await shot(page, 'record-table', pad(tableCard, 6));
-const states = [
-  ['state-needs-check', 'Gabapentin'],
-  ['state-confirmed', 'Levothyroxine'],
-  ['state-stopped', 'Tramadol'],
-  ['state-completed', 'Cefazolin'],
-];
-for (const [name, med] of states) {
-  const row = page.locator('tr', { hasText: med }).first();
-  const cells = row.locator('td');
-  // The status cell, one row high (the medication's name is said beside it on the page).
-  const s = await cells.nth(3).boundingBox();
-  await shot(page, name, { x: s.x - 8, y: s.y, width: s.width + 16, height: s.height });
-}
 // Escape closes every dialog: the document viewer, with its close button.
 await page.locator('tr', { hasText: 'Gabapentin' }).first().getByRole('button', { name: /Open source document/ }).click();
 await settle(page);
@@ -106,10 +92,6 @@ const dialog = await page.getByRole('dialog').first().boundingBox();
 await shot(page, 'a11y-dialog', { x: dialog.x + dialog.width - 520, y: dialog.y, width: 520, height: 300 });
 await page.keyboard.press('Escape');
 await settle(page);
-// The empty state: a search with no match.
-await page.getByPlaceholder(/Search the record/).fill('Ibuprofen');
-await settle(page);
-await shot(page, 'state-empty', pad(await rounded(page.locator('table').first()).boundingBox(), 6));
 await page.context().close();
 
 // Dark mode.
@@ -119,12 +101,22 @@ await settle(page);
 await shot(page, 'record-dark');
 await page.context().close();
 
-// Phones, today's app at 390.
-page = await open(`${APP}/?role=caregiver`, { width: 390, height: 844, mobile: true });
-await shot(page, 'phone-home');
-await page.getByRole('button', { name: /Check medications are still correct/ }).first().click();
+// One medication row in each state, complete (every column, nothing cut at the edges). At
+// 1024, where the desktop layout starts, the whole table fits, so a row reads about 1:1 in
+// the case study's text column.
+page = await open(`${APP}/?role=caregiver`, { width: 1024, height: 800 });
+await nav(page, 'Medical record').click();
 await settle(page);
-await shot(page, 'phone-record');
+const states = [
+  ['state-needs-check', 'Gabapentin'],
+  ['state-confirmed', 'Levothyroxine'],
+  ['state-stopped', 'Tramadol'],
+  ['state-completed', 'Cefazolin'],
+];
+for (const [name, med] of states) {
+  const row = await page.locator('tr', { hasText: med }).first().boundingBox();
+  await shot(page, name, { x: row.x, y: row.y, width: row.width, height: row.height });
+}
 await page.context().close();
 
 // Earlier mobile homes, from local builds of the waypoint-app history.
@@ -144,14 +136,10 @@ if (ASSETS) {
   for (const file of fs.readdirSync(OUT).filter((f) => f.endsWith('.png'))) {
     const name = file.replace(/\.png$/, '');
     const meta = await sharp(path.join(OUT, file)).metadata();
-    const max = name.startsWith('mobile-') || name.startsWith('phone-') ? 780 : 2000;
+    const max = name.startsWith('mobile-') ? 780 : 2000;
     await sharp(path.join(OUT, file))
       .resize({ width: Math.min(max, meta.width), withoutEnlargement: true })
       .webp({ quality: 84 })
       .toFile(path.join(ASSETS, `${name}.webp`));
   }
-  // The empty state is a wide, mostly blank strip: keep its left part, where the message is.
-  const empty = path.join(OUT, 'state-empty.png');
-  const { width, height } = await sharp(empty).metadata();
-  await sharp(empty).extract({ left: 0, top: 0, width: Math.round(width * 0.42), height }).webp({ quality: 84 }).toFile(path.join(ASSETS, 'state-empty.webp'));
 }

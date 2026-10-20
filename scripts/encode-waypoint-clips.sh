@@ -1,8 +1,7 @@
 #!/bin/sh
 # Encodes clips recorded by record-waypoint-clips.mjs into src/assets/work/waypoint/.
 # Usage: scripts/encode-waypoint-clips.sh <frames-dir> <clip> <poster-frame> [out-dir] [out-name]
-# (out-dir defaults to src/assets/work/waypoint; out-name to the clip's name. The coming-soon
-#  stage uses the hero clip: `... flow <poster> src/assets/stages waypoint`.)
+# (out-dir defaults to src/assets/work/waypoint; out-name to the clip's name.)
 #
 # Every clip ends in the state it starts in (record-waypoint-clips.mjs), so the loop is a plain
 # cut: no crossfade, no frame where two screens overlap.

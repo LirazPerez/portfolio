@@ -1,8 +1,7 @@
 ---
 title: Waypoint
 tagline: "A health organizer for patients and the family members who manage their care."
-order: 4
-comingSoon: true
+order: 2
 platform: desktop
 role: "Product design, research, front-end build"
 duration: "Aug-Oct 2026"
@@ -197,7 +196,7 @@ stageAlt: "A recording of Waypoint with sample data, as Dana, who looks after Il
     ['Both went to Documents, not the record', 'Shortcuts to the record, and every record linked to its source'],
     ['"Re-check" read as "renew the prescription"', '"Check medications are still correct", with the medication names'],
     ['The chat went unnoticed', 'Intro message and suggested questions, and Ask always open on the desktop home'],
-    ['"Looks too much like a spreadsheet"', 'The home reworked in three rounds, then the desktop workspace'],
+    ['"Looks too much like a spreadsheet"', 'The home redesigned, then rebuilt as a desktop workspace'],
     ['Offline access raised as essential', '"Save for offline" in the pre-trip checklist'],
   ]}
 />
@@ -221,26 +220,6 @@ We also checked that a clinician spots the critical alerts within seconds.
   considered="Considered: one shared home with toggles."
   verdict="Chose: separate homes on one data layer, so nothing is duplicated."
 >
-  <PhoneSequence
-    project="waypoint"
-    items={[
-      {
-        image: 'mobile-01ce219',
-        caption: 'Written for the patient',
-        alt: "The mobile home written for the patient: a greeting card for Ilan's week 12 of recovery, a 73% mobility score in a ring, 6 days ahead of typical pace, and a five-week mobility chart.",
-      },
-      {
-        image: 'mobile-0432e29',
-        caption: 'Caregiver home, led by recovery stats',
-        alt: "The next mobile home, for Dana caring for Ilan: the week strip, then Ilan's mobility score first, then a Before the flight checklist: medications to check, the new letter to add and the record to save for offline.",
-      },
-      {
-        image: 'mobile-72ec069',
-        caption: 'Caregiver home, led by what needs attention',
-        alt: "The last mobile home, for Dana: Ilan at a glance first, with his allergies, three active medications with two needing a check, and his latest document, above the Before the flight checklist.",
-      },
-    ]}
-  />
   <Screen
     project="waypoint"
     name="roles"
@@ -300,12 +279,13 @@ We also checked that a clinician spots the critical alerts within seconds.
 
 <StatesGrid
   project="waypoint"
+  label="One medication row, in every state it can be in"
+  rows
   items={[
-    { state: 'Needs check', example: 'Gabapentin', image: 'state-needs-check', alt: 'A Needs check badge beside a Confirm button.' },
-    { state: 'Confirmed', example: 'Levothyroxine', image: 'state-confirmed', alt: 'A Confirmed badge.' },
-    { state: 'Stopped', example: 'Tramadol', image: 'state-stopped', alt: 'A Stopped Jun 2024 badge.' },
-    { state: 'Completed', example: 'Cefazolin', image: 'state-completed', alt: 'A Completed badge.' },
-    { state: 'Empty', image: 'state-empty', wide: true, alt: 'The medications table with no rows and one line: Nothing matches "Ibuprofen".' },
+    { state: 'Needs check', image: 'state-needs-check', alt: 'Gabapentin, 300 mg 3 times daily, for nerve pain, prescribed by Dr. M. Levy: a Needs check badge with a Confirm button beside it, Confirmed Mar 2 under it, and its source, a renewal from Aug 17. The row is tinted.' },
+    { state: 'Confirmed', image: 'state-confirmed', alt: 'Levothyroxine, 75 mcg daily in the morning, for the thyroid, from the endocrinology clinic: a Confirmed badge, Confirmed Oct 17 under it, and its source, a prescription from Apr 2024.' },
+    { state: 'Stopped', image: 'state-stopped', alt: 'Tramadol, 50 mg as needed, for post-op pain, prescribed by Dr. A. Sagi: a Stopped Jun 2024 badge, and its source, a prescription from Mar 2024.' },
+    { state: 'Completed', image: 'state-completed', alt: 'Cefazolin, 1 g IV, for surgical prophylaxis, by the surgical team: a Completed badge, and its source, a discharge summary from Mar 2024.' },
   ]}
 />
 
@@ -333,21 +313,8 @@ We also checked that a clinician spots the critical alerts within seconds.
 <Screen
   project="waypoint"
   name="record-dark"
+  caption="Desktop, dark mode"
   alt="The medical record in dark mode: the same medications table, statuses and source links on a dark background."
-/>
-
-<PhoneRow
-  project="waypoint"
-  items={[
-    {
-      image: 'phone-home',
-      alt: "Dana's home on a phone: the logo and her avatar on top, the week strip, Ilan at a glance with his allergies, the medications to check and his latest document, and Route, Chart and Documents in a tab bar at the bottom.",
-    },
-    {
-      image: 'phone-record',
-      alt: 'The medical record on a phone: the table rebuilt as a list, each medication with its status, when it was last updated and its source document, with Chart marked as the current tab in the bar at the bottom.',
-    },
-  ]}
 />
 
 ## Result
