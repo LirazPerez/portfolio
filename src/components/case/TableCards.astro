@@ -1,0 +1,193 @@
+---
+/**
+ * The phone version of a comparison table: one card per row. The row's first cell is the
+ * card's title; every other cell is a line inside it, its column header as a small gray label
+ * and the value under it (or beside it, for a mark). Real text in reading order for screen
+ * readers: a list of cards, each a title and then label / value pairs (<dl>).
+ *
+ * Used by the table components (CompareTable, GapMatrix, RoleMap), which render this and their
+ * <table> side by side and show one: the table while it fits, these cards below the width where
+ * it would scroll sideways. Whichever is hidden is display: none, so out of the a11y tree too.
+ *
+ * A line keeps the table's emphasis: `tone: 'us'` is the accent-tinted column (ours, or the
+ * one that carries the point), `tone: 'why'` the surface-tinted "why" column. A `mark` line
+ * shows the matrix symbol with its word (Yes, Partly, No, Not its job).
+ */
+type Mark = 'yes' | 'partly' | 'no' | 'na';
+export interface CardLine {
+  label: string;
+  value?: string;
+  mark?: Mark;
+  tone?: 'us' | 'why';
+  /** A value that says the row does not apply (muted, with a dash mark). */
+  absent?: boolean;
+}
+interface Props {
+  label: string;
+  cards: { title: string; lines: CardLine[] }[];
+  class?: string;
+}
+const { label, cards, class: className } = Astro.props;
+const MARK: Record<Mark, { symbol: string; word: string }> = {
+  yes: { symbol: '✓', word: 'Yes' },
+  partly: { symbol: '½', word: 'Partly' },
+  no: { symbol: '✕', word: 'No' },
+  na: { symbol: '-', word: 'Not its job' },
+};
+---
+
+<ul class:list={['table-cards', className]} role="list" aria-label={label}>
+  {
+    cards.map((card) => (
+      <li class="tc-card">
+        <p class="tc-title">{card.title}</p>
+        <dl class="tc-lines">
+          {card.lines.map((line) => (
+            <div class:list={['tc-line', line.tone && `tc-line--${line.tone}`, line.mark && 'tc-line--mark']}>
+              <dt>{line.label}</dt>
+              <dd class:list={[line.absent && 'tc-absent']}>
+                {line.mark ? (
+                  <>
+                    <span class:list={['mk', `mk--${line.mark}`]} aria-hidden="true">
+                      {MARK[line.mark].symbol}
+                    </span>
+                    {MARK[line.mark].word}
+                  </>
+                ) : (
+                  <>
+                    {line.absent && <span class="tc-dash" aria-hidden="true" />}
+                    {line.value}
+                  </>
+                )}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .table-cards {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 14px;
+  }
+  .tc-card {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--raise);
+  }
+  .tc-title {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .tc-lines {
+    margin: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .tc-line {
+    display: grid;
+    gap: 2px;
+    padding: 8px 12px;
+    margin-inline: -12px;
+    border-radius: var(--radius-control);
+  }
+  dt {
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  /* The column that carries the point keeps its tint, and its label the accent color. */
+  .tc-line--us {
+    background: var(--accent-tint);
+  }
+  .tc-line--us dt {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .tc-line--why {
+    background: var(--surface);
+  }
+  .tc-line--why dd {
+    color: var(--muted);
+  }
+  .tc-absent {
+    color: var(--muted);
+  }
+  .tc-dash {
+    display: inline-block;
+    width: 10px;
+    height: 2px;
+    margin-inline-end: 8px;
+    vertical-align: 0.3em;
+    border-radius: 1px;
+    background: var(--muted);
+  }
+  /* A mark: the product's name, then its symbol and word on the same line. */
+  .tc-line--mark {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 6px;
+  }
+  .tc-line--mark dt {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .tc-line--mark.tc-line--us dt {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+  .tc-line--mark dd {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    font-size: 14px;
+  }
+  .mk {
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .mk--yes {
+    background: var(--ok-tint);
+    color: var(--ok);
+  }
+  .mk--partly {
+    background: var(--warn-tint);
+    color: var(--warn);
+  }
+  .mk--no {
+    background: var(--surface);
+    color: var(--muted);
+  }
+  .mk--na {
+    color: var(--muted);
+  }
+</style>

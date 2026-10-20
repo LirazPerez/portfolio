@@ -2,10 +2,12 @@
 /**
  * A real comparison <table> in words: a caption (visually hidden), a header row, and one row
  * per situation whose first cell is the row header. The last column is ours: its header names
- * it and it gets the accent tint, so the emphasis never rests on color alone. On narrow
- * screens the table scrolls inside its own frame (the frame is focusable so keyboard users can
- * scroll it). An optional `note` sits under the frame as one short muted line.
+ * it and it gets the accent tint, so the emphasis never rests on color alone. Below 560px of
+ * its own width (where the table would scroll) it becomes one card per row (TableCards), the
+ * last column's line still tinted. An optional `note` sits under it as one short muted line.
  */
+import TableCards from './TableCards.astro';
+
 interface Props {
   caption: string;
   columns: string[];
@@ -14,8 +16,13 @@ interface Props {
 }
 const { caption, columns, rows, note } = Astro.props;
 const last = columns.length - 1;
+const cards = rows.map((row) => ({
+  title: row[0],
+  lines: row.slice(1).map((value, j) => ({ label: columns[j + 1], value, tone: j + 1 === last ? ('us' as const) : undefined })),
+}));
 ---
 
+<div class="tt">
 <div class="frame" tabindex="0" role="region" aria-label={caption}>
   <table>
     <caption class="sr-only-text">{caption}</caption>
@@ -37,9 +44,26 @@ const last = columns.length - 1;
     </tbody>
   </table>
 </div>
+<TableCards class="tt-cards" label={caption} cards={cards} />
+</div>
 {note && <div><p class="table-note">{note}</p></div>}
 
 <style>
+  /* The table while it fits; one card per row below that. */
+  .tt {
+    container-type: inline-size;
+  }
+  .tt > :global(.tt-cards) {
+    display: none;
+  }
+  @container (max-width: 559.98px) {
+    .tt > .frame {
+      display: none;
+    }
+    .tt > :global(.tt-cards) {
+      display: grid;
+    }
+  }
   .frame {
     overflow-x: auto;
     border: 1px solid var(--line);

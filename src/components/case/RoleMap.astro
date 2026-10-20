@@ -6,9 +6,13 @@
  * A real <table> (caption, column and row headers). A cell can be `absent`: that row does
  * not apply to that column, drawn muted with a dash mark, the words saying it too.
  * The row headers stay pinned on the left while the table scrolls sideways inside its own
- * frame on phones (the frame is focusable so keyboard users can scroll it).
+ * frame when it is a little too wide (the frame is focusable so keyboard users can scroll it).
+ * Below 640px of its own width it becomes one card per row (TableCards): the row header as the
+ * title, each column header as a label ("Caregiver (Dana)"), the "why" line still tinted.
  * Reusable: any product where several users share one data layer.
  */
+import TableCards from './TableCards.astro';
+
 type Cell = string | { text: string; absent: true };
 interface Props {
   caption: string;
@@ -24,8 +28,20 @@ interface Props {
 const { caption, first, columns, last, rows } = Astro.props;
 const text = (c: Cell) => (typeof c === 'string' ? c : c.text);
 const absent = (c: Cell) => typeof c !== 'string';
+const cards = rows.map((row) => ({
+  title: row.head,
+  lines: [
+    ...row.cells.map((c, i) => ({
+      label: columns[i].sub ? `${columns[i].name} (${columns[i].sub})` : columns[i].name,
+      value: text(c),
+      absent: absent(c),
+    })),
+    { label: last, value: row.last, tone: 'why' as const },
+  ],
+}));
 ---
 
+<div class="tt">
 <div class="frame" tabindex="0" role="region" aria-label={caption}>
   <table>
     <caption class="sr-only-text">{caption}</caption>
@@ -61,8 +77,25 @@ const absent = (c: Cell) => typeof c !== 'string';
     </tbody>
   </table>
 </div>
+<TableCards class="tt-cards" label={caption} cards={cards} />
+</div>
 
 <style>
+  /* The table while it fits (or nearly: it scrolls a little); one card per row below 640px. */
+  .tt {
+    container-type: inline-size;
+  }
+  .tt > :global(.tt-cards) {
+    display: none;
+  }
+  @container (max-width: 639.98px) {
+    .tt > .frame {
+      display: none;
+    }
+    .tt > :global(.tt-cards) {
+      display: grid;
+    }
+  }
   .frame {
     overflow-x: auto;
     border: 1px solid var(--line);
