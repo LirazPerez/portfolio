@@ -15,6 +15,7 @@
     "@fontsource-variable/geist": "^5.3.0",
     "@fontsource/caveat": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@vercel/analytics": "^2.0.1",
     "astro": "^7.3.8",
     "matter-js": "^0.20.0",
     "react": "^19.3.0",

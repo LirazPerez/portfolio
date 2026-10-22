@@ -4,6 +4,7 @@ import geistUrl from '@fontsource-variable/geist/files/geist-latin-wght-normal.w
 import caveatUrl from '@fontsource/caveat/files/caveat-latin-600-normal.woff2?url';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import Analytics from '@vercel/analytics/astro';
 
 interface Props {
   title: string;
@@ -26,6 +27,13 @@ const fullTitle = title === 'Home' ? 'Liraz Hazala Perez · Product Designer' : 
 // Without the trailing slash the build adds ("/about/"), so it matches every internal link ("/about").
 const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, '$1'), Astro.site);
 const ogImage = new URL(image, Astro.site);
+// Vercel Web Analytics ships only in production deployments on Vercel (VERCEL_ENV is set by its
+// build). Local dev, local previews and Vercel preview deployments get no script at all.
+// Opt-out for my own visits (kept out of the page, so it is commented here): ?notrack=1 sets the
+// va-disable flag in localStorage and cleans the address bar, ?notrack=0 clears it. The component
+// reads window.webAnalyticsBeforeSend when it starts, so the inline script must come before it;
+// returning null drops the event.
+const analytics = process.env.VERCEL_ENV === 'production';
 ---
 
 <!doctype html>
@@ -63,6 +71,34 @@ const ogImage = new URL(image, Astro.site);
         } catch (e) {}
       })();
     </script>
+    {analytics && (
+      <>
+        <script is:inline>
+          (function () {
+            var KEY = 'va-disable';
+            try {
+              var url = new URL(location.href);
+              var v = url.searchParams.get('notrack');
+              if (v === '1' || v === '0') {
+                try {
+                  if (v === '1') localStorage.setItem(KEY, '1');
+                  else localStorage.removeItem(KEY);
+                } catch (e) {}
+                url.searchParams.delete('notrack');
+                history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+              }
+            } catch (e) {}
+            window.webAnalyticsBeforeSend = function (event) {
+              try {
+                if (localStorage.getItem(KEY)) return null;
+              } catch (e) {}
+              return event;
+            };
+          })();
+        </script>
+        <Analytics mode="production" />
+      </>
+    )}
   </head>
   <body class="flex flex-col pb-[calc(88px+env(safe-area-inset-bottom,0px))] md:pb-0">
     <a class="skip-link" href="#main">Skip to content</a>
