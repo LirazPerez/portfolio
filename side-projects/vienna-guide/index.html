@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="וינה">
+<meta name="theme-color" content="#008069">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>וינה של אמא</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: phone-first app shell. Green top bar (WhatsApp), white place cards (Google Maps), round category circles + icon tab bar (Instagram). */
+:root{
+  --bg:#F0F2F5; --surface:#FFFFFF; --ink:#111B21; --muted:#5B6770; --line:#E3E6E8;
+  --brand:#008069; --brand-ink:#FFFFFF; --nav:#1A73E8; --nav-ink:#FFFFFF; --soft:#E7F3EF;
+  --warn-bg:#FFF4D6; --warn-ink:#6B4E00;
+  --c-breakfast:#E37400; --c-coffee:#8D5B3E; --c-food:#D93025; --c-museum:#1A73E8;
+  --c-walk:#188038; --c-shop:#A142F4; --c-evening:#3949AB; --c-hotel:#111B21;
+  --font:"Heebo","Arial Hebrew","Segoe UI",Arial,sans-serif;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B141A; --surface:#1F2C34; --ink:#E9EDEF; --muted:#9AA6AE; --line:#2A3942;
+  --brand:#1F2C34; --brand-ink:#E9EDEF; --nav:#8AB4F8; --nav-ink:#0B141A; --soft:#103529;
+  --warn-bg:#3A2F10; --warn-ink:#F5D98A;
+  --c-breakfast:#FFA94D; --c-coffee:#D7A27F; --c-food:#F28B82; --c-museum:#8AB4F8;
+  --c-walk:#81C995; --c-shop:#D7AEFB; --c-evening:#A5B4FC; --c-hotel:#E9EDEF;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B141A; --surface:#1F2C34; --ink:#E9EDEF; --muted:#9AA6AE; --line:#2A3942;
+  --brand:#1F2C34; --brand-ink:#E9EDEF; --nav:#8AB4F8; --nav-ink:#0B141A; --soft:#103529;
+  --warn-bg:#3A2F10; --warn-ink:#F5D98A;
+  --c-breakfast:#FFA94D; --c-coffee:#D7A27F; --c-food:#F28B82; --c-museum:#8AB4F8;
+  --c-walk:#81C995; --c-shop:#D7AEFB; --c-evening:#A5B4FC; --c-hotel:#E9EDEF;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.55;-webkit-text-size-adjust:100%}
+.app{direction:rtl;max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--nav);outline-offset:2px}
+svg.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--brand);color:var(--brand-ink);
+  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;gap:12px}
+header.top h1{margin:0;font-size:22px;font-weight:800;flex:1;min-width:0}
+header.top .sub{display:block;font-size:14px;font-weight:400;opacity:.85}
+.hotelbtn{display:flex;align-items:center;gap:6px;border:0;border-radius:999px;background:rgba(255,255,255,.18);color:var(--brand-ink);padding:10px 14px;font-weight:700;font-size:16px;white-space:nowrap}
+
+main{padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+h2{font-size:22px;margin:4px 0 0;font-weight:800;text-wrap:balance}
+h3{font-size:19px;margin:0;font-weight:700}
+.muted{color:var(--muted)}
+.view[hidden]{display:none!important}
+
+/* day chips */
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-size:17px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{background:#00A884;color:#0B141A;border-color:#00A884}}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{background:#00A884;color:#0B141A;border-color:#00A884}
+
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:var(--r);padding:12px 14px;font-size:17px}
+.note b{display:block}
+
+/* timeline */
+.slot{display:flex;flex-direction:column;gap:8px;min-width:0}
+.slot .sh{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.slot .t{flex:none;font-size:16px;font-weight:700;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:2px 12px}
+.plain{background:var(--surface);border-radius:var(--r);padding:14px;font-size:17px}
+
+/* card */
+.card{background:var(--surface);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.card .head{display:flex;gap:12px;align-items:flex-start}
+.dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff}
+.dot svg.i{width:24px;height:24px}
+.card .name{min-width:0;flex:1}
+.card .de{font-size:15px;color:var(--muted)}
+.card p{margin:0;font-size:17px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:14px;background:var(--soft);border-radius:999px;padding:3px 10px}
+.tag.walk{background:transparent;border:1px solid var(--line)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:10px 16px;font-size:17px;font-weight:700;text-decoration:none;border:1.5px solid var(--line);background:var(--surface);min-height:48px}
+.btn.go{background:var(--nav);color:var(--nav-ink);border-color:var(--nav)}
+.btn svg.i{width:20px;height:20px}
+.other{border:0;background:none;color:var(--nav);font-weight:700;font-size:16px;padding:4px 0;text-align:start}
+
+/* stories-like category circles */
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px}
+.cat{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:15px;font-weight:500;text-align:center;line-height:1.25}
+.cat .ring{width:70px;height:70px;border-radius:50%;padding:3px;background:var(--line)}
+.cat[aria-pressed="true"] .ring{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
+.cat .in{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;border:3px solid var(--bg)}
+.cat .in svg.i{width:30px;height:30px}
+
+/* map */
+.mapbox{background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.mapbox svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;font-size:14px;border-top:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.near{display:flex;flex-direction:column;gap:10px}
+
+/* help */
+.info{background:var(--surface);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px}
+.big{font-size:26px;font-weight:800}
+.phrase{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:8px;flex-wrap:wrap}
+.phrase .ltr{font-weight:700}
+
+/* tab bar */
+nav.tabs{position:fixed;inset:auto 0 0 0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs .row{direction:rtl;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:14px;color:var(--muted)}
+nav.tabs button svg.i{width:28px;height:28px}
+nav.tabs button[aria-selected="true"]{color:var(--ink);font-weight:700}
+nav.tabs button[aria-selected="true"] svg.i{stroke-width:2.6}
+
+/* sheets */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--surface);overflow-y:auto;direction:rtl;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.close{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:0;background:var(--bg);border-radius:999px;padding:10px 16px;font-size:17px;font-weight:700}
+.driver{text-align:center;justify-content:center;min-height:80vh}
+.driver .say{font-size:20px;color:var(--muted)}
+.driver .dname{font-size:40px;font-weight:800;line-height:1.15;direction:ltr;overflow-wrap:anywhere}
+.driver .daddr{font-size:30px;line-height:1.3;direction:ltr;overflow-wrap:anywhere}
+.driver .heb{font-size:18px;color:var(--muted)}
+.more p{font-size:19px;line-height:1.75;margin:0;max-width:65ch;border-radius:10px;padding:4px 8px;margin-inline:-8px}
+.more p.reading{background:var(--soft)}
+.more .wrap>.btn{align-self:flex-start}
+.listen{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .listen{background:#00A884;color:#0B141A;border-color:#00A884}}
+:root[data-theme="dark"] .listen{background:#00A884;color:#0B141A;border-color:#00A884}
+@media (prefers-reduced-motion: no-preference){.pulse{animation:p 1.6s ease-out infinite;transform-origin:center;transform-box:fill-box}@keyframes p{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(2.4)}}}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>וינה של אמא <span class="sub" id="subtitle">ארבעה ימים בווינה</span></h1>
+    <button class="hotelbtn" id="hotelBtn" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M3 20V8l9-5 9 5v12"/><path d="M9 20v-6h6v6"/></svg>למלון</button>
+  </header>
+
+  <main>
+    <section class="view" id="v-today" aria-label="התוכנית">
+      <div class="days" id="dayChips" role="group" aria-label="בחירת יום"></div>
+      <div id="dayBody" style="display:flex;flex-direction:column;gap:14px"></div>
+    </section>
+
+    <section class="view" id="v-cats" hidden aria-label="מה יש">
+      <h2>מה בא לכן?</h2>
+      <div class="cats" id="catGrid"></div>
+      <div id="catList" style="display:flex;flex-direction:column;gap:12px"></div>
+    </section>
+
+    <section class="view" id="v-map" hidden aria-label="מפה">
+      <h2>איפה אתן עכשיו?</h2>
+      <div class="days" id="anchorChips" role="group" aria-label="איפה אתן"></div>
+      <div class="mapbox"><svg id="map" viewBox="0 0 1000 780" role="img" aria-label="מפת מרכז וינה עם המקומות"></svg><div class="legend" id="legend"></div></div>
+      <p class="muted" style="margin:0;font-size:16px">לוחצים על נקודה במפה כדי לראות מה זה. למטה: מה הכי קרוב, לפי דקות הליכה.</p>
+      <a class="btn" id="gmapsHere" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Stephansplatz%20Wien"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>לפתוח בגוגל מפות ולראות איפה אני</a>
+      <div id="picked"></div>
+      <h3>הכי קרוב</h3>
+      <div class="near" id="nearList"></div>
+    </section>
+
+    <section class="view" id="v-help" hidden aria-label="עזרה">
+      <h2>עזרה ודברים שימושיים</h2>
+      <div class="info">
+        <h3>המלון</h3>
+        <div class="big">שם המלון</div>
+        <div class="ltr" style="font-size:20px">Stephansplatz, 1010 Wien</div>
+        <p style="margin:0">2 דקות הליכה מהקתדרלה הגדולה. צ'ק-אין מ-15:00, צ'ק-אאוט עד 11:00. בקבלה אפשר להשאיר מזוודות ולבקש שיזמינו מונית.</p>
+        <div class="acts"><button class="btn go" type="button" data-driver="hotel"><svg class="i" viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17M8 11l1-3h6l1 3"/><circle cx="8" cy="18" r="1.5"/><circle cx="16" cy="18" r="1.5"/></svg>להראות לנהג</button></div>
+      </div>
+      <div class="info">
+        <h3>מונית</h3>
+        <p style="margin:0">הכי פשוט: לבקש מהקבלה או ממלצר במסעדה להזמין מונית. ברחוב יש תחנות מוניות ליד הקתדרלה ולידה האופרה.</p>
+        <p style="margin:0">מוניות בטלפון: <span class="ltr">+43 1 31300</span> או <span class="ltr">+43 1 40100</span></p>
+        <p style="margin:0">לשדה התעופה: בערך 25 דקות במונית.</p>
+      </div>
+      <div class="info">
+        <h3>אוכל</h3>
+        <p style="margin:0">בכל המסעדות כאן יש מנות בלי בשר ומנות דגים, ולחברה יש גם בשר.</p>
+        <p style="margin:0">שימי לב: סלמון מעושן (<span class="ltr">Räucherlachs</span>) הוא לא מבושל. אם לא בטוחים, לשאול את המלצר.</p>
+        <div class="phrase"><span>בלי בשר, בבקשה</span><span class="ltr">Ohne Fleisch, bitte</span></div>
+        <div class="phrase"><span>הדג מבושל?</span><span class="ltr">Ist der Fisch gekocht?</span></div>
+        <div class="phrase"><span>החשבון, בבקשה</span><span class="ltr">Die Rechnung, bitte</span></div>
+        <div class="phrase"><span>תודה</span><span class="ltr">Danke</span></div>
+        <p style="margin:0" class="muted">טיפ: נהוג להשאיר בערך 10 אחוז.</p>
+      </div>
+      <div class="info">
+        <h3>חירום</h3>
+        <p style="margin:0">מספר חירום בכל אירופה: <span class="ltr big">112</span></p>
+      </div>
+      <div class="info">
+        <h3>הטיסות</h3>
+        <p style="margin:0">הלוך: חמישי, נוחתות בבוקר.</p>
+        <p style="margin:0">חזור: ראשון, טיסת ערב. יוצאות מהמלון אחר הצהריים.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="ניווט">
+    <div class="row" role="tablist">
+      <button role="tab" data-tab="today" aria-selected="true"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>התוכנית</button>
+      <button role="tab" data-tab="cats" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>מה יש</button>
+      <button role="tab" data-tab="map" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>מפה</button>
+      <button role="tab" data-tab="help" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>עזרה</button>
+    </div>
+  </nav>
+</div>
+
+<div class="sheet" id="driverSheet" hidden role="dialog" aria-modal="true" aria-label="להראות לנהג">
+  <div class="wrap driver">
+    <button class="close" type="button" data-close>✕ סגירה</button>
+    <div class="heb">הראי את המסך הזה לנהג</div>
+    <div class="say ltr">Bitte bringen Sie mich hierher:</div>
+    <div class="dname" id="dName"></div>
+    <div class="daddr" id="dAddr"></div>
+    <div class="heb" id="dHeb"></div>
+    <a class="btn go" id="dWalk" target="_blank" rel="noopener" href="#" style="align-self:center;font-size:19px;padding:14px 22px"><svg class="i" viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M10 21l2-6-2-3 1-4 3 3h3M12 15l3 2 1 4M11 8l-3 3"/></svg>או ללכת ברגל עם גוגל מפות</a>
+  </div>
+</div>
+
+<div class="sheet" id="moreSheet" hidden role="dialog" aria-modal="true" aria-label="קראי עוד">
+  <div class="wrap more">
+    <button class="close" type="button" data-close>✕ סגירה</button>
+    <h2 id="mTitle"></h2>
+    <button class="btn listen" type="button" id="listenBtn"><svg class="i" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span id="listenTxt">הקשיבי</span></button>
+    <button class="btn" type="button" id="restartBtn" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>מההתחלה</button>
+    <div id="mBody" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const ICON={
+  breakfast:'<path d="M4 15a8 8 0 0 1 16 0z"/><path d="M2 18h20M12 4v3M5.6 7.6l1.4 1.4M18.4 7.6 17 9"/>',
+  coffee:'<path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/>',
+  food:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 1-3 4-3 7h3"/>',
+  museum:'<path d="M3 21h18M4 10h16M12 3l9 5H3l9-5zM6 10v8M10 10v8M14 10v8M18 10v8"/>',
+  walk:'<circle cx="13" cy="4.5" r="1.8"/><path d="M10 21l2-6-2-3 1-4 3 3h3M12 15l3 2 1 4M11 8l-3 3"/>',
+  shop:'<path d="M5 8h14l-1 13H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  evening:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  hotel:'<path d="M3 20V8l9-5 9 5v12"/><path d="M9 20v-6h6v6"/>'
+};
+const CATS=[
+  {id:'breakfast',he:'ארוחת בוקר'},
+  {id:'coffee',he:'קפה ועוגה'},
+  {id:'food',he:'מסעדות'},
+  {id:'museum',he:'ארמונות ומוזיאונים'},
+  {id:'walk',he:'לטייל ולראות'},
+  {id:'shop',he:'קניות ומתנות'},
+  {id:'evening',he:'ערב ומוזיקה'}
+];
+const ic=(k)=>'<svg class="i" viewBox="0 0 24 24">'+ICON[k]+'</svg>';
+const col=(k)=>'var(--c-'+k+')';
+
+/* Places. lat/lng approximate. more = text for "קראי עוד" (Hebrew only, read aloud) */
+const P=[
+ {id:'hotel',cats:['hotel'],he:'המלון שלנו',de:'Hotel',addr:'Stephansplatz, 1010 Wien',lat:48.2094,lng:16.3718,line:'הבית שלכן בווינה. 2 דקות מהקתדרלה.'},
+ {id:'paremi',cats:['breakfast','coffee'],he:'פארמי',de:'Parémi',addr:'Bäckerstraße 10, 1010 Wien',lat:48.2088,lng:16.3772,line:'מאפייה צרפתית: קרואסונים, טארטים וארוחת בוקר. יש תור, אבל הוא זז מהר.',tags:['שלישי עד שבת','סגור בראשון']},
+ {id:'central',cats:['breakfast','coffee','food'],he:'קפה סנטרל',de:'Café Central',addr:'Herrengasse 14, 1010 Wien',lat:48.2104,lng:16.3655,line:'בית הקפה הכי מפורסם בווינה, בתוך ארמון. ארוחת בוקר, מרקים, עוגות וקייזרשמרן.',tags:['בראשון ובחג מ-10:00','להגיע מוקדם, יש תור'],
+  more:['קפה סנטרל נפתח בשנת 1876, בקומת הקרקע של ארמון ישן עם תקרות מקושתות ועמודים.','לפני מאה שנה זה היה המקום של הסופרים, האמנים והמהפכנים של וינה. זיגמונד פרויד ישב כאן, ולאון טרוצקי שיחק כאן שחמט לפני שחזר לרוסיה.','בכניסה יושבת דמות של משורר מקומי, פטר אלטנברג, שכמעט גר בבית הקפה. אפשר להצטלם איתו.','בערב יש לפעמים נגן פסנתר. הקייזרשמרן, חביתה מתוקה קרועה עם אבקת סוכר, לוקח בערך עשרים דקות להכנה, אז כדאי להזמין אותו מוקדם.']},
+ {id:'landtmann',cats:['breakfast','coffee'],he:'קפה לנדטמן',de:'Café Landtmann',addr:'Universitätsring 4, 1010 Wien',lat:48.2114,lng:16.3613,line:'בית קפה וינאי קלאסי ואלגנטי מול העירייה. ארוחת בוקר טובה ועוגות.',tags:['פתוח גם בראשון'],
+  more:['קפה לנדטמן נפתח בשנת 1873 על רחוב הטבעת, ממש מול בניין העירייה ובניין התיאטרון הלאומי.','זה היה בית הקפה האהוב על זיגמונד פרויד. עד היום יושבים כאן פוליטיקאים, שחקנים ועיתונאים.','המלצרים בחליפות, הקפה מגיע על מגש כסף עם כוס מים, וזה בדיוק הטקס הוינאי.']},
+ {id:'bellaria',cats:['breakfast'],he:'קפה בלריה',de:'Café Bellaria',addr:'Bellariastraße 6, 1010 Wien',lat:48.2066,lng:16.3580,line:'בית הקפה הפעיל הכי ותיק בווינה, משופץ ומודרני. ארוחות בוקר טובות.',tags:['ליד המוזיאונים'],
+  more:['קפה בלריה פועל משנת 1870, וזה בית הקפה הוותיק ביותר בווינה שפועל ברציפות.','לפני כמה שנים הוא שופץ, ועכשיו הוא משלב את האווירה הישנה עם עיצוב חדש. הוא נמצא ממש ליד המוזיאונים הגדולים ורחוב הטבעת.']},
+ {id:'demel',cats:['coffee'],he:'דמל',de:'Demel',addr:'Kohlmarkt 14, 1010 Wien',lat:48.2086,lng:16.3672,line:'הקונדיטוריה של הקיסרים. קייזרשמרן, שטרודל תפוחים ועוגות. רואים מבעד לזכוכית איך אופים.',tags:['למתנות: סוכריות הסיגליות של סיסי'],
+  more:['דמל נוסדה בשנת 1786 והייתה הקונדיטוריה הרשמית של בית הקיסר. השלט "קונדיטור החצר הקיסרית" עדיין תלוי בחזית.','הקיסרית סיסי אהבה במיוחד סוכריות סיגליות מכאן, ועד היום מוכרים אותן בקופסאות יפות. מתנה מושלמת לחזור איתה.','בפנים יש חלון זכוכית לחדר האפייה, ואפשר לראות את הקונדיטורים עובדים. דמל וזאכר מתחרים כבר מאה שנה על עוגת השוקולד המקורית.']},
+ {id:'sacher',cats:['coffee'],he:'קפה זאכר',de:'Café Sacher',addr:'Philharmonikerstraße 4, 1010 Wien',lat:48.2039,lng:16.3694,line:'הבית של עוגת הזאכר המקורית: שוקולד וריבת משמש. מול האופרה.',tags:['יש תור, הוא זז'],
+  more:['עוגת הזאכר הומצאה בשנת 1832 בידי פרנץ זאכר, שוליית מטבח בן שש עשרה, כשהשף הראשי היה חולה.','זו עוגת שוקולד עם שכבה דקה של ריבת משמש וציפוי שוקולד, ומגישים אותה עם קצפת לא מתוקה.','הקפה נמצא במלון זאכר, מול בית האופרה. האווירה אדומה, קטיפתית ומלכותית.']},
+ {id:'amour',cats:['coffee','breakfast'],he:'לאמור דו פן',de:"L'Amour du Pain",addr:'Otto-Bauer-Gasse 21, 1060 Wien',lat:48.1965,lng:16.3488,line:'מאפייה צרפתית קטנה ומעולה, בסמטה ליד רחוב הקניות מריהילפר.',tags:['שלישי עד שבת']},
+ {id:'dacapo',cats:['food'],he:'דה קאפו',de:'Da Capo',addr:'Schulerstraße 18, 1010 Wien',lat:48.2078,lng:16.3757,line:'מסעדה איטלקית חמימה ליד המלון. פיצה, פסטה, דגים ומנות צמחוניות.',tags:['לאמא: פסטה, פיצה, דג','לחברה: גם בשר']},
+ {id:'kameel',cats:['food'],he:'צום שוורצן קמל',de:'Zum Schwarzen Kameel',addr:'Bognergasse 5, 1010 Wien',lat:48.2102,lng:16.3681,line:'מקום ותיק משנת 1618. כריכים קטנים על לחם שחור בעמידה, או ארוחה במסעדה.',tags:['לאמא: כריכי ביצה, גבינה, ירקות','סגור בראשון'],
+  more:['המקום נפתח בשנת 1618 כחנות תבלינים, ומאז הוא פועל באותו רחוב. בטהובן היה קונה כאן.','החדר הפנימי מעוצב בסגנון אר נובו מתחילת המאה העשרים, עם עץ כהה ומנורות יפות.','המנהג הוינאי: עומדים ליד הדלפק, מזמינים שניים שלושה כריכים קטנים על לחם שחור וכוס יין, ומדברים.']},
+ {id:'martinelli',cats:['food'],he:'טרטוריה מרטינלי',de:'Trattoria Martinelli',addr:'Freyung 3, 1010 Wien',lat:48.2114,lng:16.3655,line:'איטלקית בחצר של ארמון בארוק. מומלצת במדריך מישלן ובמחיר סביר.',tags:['לאמא: פסטה ודגים','לחברה: גם בשר','פתוח בראשון']},
+ {id:'motto',cats:['food'],he:'מוטו אם פלוס',de:'Motto am Fluss',addr:'Franz-Josefs-Kai 2, 1010 Wien',lat:48.2118,lng:16.3779,line:'מסעדה מודרנית על תעלת הדנובה, עם נוף למים. דג פורל, מנות צמחוניות וגם בשר.',tags:['לאמא: דג פורל','פתוח בראשון']},
+ {id:'hofburg',cats:['museum'],he:'ארמון הופבורג: דירות הקיסר',de:'Hofburg – Kaiserappartements',addr:'Michaelerplatz, 1010 Wien',lat:48.2078,lng:16.3660,line:'החדרים שבהם גרו הקיסר פרנץ יוזף והקיסרית סיסי.',tags:['עד 18.11 חלק המוזיאון של סיסי סגור לשיפוץ, הדירות פתוחות','10:00–16:30','הנחה 25%'],
+  more:['ארמון הופבורג היה הבית של משפחת הקיסרים הבסבורג במשך יותר משש מאות שנה, עד סוף מלחמת העולם הראשונה. היום יושב בו נשיא אוסטריה.','בדירות הקיסר רואים את חדר העבודה של פרנץ יוזף, שקם כל יום בארבע וחצי בבוקר, ואת החדרים של אשתו, הקיסרית אליזבת, שכולם קראו לה סיסי.','סיסי התחתנה בגיל שש עשרה. היא הייתה מפורסמת ביופי שלה ובשיער הארוך עד הברכיים, שטיפולו לקח שלוש שעות כל יום. היא שנאה את חיי החצר ונסעה הרבה.','שימו לב: עד אמצע נובמבר החלק של מוזיאון סיסי סגור לשיפוץ, אבל דירות הקיסר פתוחות והכרטיס זול ברבע.']},
+ {id:'schoenbrunn',cats:['museum'],he:'ארמון שנברון',de:'Schloss Schönbrunn',addr:'Schönbrunner Schloßstraße 47, 1130 Wien',lat:48.1845,lng:16.3122,line:'ארמון הקיץ של הקיסרים, עם גנים ענקיים. 20 דקות במונית מהמלון.',tags:['כרטיס לארמון: מזמינים מראש עם שעה','הגנים בחינם'],
+  more:['שנברון היה ארמון הקיץ של הקיסרים. יש בו יותר מאלף וארבע מאות חדרים, והוא אתר מורשת עולמית.','בשנת 1762 מוצרט, ילד בן שש, ניגן כאן בפני הקיסרית מריה תרזה. לפי הסיפור הוא החליק על הרצפה, ובתה הקטנה, מרי אנטואנט, עזרה לו לקום.','הסיור בתוך הארמון עובר בעשרים ושניים חדרים, עם מדריך קולי. אחר כך שווה לטייל בגנים. על הגבעה מולכן עומד מבנה עמודים בשם גלוריאטה, ויש ממנו נוף לכל העיר, אבל העלייה ארוכה, אז רק אם יש כוח.']},
+ {id:'khm',cats:['museum'],he:'המוזיאון לתולדות האמנות',de:'Kunsthistorisches Museum',addr:'Maria-Theresien-Platz, 1010 Wien',lat:48.2038,lng:16.3617,line:'אחד המוזיאונים הגדולים בעולם, וגם הבניין עצמו מדהים. יש בו בית קפה מתחת לכיפה.',tags:['לבדוק אם פתוח בחג'],
+  more:['המוזיאון נפתח בשנת 1891 בידי הקיסר פרנץ יוזף, כדי להציג את אוצרות האמנות שאספה משפחת הבסבורג.','יש בו את האוסף הגדול בעולם של הצייר ברויגל, וגם ציורים של רפאל, רמברנדט ורובנס.','גם מי שלא אוהבת מוזיאונים תיהנה מבית הקפה שמתחת לכיפה הגדולה. זה נחשב לאחד מבתי הקפה היפים בעולם.']},
+ {id:'nhm',cats:['museum'],he:'המוזיאון להיסטוריה של הטבע',de:'Naturhistorisches Museum',addr:'Burgring 7, 1010 Wien',lat:48.2053,lng:16.3598,line:'האח התאום של מוזיאון האמנות. אבנים יקרות, מטאוריטים ופסל ונוס בן 30 אלף שנה.',
+  more:['שני המוזיאונים הגדולים נבנו כתאומים, אחד מול השני, עם כיכר מריה תרזה ביניהם.','כאן מוצג פסל קטן בשם ונוס מווילנדורף, דמות של אישה בגובה אחד עשר סנטימטר. הוא בן שלושים אלף שנה בערך.','יש גם אולם של אבנים יקרות, ובו זר פרחים שעשוי מאבני חן, מתנה של מריה תרזה לבעלה.']},
+ {id:'judenplatz',cats:['museum','walk'],he:'כיכר היהודים והמוזיאון',de:'Judenplatz / Museum Judenplatz',addr:'Judenplatz 8, 1010 Wien',lat:48.2115,lng:16.3693,line:'לב הרובע היהודי של ימי הביניים, אנדרטת השואה, ומתחת לכיכר שרידי בית כנסת עתיק.',tags:['שישי רק עד 14:00','שבת סגור'],
+  more:['בימי הביניים זה היה מרכז הקהילה היהודית של וינה, עם בית כנסת, בית ספר ובית חולים.','בשנת 1421 הקהילה גורשה ונרצחה, ובית הכנסת נהרס. מתחת לכיכר נחשפו היסודות שלו, ואפשר לרדת לראות אותם במוזיאון.','במרכז הכיכר עומדת אנדרטת השואה: ספרייה עשויה בטון שהספרים שלה הפוכים, עם הגב פנימה, ואי אפשר לפתוח אותם. היא מסמלת את העם של הספר ואת הסיפורים שלא סופרו. על הבסיס כתובים שמות המקומות שבהם נרצחו כששים וחמישה אלף יהודי אוסטריה.']},
+ {id:'belvedere',cats:['museum'],he:'ארמון בלוודרה',de:'Oberes Belvedere',addr:'Prinz-Eugen-Straße 27, 1030 Wien',lat:48.1915,lng:16.3809,line:'ארמון בארוק יפהפה, ובו הציור "הנשיקה" של קלימט. 10 דקות במונית.',
+  more:['בלוודרה נבנה לפני שלוש מאות שנה כארמון הקיץ של הנסיך אויגן, מצביא מפורסם.','היום יש בו את האוסף הגדול בעולם של הצייר גוסטב קלימט, כולל הציור "הנשיקה", זוג מחובק בבגדים זהובים. זה אחד הציורים המפורסמים בעולם.','בין שני חלקי הארמון יש גן מדורג עם מזרקות.']},
+ {id:'stephansdom',cats:['walk'],he:'קתדרלת סטפן הקדוש',de:'Stephansdom',addr:'Stephansplatz 3, 1010 Wien',lat:48.2085,lng:16.3731,line:'הסמל של וינה, 2 דקות מהמלון. שימו לב לגג עם האריחים הצבעוניים.',tags:['כניסה לחלק הקדמי בחינם'],
+  more:['הקתדרלה נבנתה במשך מאות שנים. המגדל הדרומי שלה, בגובה מאה שלושים ושישה מטרים, הושלם בשנת 1433.','הגג מכוסה בכמאתיים ושלושים אלף אריחים צבעוניים, שיוצרים ציור של נשר דו ראשי, הסמל של הקיסרות.','מוצרט התחתן בקתדרלה הזאת, וגם הלוויה שלו התקיימה כאן.','בסוף מלחמת העולם השנייה הקתדרלה נשרפה, והתושבים בנו אותה מחדש בתרומות מכל אוסטריה.']},
+ {id:'graben',cats:['walk','shop'],he:'רחוב גראבן ורחוב קרנטנר',de:'Graben / Kärntner Straße',addr:'Graben, 1010 Wien',lat:48.2087,lng:16.3693,line:'המדרחובים של העיר העתיקה: חנויות, בתי קפה ומופעי רחוב. מתחילים ממש ליד המלון.',tags:['ביום ראשון החנויות סגורות'],
+  more:['גראבן פירושו תעלה, כי פעם עברה כאן תעלת ההגנה של העיר הרומית.','באמצע הרחוב עומד עמוד מגולף גבוה, עמוד המגפה. הקיסר הבטיח לבנות אותו אם המגפה של שנת 1679 תיגמר.','רחוב קרנטנר יורד מהקתדרלה עד האופרה, וזה רחוב הקניות המפורסם של וינה כבר יותר משבע מאות שנה.']},
+ {id:'michaeler',cats:['walk'],he:'כיכר מיכאל',de:'Michaelerplatz',addr:'Michaelerplatz, 1010 Wien',lat:48.2081,lng:16.3664,line:'הכניסה המפוארת לארמון הופבורג, עם כיפה ענקית. כאן גם עוברות הכרכרות.',
+  more:['זו הכניסה הראשית לארמון הקיסרים, מתחת לכיפה ירוקה גדולה ופסלים ענקיים של הרקולס.','באמצע הכיכר נחשפו שרידים של בתים מהתקופה הרומית, כשווינה הייתה מחנה צבאי בשם וינדובונה.','מול הארמון עומד בניין לבן ופשוט בלי קישוטים. כשהוא נבנה בשנת 1911 הקיסר כל כך כעס עליו, שלפי הסיפור הוא הפסיק להשתמש ביציאה שפונה אליו.']},
+ {id:'heldenplatz',cats:['walk'],he:'כיכר הגיבורים ושער הגיבורים',de:'Heldenplatz / Äußeres Burgtor',addr:'Heldenplatz, 1010 Wien',lat:48.2058,lng:16.3628,line:'כיכר ענקית מול הארמון, עם שני פסלי פרשים ושער עמודים גדול.',
+  more:['שער הגיבורים נבנה בשנת 1824 לזכר ניצחון על נפוליאון. מעליו כתוב בלטינית: הצדק הוא יסוד הממלכות.','בכיכר עומדים שני פסלים של פרשים, שני מצביאים מפורסמים. הפסל של הארכידוכס קרל מיוחד: הסוס עומד רק על הרגליים האחוריות.','מכאן יש תצפית יפה על בניין הפרלמנט, בניין העירייה ומגדלי הכנסיות.']},
+ {id:'volksgarten',cats:['walk'],he:'גן פולקסגרטן',de:'Volksgarten',addr:'Volksgarten, 1010 Wien',lat:48.2087,lng:16.3620,line:'גן ורדים שקט ליד הארמון, עם ספסלים. הכניסה בחינם.',tags:['בסוף אוקטובר פחות פרחים'],
+  more:['הגן נפתח בשנת 1823 על השטח של חומות העיר הישנות, והיה אחד הגנים הציבוריים הראשונים בווינה.','יש בו גן ורדים עם אלפי שיחים, מקדש יווני קטן, ובפינה אנדרטה לבנה לקיסרית סיסי.']},
+ {id:'mtplatz',cats:['walk'],he:'כיכר מריה תרזה',de:'Maria-Theresien-Platz',addr:'Maria-Theresien-Platz, 1010 Wien',lat:48.2046,lng:16.3608,line:'כיכר מרשימה בין שני המוזיאונים הגדולים, עם פסל ענק של הקיסרית.',
+  more:['מריה תרזה הייתה האישה היחידה ששלטה בממלכת הבסבורג, במשך ארבעים שנה.','היו לה שש עשרה ילדים, וביניהם מרי אנטואנט שהפכה למלכת צרפת.','הפסל שלה, בגובה של יותר מעשרים מטר, מוקף בפסלים של היועצים והמצביאים שלה.']},
+ {id:'justiz',cats:['walk'],he:'ארמון הצדק',de:'Justizpalast',addr:'Schmerlingplatz 10-11, 1010 Wien',lat:48.2070,lng:16.3570,line:'בית המשפט העליון, עם אולם כניסה וגרם מדרגות מרהיבים.',tags:['רק בימי חול','בידוק ביטחוני, להביא דרכון'],
+  more:['הבניין נפתח בשנת 1881 ומשמש עד היום כבית המשפט העליון של אוסטריה.','האולם המרכזי גבוה כמו כנסייה, עם גג זכוכית וגרם מדרגות רחב, ובראשו פסל של אלת הצדק.','זה בניין עבודה, אז נכנסים בבידוק ביטחוני ורק בימי חול.']},
+ {id:'hundertwasser',cats:['walk'],he:'בית הונדרטוואסר',de:'Hundertwasserhaus',addr:'Kegelgasse 34-38, 1030 Wien',lat:48.2071,lng:16.3942,line:'בניין מגורים צבעוני ומשוגע בלי קווים ישרים, ועצים יוצאים מהחלונות. 10 דקות במונית.',tags:['רואים רק מבחוץ, גרים שם אנשים'],
+  more:['האמן פרידנסרייך הונדרטוואסר תכנן את הבניין, והוא הושלם בשנת 1985.','הוא האמין שקווים ישרים הם לא טבעיים, ולכן הרצפות גליות, החלונות כולם שונים, והקירות צבועים בכתמים צבעוניים.','על הגגות ובמרפסות צומחים עצים אמיתיים. הוא קרא להם דיירי העצים.']},
+ {id:'karlskirche',cats:['walk'],he:'כנסיית קרל הקדוש',de:'Karlskirche',addr:'Karlsplatz, 1040 Wien',lat:48.1982,lng:16.3718,line:'כנסייה עם כיפה ירוקה ושני עמודים ענקיים, מול בריכה. 8 דקות הליכה מהאופרה.',
+  more:['הקיסר הבטיח לבנות את הכנסייה הזאת אם מגפת הדבר של שנת 1713 תיגמר, והיא הושלמה בשנת 1737.','שני העמודים הגדולים בחזית מגולפים בסיפורי חייו של הקדוש, כמו העמודים של רומא.','בערב הכנסייה מוארת ומשתקפת בבריכה שמולה.']},
+ {id:'steffl',cats:['shop'],he:'כלבו שטפל',de:'Steffl',addr:'Kärntner Straße 19, 1010 Wien',lat:48.2066,lng:16.3712,line:'כלבו יוקרתי ברחוב קרנטנר: אופנה, קוסמטיקה, ראלף לורן ועוד.',tags:['ביום ראשון סגור']},
+ {id:'heindl',cats:['shop'],he:'היינדל: שוקולד ומרציפן',de:'Confiserie Heindl',addr:'Kärntner Straße 35, 1010 Wien',lat:48.2051,lng:16.3705,line:'חנות שוקולד וינאית. כדורי מוצרט וקופסאות של סיסי, מתנות מושלמות הביתה.',tags:['יש גם סניף בכיכר הקתדרלה']},
+ {id:'mariahilfer',cats:['shop'],he:'רחוב מריהילפר',de:'Mariahilfer Straße',addr:'Mariahilfer Straße, 1060 Wien',lat:48.1990,lng:16.3510,line:'רחוב הקניות הגדול של וינה: זארה, מנגו, נעליים ומוצרי בית. 10 דקות במונית.',tags:['ביום ראשון סגור']},
+ {id:'gerngross',cats:['shop'],he:'מרכז גרנגרוס',de:'Gerngross',addr:'Mariahilfer Straße 42-48, 1070 Wien',lat:48.1997,lng:16.3523,line:'מרכז קניות בחמש קומות על רחוב מריהילפר, עם סופרמרקט גדול.',tags:['ביום ראשון סגור']},
+ {id:'annakirche',cats:['evening'],he:'קונצרט בכנסיית אנה הקדושה',de:'Annakirche',addr:'Annagasse 3b, 1010 Wien',lat:48.2047,lng:16.3715,line:'קונצרט של מוצרט, בטהובן או שוברט, שעה ועשר דקות, בכנסייה בארוקית קטנה ליד המלון.',tags:['מתחיל ב-20:00','כרטיס בכניסה או באינטרנט'],
+  more:['כנסיית אנה הקדושה היא כנסייה קטנה ומוזהבת בסגנון בארוק, מוסתרת בסמטה ליד רחוב קרנטנר.','התקרה מצוירת כולה. הצייר דניאל גראן צייר אותה לפני כמעט שלוש מאות שנה.','הקונצרט קצר, בערך שעה, בלי הפסקה, עם רביעיית כלי מיתר. הישיבה חופשית, ולכן כדאי להגיע חצי שעה לפני ולתפוס מקום קדימה.']},
+ {id:'opera',cats:['evening','walk'],he:'בית האופרה',de:'Wiener Staatsoper',addr:'Opernring 2, 1010 Wien',lat:48.2030,lng:16.3691,line:'אחד מבתי האופרה המפורסמים בעולם. יפה במיוחד בערב כשהוא מואר. ביום יש סיורים מודרכים.',
+  more:['בית האופרה נפתח בשנת 1869 עם האופרה דון ג׳ובאני של מוצרט.','הנגנים בתזמורת של האופרה הם אותם נגנים של התזמורת הפילהרמונית של וינה, מהטובות בעולם.','ביום אפשר להצטרף לסיור מודרך של בערך ארבעים דקות ולראות את האולם והמדרגות המפוארות. מעבר לכביש נמצא קפה זאכר.']}
+];
+const byId=Object.fromEntries(P.map(p=>[p.id,p]));
+
+/* Days */
+const DAYS=[
+ {date:'',chip:'חמישי',title:'יום ראשון: נוחתות ונחות',note:'<b>נחיתה בבוקר</b>מהשדה מונית ישר למלון, בערך 25 דקות. את החדר מקבלים מ-15:00, אבל אפשר להשאיר את המזוודות בקבלה ולצאת.',
+  slots:[
+   {t:'11:00',txt:'ארוחת בוקר צרפתית, קרוב למלון',p:'paremi',alt:'breakfast'},
+   {t:'12:30',txt:'הקתדרלה הגדולה, ממש ליד המלון',p:'stephansdom',alt:'walk'},
+   {t:'13:30',txt:'טיול בין החנויות ברחובות גראבן וקרנטנר',p:'graben',alt:'shop'},
+   {t:'14:30',txt:'קפה ועוגה בקונדיטוריה של הקיסרים',p:'demel',alt:'coffee'},
+   {t:'15:30',plain:'חוזרות למלון, מקבלות חדר ונחות. קמתן באמצע הלילה.'},
+   {t:'19:00',txt:'ארוחת ערב רגועה, קרוב למלון',p:'dacapo',alt:'food'}
+  ]},
+ {date:'',chip:'שישי',title:'יום שני: ארמון הקיסרים',note:'<b>שימו לב</b>המוזיאון בכיכר היהודים פתוח היום רק עד 14:00, ובשבת הוא סגור. לכן הוא בבוקר.',
+  slots:[
+   {t:'08:30',txt:'ארוחת בוקר בבית הקפה המפורסם. כדאי להגיע מוקדם, לפני התור',p:'central',alt:'breakfast'},
+   {t:'10:00',txt:'כיכר היהודים והמוזיאון',p:'judenplatz',alt:'museum'},
+   {t:'12:00',txt:'צהריים: כריכים קטנים במקום בן 400 שנה',p:'kameel',alt:'food'},
+   {t:'13:30',txt:'הכניסה לארמון, דרך הכיפה הגדולה',p:'michaeler',alt:'walk'},
+   {t:'14:00',txt:'הדירות של הקיסר וסיסי',p:'hofburg',alt:'museum'},
+   {t:'16:00',txt:'כיכר הגיבורים וגן הוורדים',p:'volksgarten',alt:'walk'},
+   {t:'18:00',plain:'חוזרות למלון לנוח ולהתארגן. אוכלות משהו קל בדרך.'},
+   {t:'20:00',txt:'קונצרט קלאסי בכנסייה קטנה. להגיע ב-19:30 לתפוס מקום',p:'annakirche',alt:'evening'}
+  ]},
+ {date:'',chip:'שבת',title:'יום שלישי: שנברון וקניות',note:'<b>היום האחרון שהחנויות פתוחות</b>מחר חג והכול סגור. לארמון שנברון צריך כרטיס עם שעה, שמוזמן מראש.',
+  slots:[
+   {t:'08:30',plain:'ארוחת בוקר במלון.'},
+   {t:'10:00',txt:'ארמון שנברון. נוסעות במונית, בערך 20 דקות',p:'schoenbrunn',alt:'museum'},
+   {t:'13:00',txt:'מונית לרחוב הקניות. קודם מאפה וקפה',p:'amour',alt:'coffee'},
+   {t:'14:00',txt:'קניות ברחוב הגדול',p:'mariahilfer',alt:'shop'},
+   {t:'15:30',txt:'ממשיכות לקניות במרכז',p:'gerngross',alt:'shop'},
+   {t:'17:00',plain:'מונית חזרה למלון עם השקיות, ומנוחה.'},
+   {t:'19:30',txt:'ארוחת ערב איטלקית בחצר של ארמון',p:'martinelli',alt:'food'}
+  ]},
+ {date:'',chip:'ראשון',title:'יום אחרון: בוקר רגוע וחזרה',note:'<b>חג: החנויות סגורות</b>צ\'ק-אאוט עד 11:00, ומשאירות מזוודות בקבלה. אחר הצהריים יוצאות לשדה. שעות פתיחה בחג כדאי לבדוק במקום.',
+  slots:[
+   {t:'09:30',txt:'ארוחת בוקר בבית קפה קלאסי. הוא פותח ב-10:00 בחג',p:'landtmann',alt:'breakfast'},
+   {t:'11:30',txt:'כיכר הקיסרית בין שני המוזיאונים',p:'mtplatz',alt:'walk'},
+   {t:'12:00',txt:'אם פתוח: קפה מתחת לכיפה של מוזיאון האמנות',p:'khm',alt:'museum'},
+   {t:'13:30',txt:'צהריים על המים, קרוב למלון',p:'motto',alt:'food'},
+   {t:'16:00',plain:'חוזרות למלון ואוספות את המזוודות.'},
+   {t:'16:30',plain:'מונית לשדה התעופה. נסיעה טובה!'}
+  ]}
+];
+
+/* helpers */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function dist(a,b){const R=6371000,t=Math.PI/180;const dl=(b.lat-a.lat)*t,dn=(b.lng-a.lng)*t;const x=Math.sin(dl/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function walkLabel(m){const min=Math.max(1,Math.round(m*1.25/75));return min>25?'רחוק, במונית':min+' דקות הליכה'}
+function navUrl(p){return 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(p.de+', '+p.addr)}
+const hotel=byId.hotel;
+
+function card(p,opts={}){
+  const c=p.cats[0];
+  const d=dist(hotel,p);
+  const tags=(p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+  const fromHotel=p.id==='hotel'?'':'<span class="tag walk">מהמלון: '+walkLabel(d)+'</span>';
+  const fromHere=opts.from?'<span class="tag walk">מכאן: '+walkLabel(dist(opts.from,p))+'</span>':'';
+  return '<article class="card">'+
+   '<div class="head"><div class="dot" style="background:'+col(c)+'">'+ic(c)+'</div>'+
+   '<div class="name"><h3>'+esc(p.he)+'</h3><div class="de"><span class="ltr">'+esc(p.de)+'</span></div></div></div>'+
+   '<p>'+esc(p.line)+'</p>'+
+   '<div class="tags">'+(fromHere||fromHotel)+tags+'</div>'+
+   '<div class="acts">'+
+    '<a class="btn go" target="_blank" rel="noopener" href="'+navUrl(p)+'"><svg class="i" viewBox="0 0 24 24"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>קחי אותי לשם</a>'+
+    '<button class="btn" type="button" data-driver="'+p.id+'"><svg class="i" viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17M8 11l1-3h6l1 3"/><circle cx="8" cy="18" r="1.5"/><circle cx="16" cy="18" r="1.5"/></svg>להראות לנהג</button>'+
+    (p.more?'<button class="btn" type="button" data-more="'+p.id+'"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2V5z"/><path d="M8 7h6"/></svg>קראי עוד</button>':'')+
+   '</div>'+(opts.alt?'<button class="other" type="button" data-alt="'+opts.alt+'">רוצות משהו אחר? עוד '+esc(CATS.find(x=>x.id===opts.alt).he)+' ←</button>':'')+
+  '</article>';
+}
+
+/* today */
+const dayChips=document.getElementById('dayChips'),dayBody=document.getElementById('dayBody');
+function viennaToday(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Vienna'}).format(new Date())}catch(e){return ''}}
+let dayIdx=Math.max(0,DAYS.findIndex(d=>d.date&&d.date===viennaToday()));
+function renderDays(){
+  dayChips.innerHTML=DAYS.map((d,i)=>'<button class="chip" type="button" aria-pressed="'+(i===dayIdx)+'" data-day="'+i+'">'+d.chip+'</button>').join('');
+  const d=DAYS[dayIdx];
+  dayBody.innerHTML='<h2>'+d.title+'</h2><div class="note">'+d.note+'</div>'+
+   d.slots.map(s=>'<div class="slot"><div class="sh"><span class="t">'+s.t+'</span>'+(s.plain?'':'<span>'+esc(s.txt)+'</span>')+'</div>'+
+     (s.plain?'<div class="plain">'+esc(s.plain)+'</div>':card(byId[s.p],{alt:s.alt}))+
+   '</div>').join('');
+}
+dayChips.addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;dayIdx=+b.dataset.day;renderDays()});
+
+/* categories */
+let catSel='breakfast';
+const catGrid=document.getElementById('catGrid'),catList=document.getElementById('catList');
+function renderCats(){
+  catGrid.innerHTML=CATS.map(c=>'<button class="cat" type="button" aria-pressed="'+(c.id===catSel)+'" data-cat="'+c.id+'"><span class="ring"><span class="in" style="background:'+col(c.id)+'">'+ic(c.id)+'</span></span>'+c.he+'</button>').join('');
+  const items=P.filter(p=>p.cats.includes(catSel)).sort((a,b)=>dist(hotel,a)-dist(hotel,b));
+  catList.innerHTML='<h2>'+CATS.find(c=>c.id===catSel).he+'</h2><p class="muted" style="margin:-8px 0 0;font-size:16px">מסודר לפי המרחק מהמלון</p>'+items.map(p=>card(p)).join('');
+}
+catGrid.addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;catSel=b.dataset.cat;renderCats()});
+
+/* map */
+const ANCH=[['hotel','המלון'],['stephansdom','הקתדרלה'],['michaeler','הארמון'],['mtplatz','המוזיאונים'],['opera','האופרה'],['gerngross','רחוב הקניות'],['schoenbrunn','שנברון']];
+let anchor='hotel',picked=null;
+const X0=16.346,X1=16.392,Y0=48.218,Y1=48.194;
+const px=p=>({x:Math.max(26,Math.min(974,(p.lng-X0)/(X1-X0)*1000)),y:Math.max(26,Math.min(754,(Y0-p.lat)/(Y0-Y1)*780))});
+const RING=[[48.2117,16.3780],[48.2135,16.3720],[48.2157,16.3664],[48.2140,16.3610],[48.2110,16.3595],[48.2070,16.3600],[48.2040,16.3618],[48.2025,16.3660],[48.2022,16.3700],[48.2015,16.3735],[48.2035,16.3785],[48.2065,16.3810],[48.2098,16.3815]];
+function renderMap(){
+  const svg=document.getElementById('map');
+  const ring=RING.map(([la,ln])=>{const q=px({lat:la,lng:ln});return q.x.toFixed(0)+','+q.y.toFixed(0)}).join(' ');
+  const canal=[[48.2175,16.3640],[48.2150,16.3700],[48.2125,16.3760],[48.2105,16.3820],[48.2080,16.3880],[48.2060,16.3960]].map(([la,ln])=>{const q=px({lat:la,lng:ln});return q.x.toFixed(0)+','+q.y.toFixed(0)}).join(' ');
+  let s='<rect width="1000" height="780" fill="var(--bg)"/>'+
+   '<polyline points="'+canal+'" fill="none" stroke="var(--c-museum)" stroke-opacity=".35" stroke-width="14" stroke-linecap="round"/>'+
+   '<polygon points="'+ring+'" fill="var(--surface)" stroke="var(--line)" stroke-width="10" stroke-linejoin="round"/>';
+  const lab=(x,y,t,size)=>'<text x="'+x+'" y="'+y+'" text-anchor="middle" font-family="Heebo,Arial,sans-serif" font-size="'+(size||24)+'" font-weight="700" fill="var(--muted)" direction="rtl">'+t+'</text>';
+  s+=lab(540,200,'העיר העתיקה',26)+lab(860,90,'תעלת הדנובה',22);
+  const sch=px(byId.schoenbrunn);
+  s+='<g data-pin="schoenbrunn" style="cursor:pointer"><rect x="10" y="716" width="190" height="50" rx="25" fill="var(--c-museum)"/>'+'<text x="105" y="749" text-anchor="middle" font-family="Heebo,Arial,sans-serif" font-size="22" font-weight="700" fill="#fff" direction="rtl">→ לשנברון</text></g>';
+  const a=byId[anchor];
+  P.forEach(p=>{
+    if(p.id==='schoenbrunn'||p.id==='hotel')return;
+    const q=px(p);const sel=picked===p.id;const r=sel?22:15;
+    s+='<g data-pin="'+p.id+'" style="cursor:pointer"><circle cx="'+q.x+'" cy="'+q.y+'" r="'+(r+6)+'" fill="transparent"/><circle cx="'+q.x+'" cy="'+q.y+'" r="'+r+'" fill="'+col(p.cats[0])+'" stroke="var(--surface)" stroke-width="4"/></g>';
+  });
+  const h=px(hotel);
+  s+='<g data-pin="hotel" style="cursor:pointer"><rect x="'+(h.x-24)+'" y="'+(h.y-24)+'" width="48" height="48" rx="12" fill="var(--c-hotel)" stroke="var(--surface)" stroke-width="4"/><svg x="'+(h.x-15)+'" y="'+(h.y-15)+'" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--surface)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+ICON.hotel+'</svg></g>';
+  if(anchor!=='schoenbrunn'){const q=px(a);s+='<circle class="pulse" cx="'+q.x+'" cy="'+q.y+'" r="16" fill="#4285F4"/><circle cx="'+q.x+'" cy="'+q.y+'" r="13" fill="#4285F4" stroke="#fff" stroke-width="4"/>';}
+  if(picked){const p=byId[picked];if(p.id!=='schoenbrunn'){const q=px(p);const w=Math.min(420,p.he.length*15+40);const bx=Math.max(8,Math.min(992-w,q.x-w/2));const by=q.y>80?q.y-78:q.y+30;
+    s+='<rect x="'+bx+'" y="'+by+'" width="'+w+'" height="46" rx="23" fill="var(--ink)"/><text x="'+(bx+w/2)+'" y="'+(by+31)+'" text-anchor="middle" font-family="Heebo,Arial,sans-serif" font-size="22" font-weight="700" fill="var(--surface)" direction="rtl">'+esc(p.he)+'</text>';}}
+  svg.innerHTML=s;
+  document.getElementById('legend').innerHTML='<span><i style="background:#4285F4"></i>אתן כאן</span><span><i style="background:var(--c-hotel);border-radius:3px"></i>המלון</span>'+CATS.map(c=>'<span><i style="background:'+col(c.id)+'"></i>'+c.he+'</span>').join('');
+  document.getElementById('anchorChips').innerHTML=ANCH.map(([id,t])=>'<button class="chip" type="button" aria-pressed="'+(id===anchor)+'" data-anchor="'+id+'">'+t+'</button>').join('');
+  document.getElementById('gmapsHere').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a.de+', '+a.addr);
+  document.getElementById('picked').innerHTML=picked?card(byId[picked],{from:a}):'';
+  const near=P.filter(p=>p.id!==anchor&&p.id!=='hotel').map(p=>[p,dist(a,p)]).sort((x,y)=>x[1]-y[1]).slice(0,6);
+  document.getElementById('nearList').innerHTML=near.map(([p])=>card(p,{from:a})).join('');
+}
+document.getElementById('map').addEventListener('click',e=>{const g=e.target.closest('[data-pin]');if(!g)return;picked=g.dataset.pin;renderMap();document.getElementById('picked').scrollIntoView({behavior:'smooth',block:'nearest'})});
+document.getElementById('anchorChips').addEventListener('click',e=>{const b=e.target.closest('[data-anchor]');if(!b)return;anchor=b.dataset.anchor;picked=null;renderMap()});
+
+/* tabs */
+const tabs=[...document.querySelectorAll('[data-tab]')];
+function show(t){tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));['today','cats','map','help'].forEach(v=>document.getElementById('v-'+v).hidden=v!==t);window.scrollTo(0,0)}
+tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+
+/* sheets */
+const driverSheet=document.getElementById('driverSheet'),moreSheet=document.getElementById('moreSheet');
+function openDriver(id){const p=byId[id];document.getElementById('dName').textContent=p.de;document.getElementById('dAddr').textContent=p.addr;document.getElementById('dHeb').textContent=p.he;document.getElementById('dWalk').href=navUrl(p);driverSheet.hidden=false;driverSheet.querySelector('.close').focus()}
+let sstate='idle',queue=[],qi=0,cur=null;
+function setBtn(){document.getElementById('listenTxt').textContent=sstate==='playing'?'עצירה':sstate==='paused'?'המשך מאיפה שעצרתי':'הקשיבי';document.getElementById('restartBtn').hidden=sstate!=='paused';
+  document.querySelectorAll('#mBody p').forEach((el,i)=>el.classList.toggle('reading',sstate!=='idle'&&queue[qi]&&queue[qi].p===i))}
+function stopSpeak(){sstate='idle';qi=0;cur=null;try{speechSynthesis.cancel()}catch(e){}setBtn()}
+function openMore(id){const p=byId[id];const nv=document.getElementById('noVoice');if(nv)nv.remove();document.getElementById('mTitle').textContent=p.he;document.getElementById('mBody').innerHTML=p.more.map(t=>'<p>'+esc(t)+'</p>').join('');moreSheet.dataset.id=id;stopSpeak();queue=[];moreSheet.hidden=false;moreSheet.querySelector('.close').focus()}
+const canSpeak='speechSynthesis' in window;
+if(!canSpeak)document.getElementById('listenBtn').hidden=true;
+let heVoice=null;
+function findHe(){try{heVoice=speechSynthesis.getVoices().find(v=>/^(he|iw)([-_]|$)/i.test(v.lang))||null}catch(e){}return heVoice}
+if(canSpeak){findHe();try{speechSynthesis.addEventListener('voiceschanged',findHe)}catch(e){}}
+function waitVoices(){return new Promise(res=>{if(findHe())return res(heVoice);let n=0;const t=setInterval(()=>{if(findHe()||++n>15){clearInterval(t);res(heVoice)}},100)})}
+function noVoiceMsg(){let el=document.getElementById('noVoice');if(!el){el=document.createElement('div');el.id='noVoice';el.className='note';el.innerHTML='<b>אין קול בעברית במכשיר הזה</b>באייפון זה עובד. במחשב צריך להוסיף קול עברי בהגדרות ההקראה של המערכת.';document.getElementById('listenBtn').after(el)}}
+function buildQueue(p){const q=[{t:p.he+'.',p:-1}];p.more.forEach((para,i)=>para.split(/(?<=[.!?])\s+/).forEach(s=>{if(s.trim())q.push({t:s,p:i})}));return q}
+function speakFrom(i){
+  qi=i;if(qi>=queue.length){sstate='idle';qi=0;cur=null;setBtn();return}
+  const u=new SpeechSynthesisUtterance(queue[qi].t);u.voice=heVoice;u.lang=heVoice.lang;u.rate=0.95;
+  const done=()=>{if(cur!==u||sstate!=='playing')return;speakFrom(qi+1)};u.onend=done;u.onerror=done;
+  cur=u;setBtn();speechSynthesis.speak(u);
+}
+async function play(from){const v=await waitVoices();if(!v){noVoiceMsg();return}if(!queue.length)queue=buildQueue(byId[moreSheet.dataset.id]);sstate='playing';try{speechSynthesis.cancel()}catch(e){}speakFrom(from)}
+document.getElementById('listenBtn').addEventListener('click',()=>{
+  if(sstate==='playing'){sstate='paused';cur=null;try{speechSynthesis.cancel()}catch(e){}setBtn();return}
+  play(sstate==='paused'?qi:0);
+});
+document.getElementById('restartBtn').addEventListener('click',()=>play(0));
+document.addEventListener('click',e=>{
+  const d=e.target.closest('[data-driver]');if(d){openDriver(d.dataset.driver);return}
+  const m=e.target.closest('[data-more]');if(m){openMore(m.dataset.more);return}
+  const a=e.target.closest('[data-alt]');if(a){catSel=a.dataset.alt;renderCats();show('cats');return}
+  if(e.target.closest('[data-close]')){driverSheet.hidden=true;moreSheet.hidden=true;stopSpeak()}
+});
+document.getElementById('hotelBtn').addEventListener('click',()=>openDriver('hotel'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){driverSheet.hidden=true;moreSheet.hidden=true;stopSpeak()}});
+
+renderDays();renderCats();renderMap();
+})();
+</script>
+
+</body>
+</html>
