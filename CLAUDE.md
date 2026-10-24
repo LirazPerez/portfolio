@@ -6,6 +6,8 @@ The approved visual direction is `reference/specimen.html`. When in doubt about 
 
 `V00/` and `V01/` are archived material from earlier versions (several GB, nested git repos). They are gitignored and excluded from Vite, Tailwind and TypeScript. Never import from them.
 
+`side-projects/` holds small standalone builds (raw material for a future "Playground" section). It is outside `src/` and `public/`, so it is never built or deployed. Each project has a README; respect any "do not publish before" date in it.
+
 ## Stack
 
 - **Astro 7** (static output), **TypeScript** (strict; pinned to TS 6 because `astro check` does not support TS 7 yet).
