@@ -5,7 +5,10 @@
  * shows its details in the one panel under the timeline (aria-live polite). Today is the build
  * date, so the "Today" line and the ongoing bar move on every build.
  *
- * Under 760px (where the bars would get too short for their words) the same entries are a vertical list instead (years down the left, each entry a
+ * The axis is not to scale (PATH.scale): the army years are folded in and the product design
+ * years open up, with month labels.
+ *
+ * Under 960px (where the bars would get too short for their words) the same entries are a vertical list instead (years down the left, each entry a
  * native <details> that opens in place), so nobody scrolls sideways. Without JS the buttons do
  * nothing, so the panel is hidden and that list shows at every width.
  */
@@ -19,12 +22,29 @@ const years = (ym: string) => {
 };
 const axisStart = PATH.startYear;
 // A little room after today, so the Today line and its label sit inside the timeline.
-const axisEnd = todayY + 0.4;
-const pct = (y: number) => ((y - axisStart) / (axisEnd - axisStart)) * 100;
+const axisEnd = todayY + 0.12;
+// Not to scale: each stretch of PATH.scale takes width by its weight, so the army years fold in
+// and the product design years open up. pct() maps a moment to its place along the track.
+const stretches = PATH.scale.map((s, i, arr) => ({
+  from: years(s.from),
+  to: i + 1 < arr.length ? years(arr[i + 1].from) : Infinity,
+  weight: s.weight,
+}));
+const units = (y: number) =>
+  stretches.reduce((sum, s) => sum + Math.max(0, Math.min(y, s.to) - s.from) * s.weight, 0);
+const totalUnits = units(axisEnd) - units(axisStart);
+const pct = (y: number) => ((units(y) - units(axisStart)) / totalUnits) * 100;
+const weightAt = (y: number) => stretches.findLast((s) => y >= s.from)?.weight ?? 1;
 const endOf = (e: PathEntry) => (e.end === 'today' || !e.end ? todayY : years(e.end));
 
-const ticks: number[] = [];
-for (let y = axisStart; y <= today.getFullYear(); y++) ticks.push(y);
+// A year keeps its label unless it sits inside a folded stretch (and doesn't start one).
+const ticks: { y: number; label: boolean }[] = [];
+for (let y = axisStart; y <= today.getFullYear(); y++)
+  ticks.push({ y, label: weightAt(y) >= 0.75 || stretches.some((s) => s.from === y) || y === axisStart });
+const MONTH = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const months = PATH.months
+  .map((m) => ({ y: years(m), label: MONTH[Number(m.split('-')[1]) - 1] }))
+  .filter((m) => m.y < todayY - 0.05);
 const nyLeft = pct(years(PATH.newYork.from));
 const todayPct = pct(todayY);
 
@@ -39,12 +59,14 @@ const nameOf = (e: PathEntry) => {
 // of pixels apart (MARKER_GAP), so they never overlap at any width.
 const MARKER_GAP = 26;
 const MIN_BAR = 28;
+// Diamonds closer than this share of the track are spread apart.
+const MARKER_NEAR = 3.5;
 function markerOffsets(entries: PathEntry[]) {
   const sorted = [...entries].sort((a, b) => years(a.start) - years(b.start));
   const groups: PathEntry[][] = [];
   for (const e of sorted) {
     const last = groups.at(-1);
-    if (last && years(e.start) - years(last.at(-1)!.start) < 1) last.push(e);
+    if (last && pct(years(e.start)) - pct(years(last.at(-1)!.start)) < MARKER_NEAR) last.push(e);
     else groups.push([e]);
   }
   const out = new Map<string, { x: number; dx: number }>();
@@ -80,7 +102,8 @@ const nyYear = Math.floor(years(PATH.newYork.from));
   <div class="wide" style={`--ny: ${nyLeft}%; --today: ${todayPct}%; --today-f: ${todayPct / 100};`}>
     <div class="chart">
     <div class="grid-lines" aria-hidden="true">
-      {ticks.map((y) => <span class="tick" style={`left: ${pct(y)}%`}><span class="year">{y}</span></span>)}
+      {ticks.map((t) => <span class="tick" style={`left: ${pct(t.y)}%`}>{t.label && <span class="year">{t.y}</span>}</span>)}
+      {months.map((m) => <span class="tick tick--month" style={`left: ${pct(m.y)}%`}><span class="month">{m.label}</span></span>)}
       <span class="today-line" style={`left: ${todayPct}%`}></span>
     </div>
 
@@ -281,6 +304,15 @@ const nyYear = Math.floor(years(PATH.newYork.from));
     color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
+  .tick--month { border-left-style: dotted; }
+  .month {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: var(--muted);
+  }
   .today-line {
     position: absolute;
     top: 22px;
@@ -375,7 +407,7 @@ const nyYear = Math.floor(years(PATH.newYork.from));
   .bar-text {
     position: relative;
     min-width: 0;
-    padding: 0 10px;
+    padding: 0 8px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -553,7 +585,8 @@ const nyYear = Math.floor(years(PATH.newYork.from));
   .list-detail .panel-text { font-size: 15px; }
   .list-legend { margin: 12px 0 0 0; }
 
-  @media (min-width: 760px) {
+  /* The track needs room for the open-up months and the bars' words, so the list runs to 960px. */
+  @media (min-width: 960px) {
     .wide { display: block; }
     .list, .list-legend { display: none; }
   }

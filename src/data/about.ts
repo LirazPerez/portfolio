@@ -72,10 +72,22 @@ export interface PathRow {
 export const PATH = {
   heading: 'My path',
   startYear: 2017,
+  /**
+   * The axis is not to scale: each stretch of time gets a share of the width by `weight`
+   * (1 = normal). The army years are folded in, the product design years open up.
+   * Years inside a stretch lighter than 0.75 keep their grid line but drop their label.
+   * `months` adds small month labels inside a stretch ('YYYY-MM').
+   */
+  scale: [
+    { from: '2017-01', weight: 0.5 },
+    { from: '2021-01', weight: 1 },
+    { from: '2026-01', weight: 8 },
+  ],
+  months: ['2026-03', '2026-05', '2026-07', '2026-09', '2026-11'],
   /** The soft tinted band and its legend. */
   newYork: { from: '2021-07', legend: 'New York' },
   /** Shown in the details panel before anyone touches the timeline. */
-  initial: 'ministry',
+  initial: 'freelance',
   todayLabel: 'Today',
   /** Under the heading: one line for a mouse, one for touch screens (chosen by media query). */
   hint: { pointer: 'Hover or click a bar to read more', touch: 'Tap a row to read more' },
@@ -97,7 +109,6 @@ export const PATH_ROWS: PathRow[] = [
         dates: '2017-2021',
         start: '2017-10',
         end: '2021-03',
-        barLabel: 'Deputy company commander',
       },
     ],
   },
@@ -173,6 +184,7 @@ export const PATH_ROWS: PathRow[] = [
         dates: 'May-Aug 2026',
         start: '2026-05',
         end: '2026-08',
+        barLabel: 'Intern',
       },
       {
         id: 'freelance',
@@ -182,6 +194,7 @@ export const PATH_ROWS: PathRow[] = [
         dates: 'July 2026 to today',
         start: '2026-07',
         end: 'today',
+        barLabel: 'Freelance',
         ongoing: true,
         lane: 2,
       },
@@ -193,6 +206,7 @@ export const PATH_ROWS: PathRow[] = [
         dates: 'September 2026 to today',
         start: '2026-09',
         end: 'today',
+        barLabel: 'Startup',
         ongoing: true,
         lane: 3,
       },
