@@ -109,6 +109,7 @@ export const PATH_ROWS: PathRow[] = [
         dates: '2017-2021',
         start: '2017-10',
         end: '2021-03',
+        barLabel: 'IDF',
       },
     ],
   },
