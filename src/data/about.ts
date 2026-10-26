@@ -55,8 +55,8 @@ export interface PathEntry {
   barLabel?: string;
   /** The bar fades out on the right: still going. */
   ongoing?: boolean;
-  /** Put this bar in the row's lower lane (two bars that overlap in time). */
-  lane?: 2;
+  /** Put this bar in a lower lane (bars that overlap in time). With a lane 3 the row grows and lane 2 is the middle one. */
+  lane?: 2 | 3;
 }
 
 export interface PathRow {
@@ -184,6 +184,17 @@ export const PATH_ROWS: PathRow[] = [
         end: 'today',
         ongoing: true,
         lane: 2,
+      },
+      {
+        id: 'startup',
+        when: 'September 2026 to today · Stealth-mode startup',
+        title: 'Founding product designer, HealthTech startup',
+        text: 'Leading the design of a B2B2C HealthTech product end to end, from research to a demo-ready MVP in code, and shaping product strategy and scope with the founder.',
+        dates: 'September 2026 to today',
+        start: '2026-09',
+        end: 'today',
+        ongoing: true,
+        lane: 3,
       },
     ],
   },

@@ -89,7 +89,7 @@ const nyYear = Math.floor(years(PATH.newYork.from));
         PATH_ROWS.map((row) => {
           const markers = row.kind === 'markers' ? markerOffsets(row.entries) : null;
           return (
-            <li class:list={['row', `row--${row.kind}`, row.entries.some((e) => e.lane) && 'row--lanes']} data-family={row.family}>
+            <li class:list={['row', `row--${row.kind}`, row.entries.some((e) => e.lane) && 'row--lanes', row.entries.some((e) => e.lane === 3) && 'row--lanes3']} data-family={row.family}>
               <p class="row-label">
                 <span class="row-name">{row.label}</span>
                 {row.sub && <span class="row-sub">{row.sub}</span>}
@@ -122,7 +122,7 @@ const nyYear = Math.floor(years(PATH.newYork.from));
                   return (
                     <button
                       type="button"
-                      class:list={['bar', e.lane === 2 && 'bar--lane2', row.entries.some((x) => x.lane) && !e.lane && 'bar--lane1', e.ongoing && 'bar--ongoing', e.id === initial.id && 'is-active']}
+                      class:list={['bar', e.lane === 2 && 'bar--lane2', e.lane === 3 && 'bar--lane3', row.entries.some((x) => x.lane) && !e.lane && 'bar--lane1', e.ongoing && 'bar--ongoing', e.id === initial.id && 'is-active']}
                       style={place}
                       data-entry={e.id}
                       aria-label={nameOf(e)}
@@ -354,6 +354,10 @@ const nyYear = Math.floor(years(PATH.newYork.from));
   }
   .bar--lane1 { top: 2px; bottom: auto; height: 24px; }
   .bar--lane2 { top: auto; bottom: 2px; height: 24px; }
+  /* Three bars that overlap in time: a taller row, the second lane in the middle. */
+  .row--lanes3 { min-height: 82px; }
+  .row--lanes3 .bar--lane2 { top: 29px; bottom: auto; }
+  .bar--lane3 { top: auto; bottom: 2px; height: 24px; }
   .fill {
     position: absolute;
     inset: 0;
