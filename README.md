@@ -2,7 +2,7 @@
 
 My portfolio, designed and built by me from scratch. I'm Liraz Hazala Perez, a product designer who also builds what she designs, so the site itself is part of the work: the craft, the accessibility and the restraint in the code matter as much as the case studies.
 
-**Live site:** [portfolio-liraz7.vercel.app](https://portfolio-liraz7.vercel.app)
+**Live site:** [lirazhazala.com](https://lirazhazala.com)
 
 ## What's inside
 
