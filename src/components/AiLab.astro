@@ -19,6 +19,18 @@ import { LAB, LAB_HEADING, LAB_INTRO, LAB_STATUS_LABEL } from '../data/lab';
           <h3 class="m-0 mt-0.5 text-[19px] font-semibold tracking-[-0.01em]">{item.name}</h3>
           <p class="m-0 text-[15px] leading-[1.55] font-medium text-ink">{item.problem}</p>
           <p class="m-0 text-[15px] leading-[1.55] text-muted">{item.body}</p>
+          {item.link && (
+            <a
+              class="lab-link relative z-[1] self-start inline-flex items-center gap-[6px] min-h-[44px] text-[15px] font-semibold text-accent-strong underline underline-offset-[3px]"
+              href={item.link.href}
+              target="_blank"
+              rel="noopener"
+            >
+              {item.link.label}
+              <span class="sr-only-text">(opens in a new tab)</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          )}
           {/* mt-auto inside a stretched grid row: the tools line sits at the same height at the bottom of every card. */}
           <p class="m-0 mt-auto pt-[10px] text-[13px] text-muted border-t border-line">
             <span class="sr-only-text">Tools: </span>
@@ -67,6 +79,19 @@ import { LAB, LAB_HEADING, LAB_INTRO, LAB_STATUS_LABEL } from '../data/lab';
   .status--active i {
     background: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  /* Shipped: a check mark, drawn with two borders. */
+  .status--shipped i {
+    width: 5px;
+    height: 9px;
+    border-radius: 0;
+    border: solid var(--accent);
+    border-width: 0 2px 2px 0;
+    transform: translateY(-1px) rotate(45deg);
+    margin-inline: 2px 1px;
+  }
+  .lab-link:hover {
+    color: var(--accent);
   }
   /* Paused: hollow ring. */
   .status--paused i {

@@ -1,12 +1,13 @@
 /**
  * The cards in "AI that works for me" on the home page. Edit the wording here.
  *
- *   status: 'active' | 'paused' | 'planned'
+ *   status: 'shipped' | 'active' | 'paused' | 'planned'
  *     The pill differs by shape AND word, never color alone:
- *     active = solid dot, paused = hollow ring, planned = dashed ring.
+ *     shipped = check mark, active = solid dot, paused = hollow ring, planned = dashed ring.
+ *   link: optional. A demo or page that opens in a new tab, shown under the body.
  *   tools: shown on one line at the bottom of the card, joined with " · ".
  */
-export type LabStatus = 'active' | 'paused' | 'planned';
+export type LabStatus = 'shipped' | 'active' | 'paused' | 'planned';
 
 export interface LabItem {
   name: string;
@@ -14,6 +15,7 @@ export interface LabItem {
   problem: string;
   body: string;
   tools: string[];
+  link?: { href: string; label: string };
 }
 
 export const LAB_HEADING = 'AI that works for me';
@@ -21,12 +23,21 @@ export const LAB_INTRO =
   "I don't only design with AI. I use it to run parts of my own life, and I'm honest about what works.";
 
 export const LAB_STATUS_LABEL: Record<LabStatus, string> = {
+  shipped: 'Shipped',
   active: 'Active',
   paused: 'Paused',
   planned: 'Planned',
 };
 
 export const LAB: LabItem[] = [
+  {
+    name: 'Vienna, for my mom',
+    status: 'shipped',
+    problem: 'A trip abroad my mom could find her way through on her own.',
+    body: "She's not comfortable with technology, so I built her a one-page Hebrew phone guide out of apps she already knows: WhatsApp's header, Google Maps place cards, a big \"show the driver\" screen for taxis, and Hebrew read-aloud for every sight.",
+    tools: ['Claude', 'HTML', 'Web Speech API'],
+    link: { href: '/lab/vienna-guide/', label: 'Open the demo' },
+  },
   {
     name: 'Job search agent',
     status: 'paused',

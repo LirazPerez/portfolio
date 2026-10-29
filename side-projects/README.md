@@ -6,4 +6,4 @@ Small things I built to try an idea or solve a real problem for someone close to
 
 | Folder | What it is | Status |
 |---|---|---|
-| `vienna-guide/` | A Hebrew phone guide for my mom's trip to Vienna: day plan, categories, map, a "show the driver" screen, Hebrew read-aloud | Anonymized copy. Do not publish before November 2, 2026 |
+| `vienna-guide/` | A Hebrew phone guide for my mom's trip to Vienna: day plan, categories, map, a "show the driver" screen, Hebrew read-aloud | Anonymized copy, ready on the `playground/vienna-guide` branch (demo in `public/lab/vienna-guide/`, card in `src/data/lab.ts`). Merge on or after November 2, 2026 |
