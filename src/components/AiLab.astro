@@ -1,109 +1,1051 @@
 ---
-import { LAB, LAB_HEADING, LAB_INTRO, LAB_STATUS_LABEL } from '../data/lab';
+/**
+ * "AI lab" on the home page: a stage of its own, so it reads as a different place from the
+ * case studies while still speaking the site's language (Geist, the purple, the pills).
+ *
+ * The stage: dark, with a canvas of halftone dots. Two streams of dots reach in from the
+ * sides (a rose one, human; a silver one, machine) toward the card in the middle, where a
+ * violet bloom breathes. The dots swell under the pointer. Behind the heading they stay dim,
+ * so its text keeps its contrast wherever the pointer is. Colors are `--lab-*` custom
+ * properties scoped to this section (project colors stay in their stage).
+ *
+ * The carousel: a 3D ring. Arrows, swipe or arrow keys move it; the middle card opens a
+ * pop-up (one native <dialog> per project) with its screens, what to notice and the demo.
+ * Without JS the cards sit in a plain grid with their demo links, and no pop-up.
+ * Reduced motion: the dots are drawn once and do not follow the pointer; the ring moves
+ * without transitions (global rule).
+ */
+import { Image } from 'astro:assets';
+import LabDrawn from './LabDrawn.astro';
+import { LAB, LAB_EYEBROW, LAB_HEADING, LAB_INTRO, LAB_STATUS_LABEL } from '../data/lab';
+
+const n = LAB.length;
 ---
 
-<section id="lab" class="grid gap-3 pt-2 pb-8" aria-labelledby="lab-h">
-  <div class="grid gap-1 max-w-[62ch]">
-    <h2 id="lab-h" class="m-0 text-[22px] font-semibold tracking-[-0.012em]">{LAB_HEADING}</h2>
-    <p class="m-0 text-[16px] leading-relaxed text-muted">{LAB_INTRO}</p>
+<section id="lab" class="lab grid pt-2 pb-8" aria-labelledby="lab-h">
+  <div class="lab-stage" data-lab>
+    <canvas class="lab-canvas" aria-hidden="true"></canvas>
+
+    <div class="lab-head" data-lab-head>
+      <span class="lab-eyebrow">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="12" cy="5" r="2" /><circle cx="12" cy="19" r="2" /></svg>
+        {LAB_EYEBROW}
+      </span>
+      <h2 id="lab-h">{LAB_HEADING}</h2>
+      <p>{LAB_INTRO}</p>
+    </div>
+
+    <div class="lab-car" role="region" aria-roledescription="carousel" aria-label="AI lab projects" data-lab-car>
+      <ul class="lab-track" role="list" data-lab-track>
+        {
+          LAB.map((item, i) => (
+            <li class="lab-slide" aria-roledescription="slide" aria-label={`${i + 1} of ${n}`} data-lab-slide>
+              <article class="lab-card">
+                <div class="lab-cover" data-tone={item.tone}>
+                  <span class="lab-ht" aria-hidden="true" />
+                  {item.cover.kind === 'phones' ? (
+                    item.cover.images.map((img, k) => (
+                      <span class:list={['lab-mini', k > 0 && 'lab-mini--back']} aria-hidden="true">
+                        <Image src={img} alt="" widths={[160, 320]} sizes="120px" loading="lazy" />
+                      </span>
+                    ))
+                  ) : (
+                    <span class="lab-miniwin" aria-hidden="true">
+                      <span class="lab-winbar"><i /><i /><i /></span>
+                      <LabDrawn id={item.cover.id} compact />
+                    </span>
+                  )}
+                </div>
+                <div class="lab-tx">
+                  <span class={`lab-status lab-status--${item.status}`}>
+                    <i aria-hidden="true" />
+                    {LAB_STATUS_LABEL[item.status]}
+                  </span>
+                  <h3>{item.name}</h3>
+                  <p>{item.hook}</p>
+                  <button type="button" class="lab-open" data-lab-open={item.id}>
+                    Look closer<span class="sr-only-text">: {item.name}</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                  {item.cta && (
+                    <a class="lab-nojs" href={item.cta.href} target="_blank" rel="noopener">
+                      {item.cta.label}
+                      <span class="sr-only-text">(opens in a new tab)</span>
+                      <span aria-hidden="true">→</span>
+                    </a>
+                  )}
+                </div>
+              </article>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="lab-nav" data-lab-nav hidden>
+        <button type="button" data-lab-prev aria-label="Previous project">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <span class="lab-count" aria-hidden="true" data-lab-count>1 / {n}</span>
+        <button type="button" data-lab-next aria-label="Next project">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+      <p class="sr-only-text" aria-live="polite" data-lab-live></p>
+    </div>
   </div>
 
-  <ul role="list" class="m-0 p-0 list-none grid gap-[14px] md:grid-cols-2">
-    {
-      LAB.map((item) => (
-        <li class="lab-card flex flex-col items-stretch gap-1 p-[20px] bg-surface border border-line rounded-frame min-w-0">
-          <span class={`status status--${item.status}`}>
-            <i aria-hidden="true" />
-            {LAB_STATUS_LABEL[item.status]}
-          </span>
-          <h3 class="m-0 mt-0.5 text-[19px] font-semibold tracking-[-0.01em]">{item.name}</h3>
-          <p class="m-0 text-[15px] leading-[1.55] font-medium text-ink">{item.problem}</p>
-          <p class="m-0 text-[15px] leading-[1.55] text-muted">{item.body}</p>
-          {item.link && (
-            <a
-              class="lab-link relative z-[1] self-start inline-flex items-center gap-[6px] min-h-[44px] text-[15px] font-semibold text-accent-strong underline underline-offset-[3px]"
-              href={item.link.href}
-              target="_blank"
-              rel="noopener"
-            >
-              {item.link.label}
-              <span class="sr-only-text">(opens in a new tab)</span>
-              <span aria-hidden="true">→</span>
-            </a>
-          )}
-          {/* mt-auto inside a stretched grid row: the tools line sits at the same height at the bottom of every card. */}
-          <p class="m-0 mt-auto pt-[10px] text-[13px] text-muted border-t border-line">
-            <span class="sr-only-text">Tools: </span>
-            {item.tools.join(' · ')}
-          </p>
-        </li>
-      ))
-    }
-  </ul>
+  {
+    LAB.map((item) => {
+      const phone = item.screens[0]?.kind === 'phone';
+      const many = item.screens.length > 1;
+      return (
+        <dialog class="lab-dlg" id={`lab-dlg-${item.id}`} aria-labelledby={`lab-dlg-${item.id}-h`} data-lab-dialog>
+          <div class:list={['lab-sheet', phone ? 'lab-sheet--phone' : 'lab-sheet--window']}>
+            <button type="button" class="lab-close" data-lab-close aria-label="Close">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+            <div class="lab-show" data-tone={item.tone}>
+              <span class="lab-ht" aria-hidden="true" />
+              <div class="lab-screens" aria-live="polite">
+                {item.screens.map((s, k) => (
+                  <figure class="lab-screen" data-lab-screen={k} hidden={k > 0}>
+                    {s.kind === 'phone' ? (
+                      <div class="lab-phone" role="img" aria-label={s.alt}>
+                        <span class="lab-cut" aria-hidden="true" />
+                        <Image src={s.image} alt="" widths={[390, 780]} sizes="230px" loading="lazy" />
+                      </div>
+                    ) : (
+                      <div class="lab-window" role="img" aria-label={s.alt}>
+                        <span class="lab-winbar" aria-hidden="true"><i /><i /><i /></span>
+                        <LabDrawn id={s.id} />
+                      </div>
+                    )}
+                    <figcaption>
+                      {many && <span class="sr-only-text">Screen {k + 1} of {item.screens.length}: </span>}
+                      {s.caption}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+              {many && (
+                <div class="lab-ctrls">
+                  <button type="button" data-lab-sprev aria-label="Previous screen">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" /></svg>
+                  </button>
+                  <span class="lab-dots" aria-hidden="true">
+                    {item.screens.map((_, k) => <i data-lab-dot={k} class:list={[k === 0 && 'on']} />)}
+                  </span>
+                  <button type="button" data-lab-snext aria-label="Next screen">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              )}
+            </div>
+            <div class="lab-body">
+              <span class="lab-kicker">{LAB_EYEBROW}</span>
+              <h2 id={`lab-dlg-${item.id}-h`}>{item.name}</h2>
+              <div class="lab-meta">
+                <span class={`lab-pill lab-status--${item.status}`}>
+                  <i aria-hidden="true" />
+                  {LAB_STATUS_LABEL[item.status]}
+                </span>
+                <span><span class="sr-only-text">Tools: </span>{item.tools.join(' · ')}</span>
+              </div>
+              <p class="lab-lead">{item.lead}</p>
+              <ol class="lab-notes">
+                {item.notes.map((note) =>
+                  note.screen !== undefined && many ? (
+                    <li>
+                      <button type="button" data-lab-goto={note.screen}>
+                        {note.text}
+                        <span class="sr-only-text"> (show screen {note.screen + 1})</span>
+                      </button>
+                    </li>
+                  ) : (
+                    <li><span>{note.text}</span></li>
+                  ),
+                )}
+              </ol>
+              {item.cta ? (
+                <a class="lab-cta" href={item.cta.href} target="_blank" rel="noopener">
+                  {item.cta.label}
+                  <span class="sr-only-text">(opens in a new tab)</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              ) : null}
+              <p class="lab-small">{item.small}</p>
+            </div>
+          </div>
+        </dialog>
+      );
+    })
+  }
 </section>
 
 <style>
-  .lab-card {
-    transition:
-      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
-      border-color 0.3s;
-  }
-  .lab-card:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  /* ---- Stage colors (this section only) ---- */
+  .lab {
+    --lab-bg: #0f0b16;
+    --lab-ink: #f1ecf8;
+    --lab-muted: #bdb3cf;
+    --lab-card: rgba(28, 22, 38, 0.86);
+    --lab-card-line: rgba(255, 255, 255, 0.13);
+    --lab-chip: rgba(255, 255, 255, 0.07);
+    --lab-chip-line: rgba(255, 255, 255, 0.2);
+    --lab-focus: #d7b8e4;
+    --lab-link: #d7b8e4;
+    /* Dot colors, read by the canvas script as "r g b". */
+    --lab-dot-human: 232 176 220;
+    --lab-dot-machine: 196 198 236;
+    --lab-dot-deep: 120 72 182;
+    --lab-dot-light: 226 200 242;
+    /* Text on the light tone gradients in the pop-up. */
+    --lab-show-ink: #2a2240;
+    --lab-tone-rose: linear-gradient(150deg, #f3c9e2, #b49af0 68%, #8a6ad6);
+    --lab-tone-violet: linear-gradient(150deg, #dcd0f6, #8e6cd0 64%, #563a92);
   }
 
-  /* Status pill: shape AND word differ, never color alone. */
-  .status {
-    align-self: flex-start;
+  .lab-stage {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    justify-items: center;
+    gap: 22px;
+    padding: clamp(32px, 5vw, 56px) 0 28px;
+    border-radius: 28px;
+    background: var(--lab-bg);
+    color: var(--lab-ink);
+  }
+  .lab-stage :focus-visible {
+    outline-color: var(--lab-focus);
+  }
+  .lab-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .lab-head {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    max-width: 56ch;
+    padding-inline: 20px;
+    text-align: center;
+  }
+  .lab-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    font-size: 12.5px;
-    font-weight: 600;
-    line-height: 1.2;
-    padding: 4px 10px 4px 8px;
+    padding: 4px 12px 4px 10px;
     border-radius: var(--radius-pill);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .lab-head h2 {
+    margin: 0;
+    font-size: clamp(26px, 3.6vw, 36px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-wrap: balance;
+    text-shadow: 0 0 24px var(--lab-bg), 0 0 8px var(--lab-bg);
+  }
+  .lab-head p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--lab-muted);
+    text-shadow: 0 0 16px var(--lab-bg), 0 0 6px var(--lab-bg);
+  }
+
+  /* ---- Cards (no JS: a plain grid) ---- */
+  .lab-car {
+    width: 100%;
+    display: grid;
+    gap: 14px;
+  }
+  .lab-track {
+    margin: 0;
+    padding: 0 clamp(16px, 4vw, 40px);
+    list-style: none;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+    justify-content: center;
+  }
+  .lab-card {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 10px 10px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--lab-card-line);
+    background: var(--lab-card);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+    color: var(--lab-ink);
+  }
+  .lab-cover {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    border-radius: 13px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: var(--lab-tone-rose);
+  }
+
+  .lab-ht {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.55) 1.1px, transparent 1.5px);
+    background-size: 8px 8px;
+    -webkit-mask-image: radial-gradient(circle at 80% 18%, #000 0, transparent 62%);
+    mask-image: radial-gradient(circle at 80% 18%, #000 0, transparent 62%);
+    pointer-events: none;
+  }
+  .lab-mini {
+    position: absolute;
+    bottom: -30%;
+    width: 42%;
+    aspect-ratio: 390 / 844;
+    border-radius: 14px;
+    border: 4px solid var(--bezel);
+    overflow: hidden;
+    background: var(--raise);
+    transform: translateX(-28%) rotate(-7deg);
+    box-shadow: 0 14px 30px rgba(30, 10, 50, 0.4);
+  }
+  .lab-mini--back {
+    z-index: -1;
+    transform: translateX(34%) translateY(-6%) rotate(8deg);
+  }
+  .lab-mini img,
+  .lab-phone img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+  .lab-miniwin {
+    position: absolute;
+    left: 9%;
+    right: -6%;
+    top: 16%;
+    bottom: -12%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border-radius: 10px 0 0 0;
+    overflow: hidden;
     border: 1px solid var(--line);
     background: var(--raise);
-    color: var(--ink);
+    box-shadow: 0 14px 30px rgba(30, 10, 50, 0.35);
   }
-  .status i {
+  .lab-winbar {
+    display: flex;
+    gap: 5px;
+    padding: 7px 9px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .lab-winbar i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .lab-tx {
+    display: grid;
+    gap: 6px;
+    padding-inline: 6px;
+  }
+  .lab-tx h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .lab-tx p {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: var(--lab-muted);
+  }
+
+  /* Status: shape AND word, never color alone. */
+  .lab-status,
+  .lab-pill {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 9px 3px 7px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .lab-status {
+    border: 1px solid var(--lab-chip-line);
+    color: var(--lab-ink);
+  }
+  .lab-status i,
+  .lab-pill i {
     display: block;
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex: none;
   }
-  /* Active: solid dot with a soft halo. */
-  .status--active i {
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-tint);
-  }
-  /* Shipped: a check mark, drawn with two borders. */
-  .status--shipped i {
+  .lab-status--shipped i {
     width: 5px;
     height: 9px;
     border-radius: 0;
-    border: solid var(--accent);
+    border: solid currentColor;
     border-width: 0 2px 2px 0;
     transform: translateY(-1px) rotate(45deg);
     margin-inline: 2px 1px;
   }
-  .lab-link:hover {
-    color: var(--accent);
+  .lab-status--active i {
+    background: currentColor;
+    box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 25%, transparent);
   }
-  /* Paused: hollow ring. */
-  .status--paused i {
-    background: transparent;
-    border: 2px solid var(--muted);
+  .lab-status--paused i {
+    border: 2px solid currentColor;
   }
-  /* Planned: dashed ring, and a dashed pill border. */
-  .status--planned {
+  .lab-status--planned {
     border-style: dashed;
   }
-  .status--planned i {
+  .lab-status--planned i {
+    border: 1.5px dashed currentColor;
+  }
+
+  .lab-open,
+  .lab-nojs {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin-bottom: -10px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--lab-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  /* The whole card opens it. */
+  .lab-open::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+  }
+  .lab-open:focus-visible {
+    outline: none;
+  }
+  .lab-open:focus-visible::after {
+    outline: 2px solid var(--lab-focus);
+    outline-offset: 3px;
+  }
+
+  .lab-nav {
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--lab-card-line);
+    background: var(--lab-card);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .lab-nav button {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
+    color: var(--lab-ink);
+    cursor: pointer;
+  }
+  .lab-nav button:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .lab-count {
+    min-width: 48px;
+    text-align: center;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- With JS: the 3D ring ---- */
+  .lab-open {
+    display: none;
+  }
+  :global(.js) .lab-open {
+    display: inline-flex;
+  }
+  .lab-nav[hidden],
+  .lab-screen[hidden] {
+    display: none;
+  }
+  :global(.js) .lab-nojs {
+    display: none;
+  }
+  :global(.js) .lab-track {
+    display: block;
+    position: relative;
+    height: var(--lab-th, 440px);
+    padding: 0;
+    perspective: 1100px;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  :global(.js) .lab-slide {
+    --cw: min(290px, 74vw);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: var(--cw);
+    margin-left: calc(var(--cw) / -2);
+    transform: translateX(calc(var(--o, 0) * 80%)) translateZ(calc(var(--ao, 0) * -150px))
+      rotateY(calc(var(--o, 0) * -34deg));
+    filter: brightness(calc(1 - var(--ao, 0) * 0.28));
+    transform-origin: 50% 60%;
+  }
+  :global(.js) .lab-slide[data-far] {
+    visibility: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .lab-slide {
+      transition:
+        transform 0.65s cubic-bezier(0.22, 0.9, 0.24, 1),
+        filter 0.5s;
+    }
+  }
+
+  /* ---- Pop-up (site tokens; its stage takes the project's tone) ---- */
+  .lab-dlg {
+    width: 100%;
+    max-width: min(960px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 0;
     background: transparent;
-    border: 1.5px dashed var(--muted);
+    color: var(--ink);
+  }
+  .lab-dlg::backdrop {
+    background: rgba(12, 9, 18, 0.62);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+  .lab-sheet {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    box-shadow: var(--shadow-lift);
+  }
+  @media (min-width: 760px) {
+    .lab-sheet--phone {
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+    .lab-sheet--window {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+  }
+  .lab-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--muted);
+    background: var(--raise);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .lab-close:hover {
+    background: var(--surface);
+  }
+  .lab-show {
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 14px;
+    padding: 30px 20px 20px;
+    overflow: hidden;
+    background: var(--lab-tone-rose);
+  }
+  .lab-cover[data-tone='violet'],
+  .lab-show[data-tone='violet'] {
+    background: var(--lab-tone-violet);
+  }
+  .lab-show .lab-ht {
+    -webkit-mask-image: linear-gradient(#000, transparent 70%);
+    mask-image: linear-gradient(#000, transparent 70%);
+  }
+  .lab-screens {
+    position: relative;
+    width: 100%;
+    display: grid;
+    justify-items: center;
+  }
+  .lab-screen {
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+  .lab-screen figcaption {
+    max-width: 32ch;
+    min-height: 2.9em;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--lab-show-ink);
+  }
+  .lab-phone {
+    position: relative;
+    width: min(230px, 60vw);
+    aspect-ratio: 390 / 844;
+    padding: 8px;
+    border-radius: 34px;
+    border: 1px solid var(--bezel-edge);
+    background: var(--bezel);
+    box-shadow: var(--shadow-lift);
+  }
+  .lab-phone img {
+    border-radius: 27px;
+    background: var(--raise);
+  }
+  .lab-cut {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    z-index: 2;
+    width: 58px;
+    height: 16px;
+    border-radius: 10px;
+    background: var(--bezel);
+    transform: translateX(-50%);
+  }
+  .lab-window {
+    width: 100%;
+    max-width: 480px;
+    min-height: 300px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border-radius: var(--radius-frame);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--raise);
+    box-shadow: var(--shadow-lift);
+  }
+  .lab-ctrls {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lab-ctrls button {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--muted);
+    background: var(--raise);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .lab-ctrls button:hover {
+    background: var(--accent-tint);
+  }
+  .lab-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .lab-dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--lab-show-ink) 30%, transparent);
+  }
+  .lab-dots i.on {
+    width: 18px;
+    border-radius: 4px;
+    background: var(--lab-show-ink);
+  }
+
+  .lab-body {
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    min-width: 0;
+    padding: clamp(22px, 4vw, 36px);
+  }
+  .lab-kicker {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .lab-body h2 {
+    margin: 0;
+    padding-right: 44px;
+    font-size: clamp(24px, 3vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .lab-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .lab-pill {
+    border: 1px solid var(--line);
+    background: var(--raise);
+    color: var(--ink);
+  }
+  .lab-pill.lab-status--shipped i {
+    border-color: var(--accent);
+  }
+  .lab-pill.lab-status--active i {
+    color: var(--accent);
+  }
+  .lab-lead {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .lab-notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 6px;
+    counter-reset: n;
+  }
+  .lab-notes li {
+    counter-increment: n;
+  }
+  .lab-notes li > * {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    width: 100%;
+    padding: 6px 8px 6px 4px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    font: inherit;
+    font-size: 15.5px;
+    line-height: 1.5;
+    text-align: left;
+    color: var(--ink);
+  }
+  .lab-notes li > *::before {
+    content: counter(n);
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent-tint);
+    color: var(--accent-strong);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .lab-notes button {
+    cursor: pointer;
+  }
+  .lab-notes button:hover,
+  .lab-notes button[aria-current='true'] {
+    background: var(--surface);
+  }
+  .lab-notes button[aria-current='true']::before {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .lab-cta {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .lab-cta:hover {
+    background: var(--accent-strong);
+  }
+  .lab-small {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
   }
 </style>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---------- Carousel ---------- */
+  const stage = document.querySelector<HTMLElement>('[data-lab]');
+  const track = stage?.querySelector<HTMLElement>('[data-lab-track]');
+  const slides = [...(stage?.querySelectorAll<HTMLElement>('[data-lab-slide]') ?? [])];
+  let active = 0;
+
+  function layout(announce: boolean) {
+    const n = slides.length;
+    slides.forEach((s, i) => {
+      let o = i - active;
+      if (n > 2) {
+        if (o > n / 2) o -= n;
+        if (o < -n / 2) o += n;
+      }
+      const ao = Math.abs(o);
+      s.style.setProperty('--o', String(o));
+      s.style.setProperty('--ao', String(ao));
+      s.style.zIndex = String(20 - ao);
+      s.toggleAttribute('data-far', ao > 2);
+      s.dataset.offset = String(o);
+      if (o === 0) s.removeAttribute('aria-hidden');
+      else s.setAttribute('aria-hidden', 'true');
+      const open = s.querySelector<HTMLButtonElement>('[data-lab-open]');
+      if (open) open.tabIndex = o === 0 ? 0 : -1;
+    });
+    const count = stage?.querySelector('[data-lab-count]');
+    if (count) count.textContent = `${active + 1} / ${n}`;
+    const live = stage?.querySelector('[data-lab-live]');
+    const name = slides[active]?.querySelector('h3')?.textContent ?? '';
+    if (live && announce) live.textContent = `${active + 1} of ${n}: ${name}`;
+  }
+  function go(i: number) {
+    const n = slides.length;
+    active = ((i % n) + n) % n;
+    layout(true);
+    window.dispatchEvent(new CustomEvent('lab:move'));
+  }
+  function sizeTrack() {
+    if (!track) return;
+    const h = Math.max(...slides.map((s) => s.offsetHeight));
+    track.style.setProperty('--lab-th', `${h + 28}px`);
+  }
+
+  if (stage && track && slides.length) {
+    const nav = stage.querySelector<HTMLElement>('[data-lab-nav]');
+    if (nav && slides.length > 1) nav.hidden = false;
+    stage.querySelector('[data-lab-prev]')?.addEventListener('click', () => go(active - 1));
+    stage.querySelector('[data-lab-next]')?.addEventListener('click', () => go(active + 1));
+
+    stage.querySelector('[data-lab-car]')?.addEventListener('keydown', (e) => {
+      const k = (e as KeyboardEvent).key;
+      if (k === 'ArrowRight') { go(active + 1); e.preventDefault(); }
+      if (k === 'ArrowLeft') { go(active - 1); e.preventDefault(); }
+    });
+
+    // Swipe. A drag never counts as a click.
+    let x0: number | null = null;
+    let dragged = false;
+    track.addEventListener('pointerdown', (e) => { x0 = e.clientX; dragged = false; });
+    track.addEventListener('pointermove', (e) => { if (x0 !== null && Math.abs(e.clientX - x0) > 8) dragged = true; });
+    track.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) go(dx < 0 ? active + 1 : active - 1);
+    });
+    track.addEventListener('pointercancel', () => { x0 = null; });
+
+    slides.forEach((s, i) => {
+      s.querySelector('[data-lab-open]')?.addEventListener('click', (e) => {
+        if (dragged) { dragged = false; return; }
+        if (i !== active) { go(i); return; }
+        const id = (e.currentTarget as HTMLElement).dataset.labOpen;
+        if (id) openDialog(id, e.currentTarget as HTMLElement);
+      });
+    });
+
+    layout(false);
+    sizeTrack();
+    window.addEventListener('resize', sizeTrack);
+    document.fonts?.ready.then(sizeTrack);
+    slides.forEach((s) => s.querySelectorAll('img').forEach((img) => img.addEventListener('load', sizeTrack)));
+  }
+
+  /* ---------- Pop-ups ---------- */
+  let opener: HTMLElement | null = null;
+  function openDialog(id: string, from: HTMLElement) {
+    const dlg = document.getElementById(`lab-dlg-${id}`) as HTMLDialogElement | null;
+    if (!dlg) return;
+    opener = from;
+    showScreen(dlg, 0);
+    dlg.showModal();
+  }
+  function showScreen(dlg: HTMLDialogElement, i: number) {
+    const screens = [...dlg.querySelectorAll<HTMLElement>('[data-lab-screen]')];
+    const n = screens.length;
+    const idx = ((i % n) + n) % n;
+    dlg.dataset.screen = String(idx);
+    screens.forEach((s, k) => (s.hidden = k !== idx));
+    dlg.querySelectorAll<HTMLElement>('[data-lab-dot]').forEach((d, k) => d.classList.toggle('on', k === idx));
+    dlg.querySelectorAll<HTMLElement>('[data-lab-goto]').forEach((b) => {
+      b.setAttribute('aria-current', String(Number(b.dataset.labGoto) === idx && idx > 0));
+    });
+  }
+  document.querySelectorAll<HTMLDialogElement>('[data-lab-dialog]').forEach((dlg) => {
+    const cur = () => Number(dlg.dataset.screen ?? 0);
+    dlg.querySelector('[data-lab-sprev]')?.addEventListener('click', () => showScreen(dlg, cur() - 1));
+    dlg.querySelector('[data-lab-snext]')?.addEventListener('click', () => showScreen(dlg, cur() + 1));
+    dlg.querySelectorAll<HTMLElement>('[data-lab-goto]').forEach((b) =>
+      b.addEventListener('click', () => showScreen(dlg, Number(b.dataset.labGoto))),
+    );
+    dlg.querySelector('[data-lab-close]')?.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('keydown', (e) => {
+      if (!dlg.querySelector('[data-lab-snext]')) return;
+      if (e.key === 'ArrowRight') showScreen(dlg, cur() + 1);
+      if (e.key === 'ArrowLeft') showScreen(dlg, cur() - 1);
+    });
+    dlg.addEventListener('close', () => opener?.focus());
+  });
+
+  /* ---------- The dots ---------- */
+  const canvas = stage?.querySelector<HTMLCanvasElement>('.lab-canvas');
+  const ctx = canvas?.getContext('2d');
+  if (stage && canvas && ctx) {
+    const css = getComputedStyle(stage);
+    const rgb = (name: string) => css.getPropertyValue(name).trim().split(/\s+/).map(Number);
+    const HUMAN = rgb('--lab-dot-human');
+    const MACHINE = rgb('--lab-dot-machine');
+    const DEEP = rgb('--lab-dot-deep');
+    const LIGHT = rgb('--lab-dot-light');
+
+    let w = 0, h = 0, raf = 0, last = 0, visible = false;
+    let cx = 0, cy = 0, card = 300;
+    let quiet: DOMRect[] = [];
+    const ptr = { x: -9999, y: -9999, tx: -9999, ty: -9999 };
+
+    const measure = () => {
+      const d = Math.min(window.devicePixelRatio || 1, 2);
+      const r = stage.getBoundingClientRect();
+      w = r.width; h = r.height;
+      canvas.width = Math.round(w * d); canvas.height = Math.round(h * d);
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+      const t = track?.getBoundingClientRect();
+      cx = w / 2;
+      cy = t ? t.top - r.top + t.height * 0.42 : h * 0.6;
+      card = slides[0]?.offsetWidth || 300;
+      // Text the dots must stay dim behind, in canvas coordinates.
+      quiet = [...stage.querySelectorAll<HTMLElement>('[data-lab-head] > *')].map((el) => {
+        const b = el.getBoundingClientRect();
+        return new DOMRect(b.left - r.left - 18, b.top - r.top - 12, b.width + 36, b.height + 24);
+      });
+      draw(performance.now());
+    };
+    const inQuiet = (x: number, y: number) => quiet.some((q) => x > q.left && x < q.right && y > q.top && y < q.bottom);
+
+    function draw(t: number) {
+      const still = reduce.matches;
+      const tt = still ? 0 : t * 0.0006;
+      if (!still) { ptr.x += (ptr.tx - ptr.x) * 0.18; ptr.y += (ptr.ty - ptr.y) * 0.18; }
+      ctx!.clearRect(0, 0, w, h);
+      const sp = w < 600 ? 9 : 11;
+      const bloom = Math.max(card * 0.85, Math.min(w, h) * 0.3);
+      const reach = (w - card) / 2 - (w < 600 ? 0 : 30);
+      const thick = Math.max(26, h * 0.07);
+      for (let y = sp / 2; y < h; y += sp) {
+        for (let x = sp / 2; x < w; x += sp) {
+          const dx = x - cx, dy = (y - cy) * 1.15;
+          const r2 = dx * dx + dy * dy;
+          const an = Math.atan2(dy, dx);
+          const petal = 0.6 + 0.4 * Math.cos(an * 5 + tt * 2);
+          const vb = Math.exp(-r2 / (2 * (bloom * petal) ** 2)) * (0.85 + 0.15 * Math.sin(tt * 3));
+          let vh = 0, vm = 0;
+          if (reach > 0 && x < reach) {
+            const k = x / reach;
+            vh = Math.exp(-((y - cy - Math.sin(k * 3 + tt) * 8) ** 2) / (2 * (thick * (1 - 0.55 * k)) ** 2)) * (0.35 + 0.65 * k);
+          }
+          if (reach > 0 && x > w - reach) {
+            const k = (w - x) / reach;
+            vm = Math.exp(-((y - cy + Math.sin(k * 3 - tt) * 8) ** 2) / (2 * (thick * (1 - 0.55 * k)) ** 2)) * (0.35 + 0.65 * k);
+          }
+          const pd2 = (x - ptr.x) ** 2 + (y - ptr.y) ** 2;
+          const vp = still ? 0 : Math.exp(-pd2 / (2 * 75 * 75));
+          let v = Math.min(1, Math.max(vb * 0.9, vh, vm) + vp * 0.75 + 0.06);
+          const q = inQuiet(x, y);
+          if (q) v = Math.min(v, 0.2);
+          if (v < 0.08) continue;
+          let c: number[];
+          if (vh > vb && vh > vm) c = HUMAN;
+          else if (vm > vb && vm > vh) c = MACHINE;
+          else {
+            const m = Math.min(1, vb * 1.3 + vp * 0.6);
+            c = DEEP.map((d, j) => Math.round(d + ((LIGHT[j] ?? d) - d) * m));
+          }
+          const a = q ? 0.35 : 0.3 + 0.7 * v;
+          ctx!.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+          ctx!.beginPath();
+          ctx!.arc(x, y, v * sp * 0.46, 0, 6.2832);
+          ctx!.fill();
+        }
+      }
+    }
+    function frame(t: number) {
+      raf = 0;
+      if (t - last > 32) { last = t; draw(t); }
+      loop();
+    }
+    function loop() {
+      if (visible && !reduce.matches && !raf) raf = requestAnimationFrame(frame);
+    }
+
+    stage.addEventListener('pointermove', (e) => {
+      const r = stage.getBoundingClientRect();
+      ptr.tx = e.clientX - r.left; ptr.ty = e.clientY - r.top;
+      if (ptr.x < -999) { ptr.x = ptr.tx; ptr.y = ptr.ty; }
+    });
+    stage.addEventListener('pointerleave', () => { ptr.tx = ptr.ty = -9999; ptr.x = ptr.y = -9999; });
+    new IntersectionObserver(([e]) => { visible = !!e?.isIntersecting; loop(); }).observe(stage);
+    new ResizeObserver(measure).observe(stage);
+    reduce.addEventListener('change', () => { draw(performance.now()); loop(); });
+    window.addEventListener('lab:move', () => draw(performance.now()));
+    measure();
+  }
+</script>
