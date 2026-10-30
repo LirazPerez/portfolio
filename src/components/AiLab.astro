@@ -3,8 +3,9 @@
  * "AI lab" on the home page: a stage of its own, so it reads as a different place from the
  * case studies while still speaking the site's language (Geist, the purple, the pills).
  *
- * The stage: a pastel sky (dusk in dark mode) with clouds made of halftone dots. The clouds
- * drift and shift with the pointer, and the dots swell and glow under it. Behind the heading
+ * The stage: a pale sky (dusk in dark mode) with clouds made of halftone dots. Quiet at rest
+ * (pale, small dots, almost a texture), so the case studies stay the loudest thing on the page;
+ * the clouds drift and shift with the pointer, and the dots swell and take color under it. Behind the heading
  * the dots fade out, so its text keeps its contrast. Colors are `--lab-*` custom properties
  * scoped to this section (project colors stay in their stage). Compact on purpose: text on
  * the left and the ring on the right from 900px, so the section costs little scrolling.
@@ -184,12 +185,14 @@ const n = LAB.length;
 <style>
   /* ---- Stage colors (this section only). A pastel sky by day, a dusk sky in dark mode. ---- */
   .lab {
-    --lab-sky: linear-gradient(170deg, #f9e6f1 0%, #eedaf4 55%, #dcc6f0 100%);
+    --lab-sky: linear-gradient(170deg, #fbf5fa 0%, #f6eff9 55%, #efe6f7 100%);
+    --lab-sky-deep: linear-gradient(170deg, #f9e6f1 0%, #eedaf4 55%, #dcc6f0 100%);
     --lab-ink: #2b1f45;
     --lab-muted: #54456b;
     --lab-card: rgba(255, 255, 255, 0.78);
     --lab-card-line: rgba(255, 255, 255, 0.9);
-    --lab-card-shadow: 0 22px 50px rgba(90, 40, 120, 0.2);
+    --lab-card-shadow: 0 10px 30px rgba(90, 40, 120, 0.1);
+    --lab-dlg-shadow: 0 22px 50px rgba(90, 40, 120, 0.2);
     --lab-chip: rgba(255, 255, 255, 0.6);
     --lab-chip-line: rgba(43, 31, 69, 0.18);
     --lab-hover: rgba(255, 255, 255, 0.95);
@@ -207,12 +210,14 @@ const n = LAB.length;
   }
   @media (prefers-color-scheme: dark) {
     :global(:root:not([data-theme='light'])) .lab {
-      --lab-sky: linear-gradient(170deg, #22192f 0%, #2f2242 55%, #45305f 100%);
+      --lab-sky: linear-gradient(170deg, #19151f 0%, #1f1928 55%, #272033 100%);
+      --lab-sky-deep: linear-gradient(170deg, #22192f 0%, #2f2242 55%, #45305f 100%);
       --lab-ink: #f3ecf8;
       --lab-muted: #c9bcdb;
       --lab-card: rgba(32, 25, 44, 0.8);
       --lab-card-line: rgba(255, 255, 255, 0.14);
-      --lab-card-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+      --lab-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --lab-dlg-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
       --lab-chip: rgba(255, 255, 255, 0.07);
       --lab-chip-line: rgba(255, 255, 255, 0.22);
       --lab-hover: rgba(255, 255, 255, 0.14);
@@ -225,12 +230,14 @@ const n = LAB.length;
     }
   }
   :global(:root[data-theme='dark']) .lab {
-    --lab-sky: linear-gradient(170deg, #22192f 0%, #2f2242 55%, #45305f 100%);
+    --lab-sky: linear-gradient(170deg, #19151f 0%, #1f1928 55%, #272033 100%);
+      --lab-sky-deep: linear-gradient(170deg, #22192f 0%, #2f2242 55%, #45305f 100%);
     --lab-ink: #f3ecf8;
     --lab-muted: #c9bcdb;
     --lab-card: rgba(32, 25, 44, 0.8);
     --lab-card-line: rgba(255, 255, 255, 0.14);
-    --lab-card-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    --lab-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --lab-dlg-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
     --lab-chip: rgba(255, 255, 255, 0.07);
     --lab-chip-line: rgba(255, 255, 255, 0.22);
     --lab-hover: rgba(255, 255, 255, 0.14);
@@ -631,8 +638,8 @@ const n = LAB.length;
     overflow: auto;
     border-radius: 28px;
     border: 1px solid var(--lab-card-line);
-    background: var(--lab-sky);
-    box-shadow: var(--lab-card-shadow), 0 40px 90px rgba(60, 20, 90, 0.25);
+    background: var(--lab-sky-deep);
+    box-shadow: var(--lab-dlg-shadow), 0 40px 90px rgba(60, 20, 90, 0.25);
   }
   /* Clouds made of dots, still: dot texture masked into soft cloud shapes. */
   .lab-sheet::before {
@@ -739,7 +746,7 @@ const n = LAB.length;
     border-radius: 34px;
     border: 1px solid var(--bezel-edge);
     background: var(--bezel);
-    box-shadow: var(--lab-card-shadow);
+    box-shadow: var(--lab-dlg-shadow);
   }
   .lab-phone img {
     border-radius: 27px;
@@ -1156,19 +1163,21 @@ const n = LAB.length;
           let vp = 0;
           if (ptr.on && !still) {
             const dx = x - ptr.px, dy = y - ptr.py;
-            vp = Math.exp(-(dx * dx + dy * dy) / (2 * 70 * 70));
+            vp = Math.exp(-(dx * dx + dy * dy) / (2 * 85 * 85));
           }
-          v = Math.min(1, v + vp * 0.6);
+          v = Math.min(1, v + vp * 0.9);
           for (const q of quiet) {
             const e = ((x - q.cx) / q.rx) ** 2 + ((y - q.cy) / q.ry) ** 2;
             if (e < 1) v *= 0.08 + 0.92 * e * e * e;
           }
           if (v < 0.06) continue;
+          // Quiet at rest (pale, small, almost a texture); awake under the pointer.
           const m = Math.min(1, v);
-          const c = DEEP.map((d, j) => Math.round(d + (LIGHT[j]! - d) * m * 0.7 + (GLOW[j]! - d) * vp * 0.5));
-          ctx!.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.3 + 0.7 * v})`;
+          const c = DEEP.map((d, j) => Math.round(d + (LIGHT[j]! - d) * m * 0.7 + (GLOW[j]! - d) * vp * 0.6));
+          const alpha = 0.14 + 0.3 * v + 0.6 * vp;
+          ctx!.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${Math.min(1, alpha)})`;
           ctx!.beginPath();
-          ctx!.arc(x, y, v * sp * 0.48, 0, 6.2832);
+          ctx!.arc(x, y, v * sp * (0.38 + 0.14 * vp), 0, 6.2832);
           ctx!.fill();
         }
       }
