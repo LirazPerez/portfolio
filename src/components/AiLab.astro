@@ -3,11 +3,11 @@
  * "AI lab" on the home page: a stage of its own, so it reads as a different place from the
  * case studies while still speaking the site's language (Geist, the purple, the pills).
  *
- * The stage: dark, with a canvas of halftone dots. Two streams of dots reach in from the
- * sides (a rose one, human; a silver one, machine) toward the card in the middle, where a
- * violet bloom breathes. The dots swell under the pointer. Behind the heading they stay dim,
- * so its text keeps its contrast wherever the pointer is. Colors are `--lab-*` custom
- * properties scoped to this section (project colors stay in their stage).
+ * The stage: a pastel sky (dusk in dark mode) with clouds made of halftone dots. The clouds
+ * drift and shift with the pointer, and the dots swell and glow under it. Behind the heading
+ * the dots fade out, so its text keeps its contrast. Colors are `--lab-*` custom properties
+ * scoped to this section (project colors stay in their stage). Compact on purpose: text on
+ * the left and the ring on the right from 900px, so the section costs little scrolling.
  *
  * The carousel: a 3D ring. Arrows, swipe or arrow keys move it; the middle card opens a
  * pop-up (one native <dialog> per project) with its screens, what to notice and the demo.
@@ -182,39 +182,82 @@ const n = LAB.length;
 </section>
 
 <style>
-  /* ---- Stage colors (this section only) ---- */
+  /* ---- Stage colors (this section only). A pastel sky by day, a dusk sky in dark mode. ---- */
   .lab {
-    --lab-bg: #0f0b16;
-    --lab-ink: #f1ecf8;
-    --lab-muted: #bdb3cf;
-    --lab-card: rgba(28, 22, 38, 0.86);
-    --lab-card-line: rgba(255, 255, 255, 0.13);
-    --lab-chip: rgba(255, 255, 255, 0.07);
-    --lab-chip-line: rgba(255, 255, 255, 0.2);
-    --lab-focus: #d7b8e4;
-    --lab-link: #d7b8e4;
-    /* Dot colors, read by the canvas script as "r g b". */
-    --lab-dot-human: 232 176 220;
-    --lab-dot-machine: 196 198 236;
-    --lab-dot-deep: 120 72 182;
-    --lab-dot-light: 226 200 242;
+    --lab-sky: linear-gradient(170deg, #f9e6f1 0%, #eedaf4 55%, #dcc6f0 100%);
+    --lab-ink: #2b1f45;
+    --lab-muted: #54456b;
+    --lab-card: rgba(255, 255, 255, 0.78);
+    --lab-card-line: rgba(255, 255, 255, 0.9);
+    --lab-card-shadow: 0 22px 50px rgba(90, 40, 120, 0.2);
+    --lab-chip: rgba(255, 255, 255, 0.6);
+    --lab-chip-line: rgba(43, 31, 69, 0.18);
+    --lab-hover: rgba(255, 255, 255, 0.95);
+    --lab-focus: #6e4482;
+    --lab-link: #5b3478;
+    /* Dot colors, read by the canvas script as "r g b": cloud shade, cloud light, pointer glow. */
+    --lab-dot-deep: 180 132 218;
+    --lab-dot-light: 236 170 214;
+    --lab-dot-glow: 160 96 210;
     /* Text on the light tone gradients in the pop-up. */
     --lab-show-ink: #2a2240;
-    --lab-tone-rose: linear-gradient(150deg, #f3c9e2, #b49af0 68%, #8a6ad6);
-    --lab-tone-violet: linear-gradient(150deg, #dcd0f6, #8e6cd0 64%, #563a92);
+    --lab-tone-rose: linear-gradient(150deg, #f7d3e6, #c4a8f2 68%, #946fd8);
+    --lab-tone-violet: linear-gradient(150deg, #e3d8f8, #9c7bd8 64%, #5e3f9a);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .lab {
+      --lab-sky: linear-gradient(170deg, #22192f 0%, #2f2242 55%, #45305f 100%);
+      --lab-ink: #f3ecf8;
+      --lab-muted: #c9bcdb;
+      --lab-card: rgba(32, 25, 44, 0.8);
+      --lab-card-line: rgba(255, 255, 255, 0.14);
+      --lab-card-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+      --lab-chip: rgba(255, 255, 255, 0.07);
+      --lab-chip-line: rgba(255, 255, 255, 0.22);
+      --lab-hover: rgba(255, 255, 255, 0.14);
+      --lab-focus: #d7b8e4;
+      --lab-link: #e2c6ee;
+      --lab-dot-deep: 120 82 170;
+      --lab-dot-light: 230 166 214;
+      --lab-dot-glow: 215 184 228;
+    }
+  }
+  :global(:root[data-theme='dark']) .lab {
+    --lab-sky: linear-gradient(170deg, #22192f 0%, #2f2242 55%, #45305f 100%);
+    --lab-ink: #f3ecf8;
+    --lab-muted: #c9bcdb;
+    --lab-card: rgba(32, 25, 44, 0.8);
+    --lab-card-line: rgba(255, 255, 255, 0.14);
+    --lab-card-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    --lab-chip: rgba(255, 255, 255, 0.07);
+    --lab-chip-line: rgba(255, 255, 255, 0.22);
+    --lab-hover: rgba(255, 255, 255, 0.14);
+    --lab-focus: #d7b8e4;
+    --lab-link: #e2c6ee;
+    --lab-dot-deep: 120 82 170;
+    --lab-dot-light: 230 166 214;
+    --lab-dot-glow: 215 184 228;
   }
 
+  /* Compact: text and controls on the left, the ring on the right from 900px; stacked below. */
   .lab-stage {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     display: grid;
-    justify-items: center;
-    gap: 22px;
-    padding: clamp(32px, 5vw, 56px) 0 28px;
+    gap: 20px;
+    align-items: center;
+    padding: clamp(28px, 4vw, 44px) 0 24px;
     border-radius: 28px;
-    background: var(--lab-bg);
+    background: var(--lab-sky);
     color: var(--lab-ink);
+  }
+  @media (min-width: 900px) {
+    .lab-stage {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      padding: 36px clamp(28px, 4vw, 52px) 32px;
+      column-gap: 24px;
+    }
   }
   .lab-stage :focus-visible {
     outline-color: var(--lab-focus);
@@ -232,9 +275,18 @@ const n = LAB.length;
     display: grid;
     justify-items: center;
     gap: 10px;
-    max-width: 56ch;
+    max-width: 52ch;
+    margin-inline: auto;
     padding-inline: 20px;
     text-align: center;
+  }
+  @media (min-width: 900px) {
+    .lab-head {
+      justify-items: start;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
   }
   .lab-eyebrow {
     display: inline-flex;
@@ -249,26 +301,25 @@ const n = LAB.length;
   }
   .lab-head h2 {
     margin: 0;
-    font-size: clamp(26px, 3.6vw, 36px);
+    font-size: clamp(26px, 3.2vw, 34px);
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.15;
     text-wrap: balance;
-    text-shadow: 0 0 24px var(--lab-bg), 0 0 8px var(--lab-bg);
   }
   .lab-head p {
     margin: 0;
     font-size: 16px;
     line-height: 1.55;
     color: var(--lab-muted);
-    text-shadow: 0 0 16px var(--lab-bg), 0 0 6px var(--lab-bg);
   }
 
   /* ---- Cards (no JS: a plain grid) ---- */
   .lab-car {
     width: 100%;
     display: grid;
-    gap: 14px;
+    gap: 12px;
+    min-width: 0;
   }
   .lab-track {
     margin: 0;
@@ -276,32 +327,35 @@ const n = LAB.length;
     list-style: none;
     display: grid;
     gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+    grid-template-columns: repeat(auto-fit, minmax(230px, 280px));
     justify-content: center;
   }
   .lab-card {
     position: relative;
     display: grid;
-    gap: 12px;
-    padding: 10px 10px 16px;
+    gap: 10px;
+    padding: 9px 9px 12px;
     border-radius: 20px;
     border: 1px solid var(--lab-card-line);
     background: var(--lab-card);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: var(--lab-card-shadow);
     color: var(--lab-ink);
   }
   .lab-cover {
     position: relative;
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 16 / 10;
     border-radius: 13px;
     overflow: hidden;
     display: grid;
     place-items: center;
     background: var(--lab-tone-rose);
   }
-
+  .lab-cover[data-tone='violet'],
+  .lab-show[data-tone='violet'] {
+    background: var(--lab-tone-violet);
+  }
   .lab-ht {
     position: absolute;
     inset: 0;
@@ -313,10 +367,10 @@ const n = LAB.length;
   }
   .lab-mini {
     position: absolute;
-    bottom: -30%;
-    width: 42%;
+    bottom: -48%;
+    width: 36%;
     aspect-ratio: 390 / 844;
-    border-radius: 14px;
+    border-radius: 13px;
     border: 4px solid var(--bezel);
     overflow: hidden;
     background: var(--raise);
@@ -339,8 +393,8 @@ const n = LAB.length;
     position: absolute;
     left: 9%;
     right: -6%;
-    top: 16%;
-    bottom: -12%;
+    top: 14%;
+    bottom: -20%;
     display: grid;
     grid-template-rows: auto 1fr;
     border-radius: 10px 0 0 0;
@@ -364,18 +418,18 @@ const n = LAB.length;
   }
   .lab-tx {
     display: grid;
-    gap: 6px;
-    padding-inline: 6px;
+    gap: 5px;
+    padding-inline: 5px;
   }
   .lab-tx h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
   .lab-tx p {
     margin: 0;
-    font-size: 14.5px;
+    font-size: 14px;
     line-height: 1.45;
     color: var(--lab-muted);
   }
@@ -396,6 +450,7 @@ const n = LAB.length;
   }
   .lab-status {
     border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
     color: var(--lab-ink);
   }
   .lab-status i,
@@ -432,11 +487,10 @@ const n = LAB.length;
   .lab-open,
   .lab-nojs {
     justify-self: start;
-    display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 44px;
-    margin-bottom: -10px;
+    margin-block: -6px -10px;
     padding: 0;
     border: 0;
     background: none;
@@ -447,6 +501,12 @@ const n = LAB.length;
     text-decoration: underline;
     text-underline-offset: 3px;
     cursor: pointer;
+  }
+  .lab-nojs {
+    display: inline-flex;
+  }
+  .lab-open {
+    display: none;
   }
   /* The whole card opens it. */
   .lab-open::after {
@@ -475,6 +535,10 @@ const n = LAB.length;
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
+  .lab-nav[hidden],
+  .lab-screen[hidden] {
+    display: none;
+  }
   .lab-nav button {
     width: 44px;
     height: 44px;
@@ -487,7 +551,7 @@ const n = LAB.length;
     cursor: pointer;
   }
   .lab-nav button:hover {
-    background: rgba(255, 255, 255, 0.14);
+    background: var(--lab-hover);
   }
   .lab-count {
     min-width: 48px;
@@ -497,15 +561,8 @@ const n = LAB.length;
   }
 
   /* ---- With JS: the 3D ring ---- */
-  .lab-open {
-    display: none;
-  }
   :global(.js) .lab-open {
     display: inline-flex;
-  }
-  .lab-nav[hidden],
-  .lab-screen[hidden] {
-    display: none;
   }
   :global(.js) .lab-nojs {
     display: none;
@@ -513,7 +570,7 @@ const n = LAB.length;
   :global(.js) .lab-track {
     display: block;
     position: relative;
-    height: var(--lab-th, 440px);
+    height: var(--lab-th, 360px);
     padding: 0;
     perspective: 1100px;
     touch-action: pan-y;
@@ -521,15 +578,16 @@ const n = LAB.length;
     -webkit-user-select: none;
   }
   :global(.js) .lab-slide {
-    --cw: min(290px, 74vw);
+    --cw: min(270px, 72vw);
     position: absolute;
     top: 0;
     left: 50%;
     width: var(--cw);
     margin-left: calc(var(--cw) / -2);
-    transform: translateX(calc(var(--o, 0) * 80%)) translateZ(calc(var(--ao, 0) * -150px))
+    transform: translateX(calc(var(--o, 0) * 78%)) translateZ(calc(var(--ao, 0) * -150px))
       rotateY(calc(var(--o, 0) * -34deg));
-    filter: brightness(calc(1 - var(--ao, 0) * 0.28));
+    filter: saturate(calc(1 - var(--ao, 0) * 0.3));
+    opacity: calc(1 - var(--ao, 0) * 0.15);
     transform-origin: 50% 60%;
   }
   :global(.js) .lab-slide[data-far] {
@@ -539,7 +597,8 @@ const n = LAB.length;
     :global(.js) .lab-slide {
       transition:
         transform 0.65s cubic-bezier(0.22, 0.9, 0.24, 1),
-        filter 0.5s;
+        filter 0.5s,
+        opacity 0.5s;
     }
   }
 
@@ -606,10 +665,6 @@ const n = LAB.length;
     padding: 30px 20px 20px;
     overflow: hidden;
     background: var(--lab-tone-rose);
-  }
-  .lab-cover[data-tone='violet'],
-  .lab-show[data-tone='violet'] {
-    background: var(--lab-tone-violet);
   }
   .lab-show .lab-ht {
     -webkit-mask-image: linear-gradient(#000, transparent 70%);
@@ -948,83 +1003,115 @@ const n = LAB.length;
     dlg.addEventListener('close', () => opener?.focus());
   });
 
-  /* ---------- The dots ---------- */
+  /* ---------- Clouds made of dots ----------
+     Three banks of cumulus are painted once (white on black) on small offscreen canvases.
+     Each frame they drift and shift with the pointer (parallax), and are sampled on a grid:
+     a brighter sample is a bigger dot. Dots swell and glow under the pointer, and stay dim
+     behind the heading so its text keeps its contrast. */
   const canvas = stage?.querySelector<HTMLCanvasElement>('.lab-canvas');
   const ctx = canvas?.getContext('2d');
   if (stage && canvas && ctx) {
-    const css = getComputedStyle(stage);
-    const rgb = (name: string) => css.getPropertyValue(name).trim().split(/\s+/).map(Number);
-    const HUMAN = rgb('--lab-dot-human');
-    const MACHINE = rgb('--lab-dot-machine');
-    const DEEP = rgb('--lab-dot-deep');
-    const LIGHT = rgb('--lab-dot-light');
+    type Bank = { c: HTMLCanvasElement; depth: number; speed: number };
+    const rgb = (name: string) =>
+      getComputedStyle(stage).getPropertyValue(name).trim().split(/\s+/).map(Number) as [number, number, number];
+    let DEEP = rgb('--lab-dot-deep'), LIGHT = rgb('--lab-dot-light'), GLOW = rgb('--lab-dot-glow');
 
+    const SCALE = 3; // the cloud banks are painted at a third of the stage's size
     let w = 0, h = 0, raf = 0, last = 0, visible = false;
-    let cx = 0, cy = 0, card = 300;
-    let quiet: DOMRect[] = [];
-    const ptr = { x: -9999, y: -9999, tx: -9999, ty: -9999 };
+    let banks: Bank[] = [];
+    let W = 0;
+    const off = document.createElement('canvas');
+    const og = off.getContext('2d', { willReadFrequently: true });
+    let quiet: { cx: number; cy: number; rx: number; ry: number }[] = [];
+    const ptr = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, px: -9999, py: -9999, on: false };
 
-    const measure = () => {
+    const rnd = (seed: number) => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    function bank(bw: number, bh: number, seed: number, count: number, y0: number, y1: number, size: number, a: number) {
+      const c = document.createElement('canvas');
+      c.width = bw; c.height = bh;
+      const g = c.getContext('2d');
+      if (!g) return c;
+      const r = rnd(seed);
+      for (let k = 0; k < count; k++) {
+        const cx = r() * bw, base = bh * (y0 + r() * (y1 - y0)), sw = bw * size * (0.7 + r() * 0.6), R = sw * 0.16;
+        const n = 10 + Math.floor(r() * 8);
+        const puffs: [number, number, number][] = [];
+        for (let i = 0; i < n; i++) {
+          const u = i / (n - 1) - 0.5, hump = Math.cos(u * Math.PI);
+          puffs.push([cx + u * sw + (r() - 0.5) * R * 0.6, base - hump * R * (0.6 + r() * 0.7), R * (0.55 + hump * 0.55 + r() * 0.25)]);
+        }
+        for (const [x, y, rad] of puffs) {
+          const gr = g.createRadialGradient(x - rad * 0.2, y - rad * 0.25, 0, x, y, rad);
+          gr.addColorStop(0, `rgba(255,255,255,${a})`);
+          gr.addColorStop(0.55, `rgba(255,255,255,${a * 0.75})`);
+          gr.addColorStop(1, 'rgba(255,255,255,0)');
+          g.fillStyle = gr;
+          g.beginPath(); g.arc(x, y, rad, 0, 6.2832); g.fill();
+        }
+      }
+      return c;
+    }
+
+    function measure() {
       const d = Math.min(window.devicePixelRatio || 1, 2);
-      const r = stage.getBoundingClientRect();
+      const r = stage!.getBoundingClientRect();
       w = r.width; h = r.height;
-      canvas.width = Math.round(w * d); canvas.height = Math.round(h * d);
-      ctx.setTransform(d, 0, 0, d, 0, 0);
-      const t = track?.getBoundingClientRect();
-      cx = w / 2;
-      cy = t ? t.top - r.top + t.height * 0.42 : h * 0.6;
-      card = slides[0]?.offsetWidth || 300;
-      // Text the dots must stay dim behind, in canvas coordinates.
-      quiet = [...stage.querySelectorAll<HTMLElement>('[data-lab-head] > *')].map((el) => {
+      canvas!.width = Math.round(w * d); canvas!.height = Math.round(h * d);
+      ctx!.setTransform(d, 0, 0, d, 0, 0);
+      off.width = Math.ceil(w / SCALE); off.height = Math.ceil(h / SCALE);
+      W = Math.ceil((w * 1.5) / SCALE);
+      const bh = off.height;
+      banks = [
+        { c: bank(W, bh, 13, 4, 0.18, 0.4, 0.2, 0.7), depth: 10, speed: 0.0013 },
+        { c: bank(W, bh, 16, 5, 0.55, 0.78, 0.26, 0.85), depth: 22, speed: 0.0024 },
+        { c: bank(W, bh, 20, 6, 0.95, 1.1, 0.34, 1), depth: 36, speed: 0.0037 },
+      ];
+      quiet = [...stage!.querySelectorAll<HTMLElement>('[data-lab-head] > *')].map((el) => {
         const b = el.getBoundingClientRect();
-        return new DOMRect(b.left - r.left - 18, b.top - r.top - 12, b.width + 36, b.height + 24);
+        return { cx: b.left - r.left + b.width / 2, cy: b.top - r.top + b.height / 2, rx: b.width / 2 + 60, ry: b.height / 2 + 30 };
       });
       draw(performance.now());
-    };
-    const inQuiet = (x: number, y: number) => quiet.some((q) => x > q.left && x < q.right && y > q.top && y < q.bottom);
+    }
 
     function draw(t: number) {
+      if (!og) return;
       const still = reduce.matches;
-      const tt = still ? 0 : t * 0.0006;
-      if (!still) { ptr.x += (ptr.tx - ptr.x) * 0.18; ptr.y += (ptr.ty - ptr.y) * 0.18; }
+      if (!still) { ptr.x += (ptr.tx - ptr.x) * 0.06; ptr.y += (ptr.ty - ptr.y) * 0.06; }
+      const ow = off.width, oh = off.height;
+      og.fillStyle = '#000';
+      og.fillRect(0, 0, ow, oh);
+      for (const b of banks) {
+        const drift = still ? 0 : (t * b.speed) % W;
+        const x = -drift - ((ptr.x - 0.5) * b.depth * 2) / SCALE - (W - ow) / 2;
+        const y = -((ptr.y - 0.5) * b.depth) / SCALE;
+        og.drawImage(b.c, x, y);
+        if (x + W < ow) og.drawImage(b.c, x + W, y);
+        if (x > 0) og.drawImage(b.c, x - W, y);
+      }
+      const data = og.getImageData(0, 0, ow, oh).data;
       ctx!.clearRect(0, 0, w, h);
       const sp = w < 600 ? 9 : 11;
-      const bloom = Math.max(card * 0.85, Math.min(w, h) * 0.3);
-      const reach = (w - card) / 2 - (w < 600 ? 0 : 30);
-      const thick = Math.max(26, h * 0.07);
       for (let y = sp / 2; y < h; y += sp) {
+        const row = Math.min(oh - 1, Math.floor(y / SCALE)) * ow;
         for (let x = sp / 2; x < w; x += sp) {
-          const dx = x - cx, dy = (y - cy) * 1.15;
-          const r2 = dx * dx + dy * dy;
-          const an = Math.atan2(dy, dx);
-          const petal = 0.6 + 0.4 * Math.cos(an * 5 + tt * 2);
-          const vb = Math.exp(-r2 / (2 * (bloom * petal) ** 2)) * (0.85 + 0.15 * Math.sin(tt * 3));
-          let vh = 0, vm = 0;
-          if (reach > 0 && x < reach) {
-            const k = x / reach;
-            vh = Math.exp(-((y - cy - Math.sin(k * 3 + tt) * 8) ** 2) / (2 * (thick * (1 - 0.55 * k)) ** 2)) * (0.35 + 0.65 * k);
+          let v = (data[(row + Math.min(ow - 1, Math.floor(x / SCALE))) * 4] ?? 0) / 255;
+          v = Math.pow(v, 1.4) * 1.3;
+          let vp = 0;
+          if (ptr.on && !still) {
+            const dx = x - ptr.px, dy = y - ptr.py;
+            vp = Math.exp(-(dx * dx + dy * dy) / (2 * 70 * 70));
           }
-          if (reach > 0 && x > w - reach) {
-            const k = (w - x) / reach;
-            vm = Math.exp(-((y - cy + Math.sin(k * 3 - tt) * 8) ** 2) / (2 * (thick * (1 - 0.55 * k)) ** 2)) * (0.35 + 0.65 * k);
+          v = Math.min(1, v + vp * 0.6);
+          for (const q of quiet) {
+            const e = ((x - q.cx) / q.rx) ** 2 + ((y - q.cy) / q.ry) ** 2;
+            if (e < 1) v *= 0.08 + 0.92 * e * e * e;
           }
-          const pd2 = (x - ptr.x) ** 2 + (y - ptr.y) ** 2;
-          const vp = still ? 0 : Math.exp(-pd2 / (2 * 75 * 75));
-          let v = Math.min(1, Math.max(vb * 0.9, vh, vm) + vp * 0.75 + 0.06);
-          const q = inQuiet(x, y);
-          if (q) v = Math.min(v, 0.2);
-          if (v < 0.08) continue;
-          let c: number[];
-          if (vh > vb && vh > vm) c = HUMAN;
-          else if (vm > vb && vm > vh) c = MACHINE;
-          else {
-            const m = Math.min(1, vb * 1.3 + vp * 0.6);
-            c = DEEP.map((d, j) => Math.round(d + ((LIGHT[j] ?? d) - d) * m));
-          }
-          const a = q ? 0.35 : 0.3 + 0.7 * v;
-          ctx!.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+          if (v < 0.06) continue;
+          const m = Math.min(1, v);
+          const c = DEEP.map((d, j) => Math.round(d + (LIGHT[j]! - d) * m * 0.7 + (GLOW[j]! - d) * vp * 0.5));
+          ctx!.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.3 + 0.7 * v})`;
           ctx!.beginPath();
-          ctx!.arc(x, y, v * sp * 0.46, 0, 6.2832);
+          ctx!.arc(x, y, v * sp * 0.48, 0, 6.2832);
           ctx!.fill();
         }
       }
@@ -1037,17 +1124,22 @@ const n = LAB.length;
     function loop() {
       if (visible && !reduce.matches && !raf) raf = requestAnimationFrame(frame);
     }
+    const recolor = () => {
+      DEEP = rgb('--lab-dot-deep'); LIGHT = rgb('--lab-dot-light'); GLOW = rgb('--lab-dot-glow');
+      draw(performance.now());
+    };
 
     stage.addEventListener('pointermove', (e) => {
       const r = stage.getBoundingClientRect();
-      ptr.tx = e.clientX - r.left; ptr.ty = e.clientY - r.top;
-      if (ptr.x < -999) { ptr.x = ptr.tx; ptr.y = ptr.ty; }
+      ptr.tx = (e.clientX - r.left) / r.width; ptr.ty = (e.clientY - r.top) / r.height;
+      ptr.px = e.clientX - r.left; ptr.py = e.clientY - r.top; ptr.on = true;
     });
-    stage.addEventListener('pointerleave', () => { ptr.tx = ptr.ty = -9999; ptr.x = ptr.y = -9999; });
+    stage.addEventListener('pointerleave', () => { ptr.tx = 0.5; ptr.ty = 0.5; ptr.on = false; });
     new IntersectionObserver(([e]) => { visible = !!e?.isIntersecting; loop(); }).observe(stage);
     new ResizeObserver(measure).observe(stage);
     reduce.addEventListener('change', () => { draw(performance.now()); loop(); });
-    window.addEventListener('lab:move', () => draw(performance.now()));
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor);
+    new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     measure();
   }
 </script>
