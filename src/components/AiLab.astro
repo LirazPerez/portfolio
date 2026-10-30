@@ -544,7 +544,9 @@ const n = LAB.length;
   }
 
   /* ---- Pop-up (site tokens; its stage takes the project's tone) ---- */
+  /* Tailwind's reset zeroes margins; a modal dialog centers itself with margin: auto. */
   .lab-dlg {
+    margin: auto;
     width: 100%;
     max-width: min(960px, calc(100vw - 32px));
     max-height: calc(100dvh - 32px);
