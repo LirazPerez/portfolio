@@ -141,7 +141,7 @@ const n = LAB.length;
               )}
             </div>
             <div class="lab-body">
-              <span class="lab-kicker">{LAB_EYEBROW}</span>
+              <span class="lab-kicker"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="12" cy="5" r="2" /><circle cx="12" cy="19" r="2" /></svg>{LAB_EYEBROW}</span>
               <h2 id={`lab-dlg-${item.id}-h`}>{item.name}</h2>
               <div class="lab-meta">
                 <span class={`lab-pill lab-status--${item.status}`}>
@@ -193,6 +193,7 @@ const n = LAB.length;
     --lab-chip: rgba(255, 255, 255, 0.6);
     --lab-chip-line: rgba(43, 31, 69, 0.18);
     --lab-hover: rgba(255, 255, 255, 0.95);
+    --lab-card-solid: #ffffff;
     --lab-focus: #6e4482;
     --lab-link: #5b3478;
     /* Dot colors, read by the canvas script as "r g b": cloud shade, cloud light, pointer glow. */
@@ -215,6 +216,7 @@ const n = LAB.length;
       --lab-chip: rgba(255, 255, 255, 0.07);
       --lab-chip-line: rgba(255, 255, 255, 0.22);
       --lab-hover: rgba(255, 255, 255, 0.14);
+      --lab-card-solid: #20192c;
       --lab-focus: #d7b8e4;
       --lab-link: #e2c6ee;
       --lab-dot-deep: 120 82 170;
@@ -232,6 +234,7 @@ const n = LAB.length;
     --lab-chip: rgba(255, 255, 255, 0.07);
     --lab-chip-line: rgba(255, 255, 255, 0.22);
     --lab-hover: rgba(255, 255, 255, 0.14);
+    --lab-card-solid: #20192c;
     --lab-focus: #d7b8e4;
     --lab-link: #e2c6ee;
     --lab-dot-deep: 120 82 170;
@@ -352,8 +355,7 @@ const n = LAB.length;
     place-items: center;
     background: var(--lab-tone-rose);
   }
-  .lab-cover[data-tone='violet'],
-  .lab-show[data-tone='violet'] {
+  .lab-cover[data-tone='violet'] {
     background: var(--lab-tone-violet);
   }
   .lab-ht {
@@ -602,9 +604,10 @@ const n = LAB.length;
     }
   }
 
-  /* ---- Pop-up (site tokens; its stage takes the project's tone) ---- */
-  /* Tailwind's reset zeroes margins; a modal dialog centers itself with margin: auto. */
+  /* ---- Pop-up: the same sky, dot clouds and glass as the stage, so it reads as a closer
+     look at the card, not a different page. ---- */
   .lab-dlg {
+    /* Tailwind's reset zeroes margins; a modal dialog centers itself with margin: auto. */
     margin: auto;
     width: 100%;
     max-width: min(960px, calc(100vw - 32px));
@@ -612,23 +615,44 @@ const n = LAB.length;
     padding: 0;
     border: 0;
     background: transparent;
-    color: var(--ink);
+    color: var(--lab-ink);
   }
   .lab-dlg::backdrop {
-    background: rgba(12, 9, 18, 0.62);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    background: rgba(58, 30, 88, 0.38);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
   .lab-sheet {
     position: relative;
+    isolation: isolate;
     display: grid;
     grid-template-columns: 1fr;
     max-height: calc(100dvh - 32px);
     overflow: auto;
-    border-radius: 24px;
-    border: 1px solid var(--line);
-    background: var(--bg);
-    box-shadow: var(--shadow-lift);
+    border-radius: 28px;
+    border: 1px solid var(--lab-card-line);
+    background: var(--lab-sky);
+    box-shadow: var(--lab-card-shadow), 0 40px 90px rgba(60, 20, 90, 0.25);
+  }
+  /* Clouds made of dots, still: dot texture masked into soft cloud shapes. */
+  .lab-sheet::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgb(var(--lab-dot-light) / 0.75) 1.7px, transparent 2.2px),
+      radial-gradient(rgb(var(--lab-dot-deep) / 0.55) 1.3px, transparent 1.8px);
+    background-size: 11px 11px, 11px 11px;
+    background-position: 0 0, 5.5px 5.5px;
+    -webkit-mask-image: radial-gradient(ellipse 34% 22% at 12% 96%, #000 35%, transparent 72%),
+      radial-gradient(ellipse 30% 18% at 38% 104%, #000 35%, transparent 72%),
+      radial-gradient(ellipse 26% 16% at 92% 6%, #000 30%, transparent 72%),
+      radial-gradient(ellipse 22% 14% at 70% 0%, #000 25%, transparent 72%);
+    mask-image: radial-gradient(ellipse 34% 22% at 12% 96%, #000 35%, transparent 72%),
+      radial-gradient(ellipse 30% 18% at 38% 104%, #000 35%, transparent 72%),
+      radial-gradient(ellipse 26% 16% at 92% 6%, #000 30%, transparent 72%),
+      radial-gradient(ellipse 22% 14% at 70% 0%, #000 25%, transparent 72%);
+    pointer-events: none;
   }
   @media (min-width: 760px) {
     .lab-sheet--phone {
@@ -640,35 +664,48 @@ const n = LAB.length;
   }
   .lab-close {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 14px;
+    right: 14px;
     z-index: 3;
     width: 44px;
     height: 44px;
     display: grid;
     place-items: center;
     border-radius: var(--radius-pill);
-    border: 1px solid var(--muted);
-    background: var(--raise);
-    color: var(--ink);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-card);
+    color: var(--lab-ink);
     cursor: pointer;
   }
   .lab-close:hover {
-    background: var(--surface);
+    background: var(--lab-hover);
   }
+  .lab-dlg :focus-visible {
+    outline-color: var(--lab-focus);
+  }
+
+  /* Left: the screens on a soft dot cloud, like the card covers. */
   .lab-show {
     position: relative;
     display: grid;
     align-content: center;
     justify-items: center;
     gap: 14px;
-    padding: 30px 20px 20px;
-    overflow: hidden;
-    background: var(--lab-tone-rose);
+    padding: 30px 20px 22px;
+  }
+  .lab-show::before {
+    content: '';
+    position: absolute;
+    inset: 8%;
+    z-index: -1;
+    border-radius: 50%;
+    background-image: radial-gradient(rgb(var(--lab-dot-deep) / 0.6) 1.6px, transparent 2.1px);
+    background-size: 10px 10px;
+    -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
   }
   .lab-show .lab-ht {
-    -webkit-mask-image: linear-gradient(#000, transparent 70%);
-    mask-image: linear-gradient(#000, transparent 70%);
+    display: none;
   }
   .lab-screens {
     position: relative;
@@ -686,10 +723,13 @@ const n = LAB.length;
   .lab-screen figcaption {
     max-width: 32ch;
     min-height: 2.9em;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: var(--lab-card);
     text-align: center;
     font-size: 14px;
     line-height: 1.45;
-    color: var(--lab-show-ink);
+    color: var(--lab-ink);
   }
   .lab-phone {
     position: relative;
@@ -699,7 +739,7 @@ const n = LAB.length;
     border-radius: 34px;
     border: 1px solid var(--bezel-edge);
     background: var(--bezel);
-    box-shadow: var(--shadow-lift);
+    box-shadow: var(--lab-card-shadow);
   }
   .lab-phone img {
     border-radius: 27px;
@@ -722,17 +762,23 @@ const n = LAB.length;
     min-height: 300px;
     display: grid;
     grid-template-rows: auto 1fr;
-    border-radius: var(--radius-frame);
+    border-radius: 18px;
     overflow: hidden;
-    border: 1px solid var(--line);
+    border: 1px solid var(--lab-card-line);
     background: var(--raise);
-    box-shadow: var(--shadow-lift);
+    box-shadow: var(--lab-card-shadow);
   }
   .lab-ctrls {
     position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 5px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--lab-card-line);
+    background: var(--lab-card);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
   .lab-ctrls button {
     width: 44px;
@@ -740,13 +786,13 @@ const n = LAB.length;
     display: grid;
     place-items: center;
     border-radius: var(--radius-pill);
-    border: 1px solid var(--muted);
-    background: var(--raise);
-    color: var(--ink);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
+    color: var(--lab-ink);
     cursor: pointer;
   }
   .lab-ctrls button:hover {
-    background: var(--accent-tint);
+    background: var(--lab-hover);
   }
   .lab-dots {
     display: flex;
@@ -756,31 +802,46 @@ const n = LAB.length;
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: color-mix(in srgb, var(--lab-show-ink) 30%, transparent);
+    background: color-mix(in srgb, var(--lab-ink) 28%, transparent);
   }
   .lab-dots i.on {
     width: 18px;
     border-radius: 4px;
-    background: var(--lab-show-ink);
+    background: var(--lab-ink);
   }
 
+  /* Right: the text, on a glass panel like the cards. */
   .lab-body {
     display: grid;
     align-content: start;
     gap: 16px;
     min-width: 0;
-    padding: clamp(22px, 4vw, 36px);
+    margin: 14px;
+    padding: clamp(20px, 3.5vw, 30px);
+    border-radius: 22px;
+    border: 1px solid var(--lab-card-line);
+    background: var(--lab-card);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
   }
   .lab-kicker {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 12px 4px 10px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
     font-size: 13px;
-    color: var(--muted);
+    font-weight: 600;
   }
   .lab-body h2 {
     margin: 0;
     padding-right: 44px;
     font-size: clamp(24px, 3vw, 30px);
-    font-weight: 700;
-    letter-spacing: -0.015em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
   .lab-meta {
     display: flex;
@@ -788,18 +849,12 @@ const n = LAB.length;
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: var(--muted);
+    color: var(--lab-muted);
   }
   .lab-pill {
-    border: 1px solid var(--line);
-    background: var(--raise);
-    color: var(--ink);
-  }
-  .lab-pill.lab-status--shipped i {
-    border-color: var(--accent);
-  }
-  .lab-pill.lab-status--active i {
-    color: var(--accent);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
+    color: var(--lab-ink);
   }
   .lab-lead {
     margin: 0;
@@ -811,7 +866,7 @@ const n = LAB.length;
     padding: 0;
     list-style: none;
     display: grid;
-    gap: 6px;
+    gap: 4px;
     counter-reset: n;
   }
   .lab-notes li {
@@ -824,13 +879,13 @@ const n = LAB.length;
     width: 100%;
     padding: 6px 8px 6px 4px;
     border: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     background: none;
     font: inherit;
     font-size: 15.5px;
     line-height: 1.5;
     text-align: left;
-    color: var(--ink);
+    color: var(--lab-ink);
   }
   .lab-notes li > *::before {
     content: counter(n);
@@ -839,8 +894,9 @@ const n = LAB.length;
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--accent-tint);
-    color: var(--accent-strong);
+    border: 1px solid var(--lab-chip-line);
+    background: var(--lab-chip);
+    color: var(--lab-ink);
     font-size: 13px;
     font-weight: 700;
   }
@@ -849,11 +905,12 @@ const n = LAB.length;
   }
   .lab-notes button:hover,
   .lab-notes button[aria-current='true'] {
-    background: var(--surface);
+    background: var(--lab-chip);
   }
   .lab-notes button[aria-current='true']::before {
-    background: var(--accent);
-    color: var(--on-accent);
+    border-color: var(--lab-ink);
+    background: var(--lab-ink);
+    color: var(--lab-card-solid);
   }
   .lab-cta {
     justify-self: start;
@@ -875,7 +932,7 @@ const n = LAB.length;
   .lab-small {
     margin: 0;
     font-size: 13.5px;
-    color: var(--muted);
+    color: var(--lab-muted);
   }
 </style>
 
